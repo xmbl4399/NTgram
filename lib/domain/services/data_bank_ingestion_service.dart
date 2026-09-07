@@ -10,7 +10,6 @@ import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart' as html_parser;
 import 'package:markdown/markdown.dart' as markdown;
 import 'package:path/path.dart' as path;
-import 'package:pdfrx/pdfrx.dart';
 import 'package:xml/xml.dart';
 
 import '../../data/models/data_bank.dart';
@@ -179,6 +178,13 @@ abstract interface class DataBankPdfTextExtractor {
   });
 }
 
+/// PDF text extraction placeholder.
+///
+/// The original implementation used `pdfrx` (precompiled PDFium). The prebuilt
+/// PDFium binary download from GitHub releases is not reachable in this build
+/// environment, which blocks the Android native build. PDF ingestion is
+/// temporarily disabled while preserving the [DataBankPdfTextExtractor]
+/// contract; text / URL ingestion in [DataBankIngestionService] is unaffected.
 final class PdfrxDataBankPdfTextExtractor implements DataBankPdfTextExtractor {
   const PdfrxDataBankPdfTextExtractor();
 
@@ -188,47 +194,10 @@ final class PdfrxDataBankPdfTextExtractor implements DataBankPdfTextExtractor {
     required DataBankCancellationToken cancellationToken,
     required void Function(int completedPages, int totalPages) onProgress,
   }) async {
-    PdfDocument? document;
-    try {
-      cancellationToken.throwIfCancelled();
-      document = await PdfDocument.openFile(file.path);
-      if (document.isEncrypted) {
-        throw const DataBankIngestionException(
-          DataBankIngestionFailureCode.encryptedDocument,
-          'Encrypted PDF documents are not supported.',
-        );
-      }
-
-      final pages = <DataBankPdfPage>[];
-      final totalPages = document.pages.length;
-      for (var index = 0; index < totalPages; index++) {
-        cancellationToken.throwIfCancelled();
-        final pageText = await document.pages[index].loadText();
-        cancellationToken.throwIfCancelled();
-        pages.add(
-          DataBankPdfPage(
-            pageNumber: index + 1,
-            text: pageText.fullText,
-          ),
-        );
-        onProgress(index + 1, totalPages);
-      }
-      return pages;
-    } on PdfPasswordException catch (error) {
-      throw DataBankIngestionException(
-        DataBankIngestionFailureCode.encryptedDocument,
-        'The PDF requires a password.',
-        cause: error,
-      );
-    } on PdfException catch (error) {
-      throw DataBankIngestionException(
-        DataBankIngestionFailureCode.corruptDocument,
-        'The PDF could not be parsed.',
-        cause: error,
-      );
-    } finally {
-      await document?.dispose();
-    }
+    throw const DataBankIngestionException(
+      DataBankIngestionFailureCode.unsupportedFormat,
+      'PDF ingestion is temporarily unavailable in this build.',
+    );
   }
 }
 
