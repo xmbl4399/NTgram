@@ -54,6 +54,7 @@ dependencies:
   
   # Code Generation (Runtime)
   freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
   
   # Utils
   uuid: ^4.2.1
@@ -85,6 +86,18 @@ dependencies:
   # Image Picker
   image_picker: ^1.0.7
   gal: ^2.3.1
+
+  # Cloud Backup (Google Drive)
+  google_sign_in: ^6.2.1
+  googleapis: ^13.2.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+
+  # TTS / Recording / Speech-to-Text
+  flutter_tts: ^4.2.5
+  just_audio: ^0.10.6
+  permission_handler: 12.0.1
+  record: ^6.2.1
+  speech_to_text: ^7.4.0
 
 dev_dependencies:
   flutter_test:
