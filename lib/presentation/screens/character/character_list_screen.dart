@@ -24,7 +24,7 @@ class CharacterListScreen extends ConsumerStatefulWidget {
 
 class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   String _searchQuery = '';
-  CharacterViewMode _viewMode = CharacterViewMode.compactGrid;
+  CharacterViewMode _viewMode = CharacterViewMode.list;
   Timer? _searchDebounce;
 
   @override
@@ -208,12 +208,23 @@ class _CharacterListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: characters.length,
-      itemBuilder: (context, index) {
-        return _CharacterListTile(character: characters[index]);
-      },
+    // Neko-style rounded card wrapping only the visible characters.
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(6, 0, 6, 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.darkCard,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            for (final character in characters)
+              _CharacterListTile(character: character),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -525,71 +536,109 @@ class _CharacterListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: _buildListAvatar(),
-        title: Text(character.name),
-        subtitle: Text(
-          character.description.isNotEmpty
-              ? character.description
-              : l10n.description,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: AdaptivePopupMenuButton<String>(
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'chat',
-              child: ListTile(
-                leading: const Icon(Icons.chat),
-                title: Text(l10n.startChat),
-                contentPadding: EdgeInsets.zero,
+    // Neko-style compact user row (UserCell): 46dp round avatar, bold name,
+    // grey description, no card surface.
+    return InkWell(
+      onTap: () => context.push('/characters/${character.id}'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 46,
+              height: 46,
+              child: _buildListAvatar(),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    character.name,
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    character.description.isNotEmpty
+                        ? character.description
+                        : l10n.description,
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-            PopupMenuItem(
-              value: 'edit',
-              child: ListTile(
-                leading: const Icon(Icons.edit),
-                title: Text(l10n.edit),
-                contentPadding: EdgeInsets.zero,
+            AdaptivePopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert,
+                size: 18,
+                color: AppTheme.textMuted,
               ),
-            ),
-            PopupMenuItem(
-              value: 'export',
-              child: ListTile(
-                leading: const Icon(Icons.file_upload),
-                title: Text(l10n.exportChat),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-            PopupMenuItem(
-              value: 'delete',
-              child: ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(l10n.delete,
-                    style: const TextStyle(color: Colors.red)),
-                contentPadding: EdgeInsets.zero,
-              ),
+              padding: EdgeInsets.zero,
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'chat',
+                  child: ListTile(
+                    leading: const Icon(Icons.chat),
+                    title: Text(l10n.startChat),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'edit',
+                  child: ListTile(
+                    leading: const Icon(Icons.edit),
+                    title: Text(l10n.edit),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'export',
+                  child: ListTile(
+                    leading: const Icon(Icons.file_upload),
+                    title: Text(l10n.exportChat),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: ListTile(
+                    leading: const Icon(Icons.delete, color: Colors.red),
+                    title: Text(l10n.delete,
+                        style: const TextStyle(color: Colors.red)),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+              onSelected: (value) {
+                switch (value) {
+                  case 'chat':
+                    _startChat(context, ref);
+                    break;
+                  case 'edit':
+                    context.push('/characters/${character.id}/edit');
+                    break;
+                  case 'export':
+                    break;
+                  case 'delete':
+                    _confirmDelete(context, ref);
+                    break;
+                }
+              },
             ),
           ],
-          onSelected: (value) {
-            switch (value) {
-              case 'chat':
-                _startChat(context, ref);
-                break;
-              case 'edit':
-                context.push('/characters/${character.id}/edit');
-                break;
-              case 'export':
-                break;
-              case 'delete':
-                _confirmDelete(context, ref);
-                break;
-            }
-          },
         ),
-        onTap: () => context.push('/characters/${character.id}'),
       ),
     );
   }

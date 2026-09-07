@@ -101,53 +101,66 @@ class AIConfigScreen extends ConsumerWidget {
 
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.presetsAndTemplates),
-          ListTile(
-            leading: const Icon(Icons.auto_awesome),
-            title: Text(AppLocalizations.of(context)!.aiPresets),
-            subtitle: Text(activePreset?.name ??
-                AppLocalizations.of(context)!.noPresetSelected),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.aiPresets),
-          ),
-          const _InstructTemplateTile(),
-          ListTile(
-            leading: const Icon(Icons.reorder),
-            title: Text(AppLocalizations.of(context)!.promptManager),
-            subtitle: Text(
-                AppLocalizations.of(context)!.orderAndTogglePromptSections),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.promptManager),
+          _GroupCard(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.auto_awesome),
+                title: Text(AppLocalizations.of(context)!.aiPresets),
+                subtitle: Text(activePreset?.name ??
+                    AppLocalizations.of(context)!.noPresetSelected),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.aiPresets),
+              ),
+              const _InstructTemplateTile(),
+              ListTile(
+                leading: const Icon(Icons.reorder),
+                title: Text(AppLocalizations.of(context)!.promptManager),
+                subtitle: Text(
+                    AppLocalizations.of(context)!.orderAndTogglePromptSections),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.promptManager),
+              ),
+            ],
           ),
 
-          const Divider(height: 32),
+          const Divider(height: 28),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.llmConnection),
-          const _ConnectionProfilesTile(),
-          const _LLMProviderTile(),
-          const _ApiKeyTile(),
-          const _ApiUrlTile(),
-          const _ModelTile(),
-          const _OpenRouterProviderTile(),
-          const _ConnectionTestTile(),
+          _GroupCard(
+            children: [
+              const _ConnectionProfilesTile(),
+              const _LLMProviderTile(),
+              const _ApiKeyTile(),
+              const _ApiUrlTile(),
+              const _ModelTile(),
+              const _OpenRouterProviderTile(),
+              const _ConnectionTestTile(),
+            ],
+          ),
 
-          const Divider(height: 32),
+          const Divider(height: 28),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.generationSettings),
-          const _ContextLengthTile(),
-          const _MaxTokensTile(),
-          const _TemperatureTile(),
-          const _TopPTile(),
-          const _ReasoningEffortTile(),
-          const _PromptCacheTile(),
-          const _MergeRolesTile(),
-          const _StreamingTile(),
-          ListTile(
-            leading: const Icon(Icons.tune),
-            title: Text(AppLocalizations.of(context)!.advancedSamplerSettings),
-            subtitle:
-                Text(AppLocalizations.of(context)!.fullControlOverSampling),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.advancedSettings),
+          _GroupCard(
+            children: [
+              const _ContextLengthTile(),
+              const _MaxTokensTile(),
+              const _TemperatureTile(),
+              const _TopPTile(),
+              const _ReasoningEffortTile(),
+              const _PromptCacheTile(),
+              const _MergeRolesTile(),
+              const _StreamingTile(),
+              ListTile(
+                leading: const Icon(Icons.tune),
+                title:
+                    Text(AppLocalizations.of(context)!.advancedSamplerSettings),
+                subtitle: Text(
+                    AppLocalizations.of(context)!.fullControlOverSampling),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.advancedSettings),
+              ),
+            ],
           ),
 
           const SizedBox(height: 32),
@@ -1595,6 +1608,34 @@ class _ModelSelectionSheetState extends State<_ModelSelectionSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Neko-style grouped settings card: rounded (#17212B) surface wrapping one
+/// group of rows, floating on the deep-grey page background.
+class _GroupCard extends StatelessWidget {
+  final List<Widget> children;
+
+  const _GroupCard({super.key, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const Divider(height: 1, color: AppTheme.darkDivider),
+            children[i],
+          ],
+        ],
       ),
     );
   }

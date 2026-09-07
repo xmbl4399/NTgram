@@ -1,38 +1,44 @@
 import 'package:flutter/material.dart';
 
-/// App theme configuration matching Nekogram's dark blue aesthetic.
+/// App theme configuration matching Nekogram's AMOLED dark aesthetic.
 ///
-/// NativeTavern originally used a SillyTavern-style purple palette. NTgram
-/// re-skins to Neko's deep-blue identity while keeping every programmatic
-/// reference (`AppTheme.primaryColor`, `darkBackground`, etc.) working.
+/// Values are transcribed from Neko's built-in `night.attheme`:
+///   actionBarDefault            #232326  (top bar grey)
+///   windowBackgroundWhite       #181819  (card / panel)
+///   chat_messagePanelSend       #229AF0  (accent blue)
+///   chat_messagePanelBackground #1E1E1F  (input bar)
+///   windowBackgroundGray        #000000  (scroll background)
+/// NativeTavern originally used a purple palette; NTgram re-skins to this
+/// Neko identity while keeping every programmatic reference working.
 class AppTheme {
-  // Neko (Telegram fork) accent / brand palette — replaces the purple.
-  static const Color primaryColor = Color(0xFF58A3DC); // Neko accent blue
+  // Neko accent / brand palette (chat_messagePanelSend #229AF0).
+  static const Color primaryColor = Color(0xFF229AF0);
   static const Color secondaryColor = Color(0xFF3498DB);
-  static const Color accentColor = Color(0xFF58A3DC); // accent follows Neko blue
+  static const Color accentColor = Color(0xFF229AF0);
 
-  // Neko deep-blue dark theme colors
-  static const Color darkBackground = Color(0xFF0E1621); // Neko bg
-  static const Color darkSurface = Color(0xFF17212B); // Neko panel
-  static const Color darkCard = Color(0xFF1F2837); // Neko card (panel +1)
-  static const Color darkDivider = Color(0xFF1E2A36);
+  // Neko dark theme colors: deep grey-blue page, top bar blends with the
+  // page background (no hard black / no separate bar), cards one step lighter.
+  static const Color darkBackground = Color(0xFF0E1621); // page bg (deep grey)
+  static const Color darkSurface = Color(0xFF0E1621); // appbar == bg (fused)
+  static const Color darkCard = Color(0xFF17212B); // card / panel surface
+  static const Color darkDivider = Color(0xFF232D3B);
 
   // Text colors
   static const Color textPrimary = Color(0xFFE4E4E7);
-  static const Color textSecondary = Color(0xFF7E8A98); // Neko secondary
-  static const Color textMuted = Color(0xFF5C6B7A);
+  static const Color textSecondary = Color(0xFF8A8A8E); // grey secondary
+  static const Color textMuted = Color(0xFF5E6B7A);
 
   // Chat bubble colors (Neko)
-  static const Color userBubble = Color(0xFF2B5278); // Neko out-bubble blue
-  static const Color assistantBubble = Color(0xFF17212B); // Neko in-bubble panel
+  static const Color userBubble = Color(0xFF1F4E79); // Neko out-bubble blue
+  static const Color assistantBubble = Color(0xFF17212B); // in-bubble card
   static const Color systemBubble = Color(0xFF4B5563);
 
-  // Neko GlassTab (floating bottom bar) palette — fallback to messagePanelSend.
-  static const Color glassTabSelected = Color(0xFF58A3DC); // accent blue
+  // Neko GlassTab (floating bottom bar) — fallback to messagePanelSend.
+  static const Color glassTabSelected = Color(0xFF229AF0); // accent blue
   static const Color glassTabSelectedText = Color(0xFFFFFFFF); // bold white
   static const Color glassTabUnselected = Color(0xFF8E94A2); // grey
-  static const Color glassTabBackground = Color(0xE6181D29); // translucent
-  static const Color glassTabBorder = Color(0xFF343B4C);
+  static const Color glassTabBackground = Color(0xE617212B); // translucent grey
+  static const Color glassTabBorder = Color(0xFF2E3A47);
   static const double glassTabSelectedAlpha = 0.09; // Neko 9% alpha capsule
 
   static ThemeData get darkTheme {
@@ -67,6 +73,8 @@ class AppTheme {
       listTileTheme: const ListTileThemeData(
         textColor: textPrimary,
         iconColor: textSecondary,
+        dense: true,
+        visualDensity: VisualDensity.compact,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
