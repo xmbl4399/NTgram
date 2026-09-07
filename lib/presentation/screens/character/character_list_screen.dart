@@ -439,7 +439,7 @@ class _CharacterCompactGridCard extends ConsumerWidget {
                     Text(
                       character.name,
                       style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),

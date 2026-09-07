@@ -46,8 +46,8 @@ class AIConfigScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryColor.withValues(alpha: 0.2),
-                    AppTheme.accentColor.withValues(alpha: 0.1),
+                    AppTheme.primaryColor.withValues(alpha: 0.28),
+                    AppTheme.userBubble.withValues(alpha: 0.18),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),

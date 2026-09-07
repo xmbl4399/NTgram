@@ -3262,7 +3262,6 @@ class _MessageBubbleState extends State<_MessageBubble> {
             isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isUser) ...[_buildAvatar(), const SizedBox(width: 8)],
           Flexible(
             child: Column(
               crossAxisAlignment:
@@ -3403,14 +3402,14 @@ class _MessageBubbleState extends State<_MessageBubble> {
       // Transparent mode: very light background with blur effect
       return BoxDecoration(
         color: isUser
-            ? AppTheme.accentColor.withValues(alpha: 0.35)
+            ? AppTheme.userBubble.withValues(alpha: 0.35)
             : Colors.black.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: widget.highlighted
               ? Theme.of(context).colorScheme.tertiary
               : isUser
-                  ? AppTheme.accentColor.withValues(alpha: 0.5)
+                  ? AppTheme.userBubble.withValues(alpha: 0.5)
                   : Colors.white.withValues(alpha: 0.3),
           width: widget.highlighted ? 3 : 1,
         ),
@@ -3428,12 +3427,12 @@ class _MessageBubbleState extends State<_MessageBubble> {
       return BoxDecoration(
         color: isUser
             ? (widget.hasBackground
-                ? AppTheme.accentColor.withValues(alpha: widget.bubbleOpacity)
-                : AppTheme.accentColor)
+                ? AppTheme.userBubble.withValues(alpha: widget.bubbleOpacity)
+                : AppTheme.userBubble)
             : (widget.hasBackground
                 ? AppTheme.darkCard.withValues(alpha: widget.bubbleOpacity)
                 : AppTheme.darkCard),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         border: widget.highlighted
             ? Border.all(
                 color: Theme.of(context).colorScheme.tertiary,
