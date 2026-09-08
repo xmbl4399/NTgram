@@ -1199,13 +1199,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  llmConfig.model.isEmpty ? l10n.selectModel : llmConfig.model,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: chatState.isGenerating
-                        ? AppTheme.textMuted
-                        : AppTheme.accentColor,
+                Flexible(
+                  child: Text(
+                    llmConfig.model.isEmpty
+                        ? l10n.selectModel
+                        : llmConfig.model,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: chatState.isGenerating
+                          ? AppTheme.textMuted
+                          : AppTheme.accentColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -2286,10 +2292,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _buildInputArea(ActiveChatState chatState) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        border: Border(top: BorderSide(color: AppTheme.darkDivider)),
+        // Neko message panel has no top seam: it sits flush on the page
+        // background like the floating input bar.
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
         child: Column(

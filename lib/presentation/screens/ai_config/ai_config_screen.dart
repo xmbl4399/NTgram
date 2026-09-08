@@ -102,6 +102,7 @@ class AIConfigScreen extends ConsumerWidget {
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.presetsAndTemplates),
           _GroupCard(
+            iconColor: const Color(0xFF8B5CF6), // violet
             children: [
               ListTile(
                 leading: const Icon(Icons.auto_awesome),
@@ -123,10 +124,11 @@ class AIConfigScreen extends ConsumerWidget {
             ],
           ),
 
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.llmConnection),
           _GroupCard(
+            iconColor: const Color(0xFF229AF0), // blue
             children: [
               const _ConnectionProfilesTile(),
               const _LLMProviderTile(),
@@ -138,10 +140,11 @@ class AIConfigScreen extends ConsumerWidget {
             ],
           ),
 
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.generationSettings),
           _GroupCard(
+            iconColor: const Color(0xFF10B981), // green
             children: [
               const _ContextLengthTile(),
               const _MaxTokensTile(),
@@ -155,8 +158,8 @@ class AIConfigScreen extends ConsumerWidget {
                 leading: const Icon(Icons.tune),
                 title:
                     Text(AppLocalizations.of(context)!.advancedSamplerSettings),
-                subtitle: Text(
-                    AppLocalizations.of(context)!.fullControlOverSampling),
+                subtitle:
+                    Text(AppLocalizations.of(context)!.fullControlOverSampling),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(AppRoutes.advancedSettings),
               ),
@@ -1618,8 +1621,9 @@ class _ModelSelectionSheetState extends State<_ModelSelectionSheet> {
 /// group of rows, floating on the grey (#222931) page background.
 class _GroupCard extends StatelessWidget {
   final List<Widget> children;
+  final Color? iconColor;
 
-  const _GroupCard({super.key, required this.children});
+  const _GroupCard({super.key, required this.children, this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -1629,13 +1633,16 @@ class _GroupCard extends StatelessWidget {
         color: AppTheme.darkCard,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) const Divider(height: 1, color: AppTheme.darkDivider),
-              children[i],
-            ],
-          ],
+        child: ListTileTheme(
+          data: ListTileThemeData(
+            // 60dp rows with NO grey dividers between rows inside a card.
+            minTileHeight: AppTheme.navPageRowHeight,
+            minVerticalPadding: 0,
+            iconColor: iconColor,
+          ),
+          child: Column(
+            children: children,
+          ),
         ),
       ),
     );

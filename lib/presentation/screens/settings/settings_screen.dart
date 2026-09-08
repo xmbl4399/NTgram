@@ -10,7 +10,6 @@ import 'package:native_tavern/core/flags/rpg_product_ui.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/privacy/ai_data_sharing_consent_gate.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) {
@@ -32,37 +31,9 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.language),
-                    label: Text(l10n.officialWebsite),
-                    onPressed: () => launchUrl(
-                      Uri.parse('https://nativetavern.com'),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.forum),
-                    label: const Text('Discord'),
-                    onPressed: () => launchUrl(
-                      Uri.parse('https://discord.com/invite/URQvW2FvZa'),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 16),
           _buildSectionHeader(context, l10n.user),
           _GroupCard(
+            iconColor: const Color(0xFF14B8A6), // teal
             children: [
               _PersonaTile(),
               ListTile(
@@ -74,9 +45,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(context, l10n.chats),
           _GroupCard(
+            iconColor: const Color(0xFF229AF0), // blue
             children: [
               ListTile(
                 leading: const Icon(Icons.quickreply),
@@ -100,9 +72,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(context, l10n.playHub),
           _GroupCard(
+            iconColor: const Color(0xFFF59E0B), // amber
             children: [
               const _MomentsEnabledTile(),
               const _StoryEnabledTile(),
@@ -117,9 +90,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(context, 'Multimedia'),
           _GroupCard(
+            iconColor: const Color(0xFFEC4899), // pink
             children: [
               ListTile(
                 leading: const Icon(Icons.record_voice_over),
@@ -132,14 +106,14 @@ class SettingsScreen extends ConsumerWidget {
                 title: Text(l10n.stt),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(AppRoutes.sttSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.translate),
-            title: Text(l10n.translation),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.translationSettings),
-          ),
-          ListTile(
+              ),
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: Text(l10n.translation),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.translationSettings),
+              ),
+              ListTile(
                 leading: const Icon(Icons.image),
                 title: Text(l10n.imageGeneration),
                 trailing: const Icon(Icons.chevron_right),
@@ -153,9 +127,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(context, l10n.advanced),
           _GroupCard(
+            iconColor: const Color(0xFF8B5CF6), // violet
             children: [
               ListTile(
                 key: const Key('capability-diagnostics-settings-tile'),
@@ -165,61 +140,61 @@ class SettingsScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(AppRoutes.capabilityDiagnostics),
               ),
-          ListTile(
-            key: const Key('mcp-settings-tile'),
-            leading: const Icon(Icons.extension_outlined),
-            title: Text(l10n.mcpServers),
-            subtitle: Text(l10n.mcpServersSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.mcpSettings),
-          ),
-          ListTile(
-            key: const Key('tool-calling-settings-tile'),
-            leading: const Icon(Icons.build_outlined),
-            title: Text(l10n.toolCalling),
-            subtitle: Text(l10n.toolCallingSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.toolCallingSettings),
-          ),
-          ListTile(
-            key: const Key('storage-management-settings-tile'),
-            leading: const Icon(Icons.storage_outlined),
-            title: Text(l10n.storageManagement),
-            subtitle: Text(l10n.storageManagementSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.storageManagement),
-          ),
-          ListTile(
-            leading: const Icon(Icons.find_replace),
-            title: Text(l10n.regex),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.regexSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.data_object),
-            title: Text(l10n.variables),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.variablesSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.tune),
-            title: Text(l10n.logitBias),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.logitBiasSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.linear_scale),
-            title: Text(l10n.cfgScale),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.cfgScaleSettings),
-          ),
-          ListTile(
-            leading: const Icon(Icons.token),
-            title: Text(l10n.tokenizer),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.tokenizerSettings),
-          ),
-          ListTile(
+              ListTile(
+                key: const Key('mcp-settings-tile'),
+                leading: const Icon(Icons.extension_outlined),
+                title: Text(l10n.mcpServers),
+                subtitle: Text(l10n.mcpServersSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.mcpSettings),
+              ),
+              ListTile(
+                key: const Key('tool-calling-settings-tile'),
+                leading: const Icon(Icons.build_outlined),
+                title: Text(l10n.toolCalling),
+                subtitle: Text(l10n.toolCallingSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.toolCallingSettings),
+              ),
+              ListTile(
+                key: const Key('storage-management-settings-tile'),
+                leading: const Icon(Icons.storage_outlined),
+                title: Text(l10n.storageManagement),
+                subtitle: Text(l10n.storageManagementSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.storageManagement),
+              ),
+              ListTile(
+                leading: const Icon(Icons.find_replace),
+                title: Text(l10n.regex),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.regexSettings),
+              ),
+              ListTile(
+                leading: const Icon(Icons.data_object),
+                title: Text(l10n.variables),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.variablesSettings),
+              ),
+              ListTile(
+                leading: const Icon(Icons.tune),
+                title: Text(l10n.logitBias),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.logitBiasSettings),
+              ),
+              ListTile(
+                leading: const Icon(Icons.linear_scale),
+                title: Text(l10n.cfgScale),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.cfgScaleSettings),
+              ),
+              ListTile(
+                leading: const Icon(Icons.token),
+                title: Text(l10n.tokenizer),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.tokenizerSettings),
+              ),
+              ListTile(
                 leading: const Icon(Icons.storage),
                 title: Text(l10n.vectorStorage),
                 trailing: const Icon(Icons.chevron_right),
@@ -227,22 +202,23 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(context, l10n.settings),
           _GroupCard(
+            iconColor: const Color(0xFF06B6D4), // cyan
             children: [
               const _LanguageTile(),
-          ListTile(
-            leading: const Icon(Icons.palette),
-            title: Text(l10n.theme),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.themeSettings),
-          ),
-          const _ConfirmDeleteTile(),
-          const _AutoSaveTile(),
-          const AiDataSharingSettingsTile(),
-          const _DebugLogTile(),
-          ListTile(
+              ListTile(
+                leading: const Icon(Icons.palette),
+                title: Text(l10n.theme),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.themeSettings),
+              ),
+              const _ConfirmDeleteTile(),
+              const _AutoSaveTile(),
+              const AiDataSharingSettingsTile(),
+              const _DebugLogTile(),
+              ListTile(
                 leading: const Icon(Icons.analytics),
                 title: Text(l10n.statistics),
                 trailing: const Icon(Icons.chevron_right),
@@ -250,9 +226,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const Divider(height: 28),
+          const SizedBox(height: 18),
           _buildSectionHeader(context, l10n.about),
           _GroupCard(
+            iconColor: const Color(0xFF64748B), // slate
             children: [
               ListTile(
                 leading: const Icon(Icons.info_outline),
@@ -264,20 +241,20 @@ class SettingsScreen extends ConsumerWidget {
                     error: (_, __) => l10n.error,
                   ),
                 ),
-            onLongPress: () {
-              final info = packageInfo.valueOrNull;
-              if (info == null) return;
-              final version = '${info.version}+${info.buildNumber}';
-              Clipboard.setData(ClipboardData(text: version));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${l10n.copiedToClipboard}: $version'),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            },
-          ),
-          ListTile(
+                onLongPress: () {
+                  final info = packageInfo.valueOrNull;
+                  if (info == null) return;
+                  final version = '${info.version}+${info.buildNumber}';
+                  Clipboard.setData(ClipboardData(text: version));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${l10n.copiedToClipboard}: $version'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.description),
                 title: Text(l10n.licenses),
                 onTap: () {
@@ -575,8 +552,9 @@ class _LanguageTile extends ConsumerWidget {
 /// group of rows, floating on the grey (#222931) page background.
 class _GroupCard extends StatelessWidget {
   final List<Widget> children;
+  final Color? iconColor;
 
-  const _GroupCard({super.key, required this.children});
+  const _GroupCard({super.key, required this.children, this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -586,14 +564,17 @@ class _GroupCard extends StatelessWidget {
         color: AppTheme.darkCard,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0)
-                const Divider(height: 1, color: AppTheme.darkDivider),
-              children[i],
-            ],
-          ],
+        child: ListTileTheme(
+          data: ListTileThemeData(
+            // Neko settings rows are 60dp tall with NO grey dividers between
+            // rows inside a card (icon + label sit directly on the card).
+            minTileHeight: AppTheme.navPageRowHeight,
+            minVerticalPadding: 0,
+            iconColor: iconColor,
+          ),
+          child: Column(
+            children: children,
+          ),
         ),
       ),
     );

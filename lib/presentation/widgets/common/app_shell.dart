@@ -11,21 +11,77 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 /// `MainTabsActivity`): everything outside the pill stays transparent so the
 /// underlying list scrolls through, and a 60dp fade gradient eases the list
 /// into the bottom edge.
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   final Widget child;
 
   const AppShell({super.key, required this.child});
 
   @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  bool _navVisible = true;
+  double _lastOffset = 0;
+
+  /// Auto-hide the floating nav pill while the content scrolls down, and
+  /// bring it back when scrolling up (near Neko's floating-toolbar gesture).
+  /// Prevents the pill from permanently covering bottom rows on long lists.
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      final offset = notification.metrics.pixels;
+      final max = notification.metrics.maxScrollExtent;
+      // Only toggle when actually scrolling (delta, not momentum).
+      final delta = offset - _lastOffset;
+      _lastOffset = offset;
+      final atTop = offset <= 4;
+      final atBottom = max > 0 && offset >= max - 4;
+
+      bool shouldShow = _navVisible;
+      if (delta < -2 || atTop) {
+        shouldShow = true;
+      } else if (delta > 2 && !atBottom && !atTop) {
+        shouldShow = false;
+      } else if (atBottom) {
+        // Near the end: show so the tab is reachable on the last rows.
+        shouldShow = true;
+      }
+      if (shouldShow != _navVisible) {
+        setState(() => _navVisible = shouldShow);
+      }
+    }
+    return false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          child,
-          const _BottomFade(),
-          const _GlassNavPill(),
-        ],
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _onScrollNotification,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            widget.child,
+            const _BottomFade(),
+            // Auto-hiding floating pill: Positioned stays a direct Stack
+            // child; the slide/fade animate the pill content itself.
+            Positioned(
+              left: _GlassNavPill._margin,
+              right: _GlassNavPill._margin,
+              bottom: _GlassNavPill._margin,
+              child: AnimatedSlide(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                offset: _navVisible ? Offset.zero : const Offset(0, 1.8),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 180),
+                  opacity: _navVisible ? 1 : 0,
+                  child: const _GlassNavPill(),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -76,68 +132,63 @@ class _GlassNavPill extends StatelessWidget {
     final selectedIndex = _calculateSelectedIndex(context);
     final l10n = AppLocalizations.of(context);
 
-    return Positioned(
-      left: _margin,
-      right: _margin,
-      bottom: _margin,
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: _maxWidth),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: AppTheme.glassTabBackground,
-            borderRadius: BorderRadius.circular(_radius),
-            border: Border.all(color: AppTheme.glassTabBorder),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.20),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: _maxWidth),
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppTheme.glassTabBackground,
+          borderRadius: BorderRadius.circular(_radius),
+          border: Border.all(color: AppTheme.glassTabBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.20),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_radius - 4),
+          child: Row(
+            children: [
+              _PillTab(
+                selected: selectedIndex == 0,
+                icon: Icons.chat_bubble_outline,
+                iconSel: Icons.chat_bubble,
+                label: l10n.chats,
+                onTap: () => _onItemTapped(context, 0),
+              ),
+              _PillTab(
+                selected: selectedIndex == 1,
+                icon: Icons.people_outline,
+                iconSel: Icons.people,
+                label: l10n.characters,
+                onTap: () => _onItemTapped(context, 1),
+              ),
+              _PillTab(
+                selected: selectedIndex == 2,
+                icon: Icons.explore_outlined,
+                iconSel: Icons.explore,
+                label: l10n.playHub,
+                onTap: () => _onItemTapped(context, 2),
+              ),
+              _PillTab(
+                selected: selectedIndex == 3,
+                icon: Icons.auto_awesome_outlined,
+                iconSel: Icons.auto_awesome,
+                label: l10n.aiConfig,
+                onTap: () => _onItemTapped(context, 3),
+              ),
+              _PillTab(
+                selected: selectedIndex == 4,
+                icon: Icons.settings_outlined,
+                iconSel: Icons.settings,
+                label: l10n.settings,
+                onTap: () => _onItemTapped(context, 4),
               ),
             ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(_radius - 4),
-            child: Row(
-              children: [
-                _PillTab(
-                  selected: selectedIndex == 0,
-                  icon: Icons.chat_bubble_outline,
-                  iconSel: Icons.chat_bubble,
-                  label: l10n.chats,
-                  onTap: () => _onItemTapped(context, 0),
-                ),
-                _PillTab(
-                  selected: selectedIndex == 1,
-                  icon: Icons.people_outline,
-                  iconSel: Icons.people,
-                  label: l10n.characters,
-                  onTap: () => _onItemTapped(context, 1),
-                ),
-                _PillTab(
-                  selected: selectedIndex == 2,
-                  icon: Icons.explore_outlined,
-                  iconSel: Icons.explore,
-                  label: l10n.playHub,
-                  onTap: () => _onItemTapped(context, 2),
-                ),
-                _PillTab(
-                  selected: selectedIndex == 3,
-                  icon: Icons.auto_awesome_outlined,
-                  iconSel: Icons.auto_awesome,
-                  label: l10n.aiConfig,
-                  onTap: () => _onItemTapped(context, 3),
-                ),
-                _PillTab(
-                  selected: selectedIndex == 4,
-                  icon: Icons.settings_outlined,
-                  iconSel: Icons.settings,
-                  label: l10n.settings,
-                  onTap: () => _onItemTapped(context, 4),
-                ),
-              ],
-            ),
           ),
         ),
       ),

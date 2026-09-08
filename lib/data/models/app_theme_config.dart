@@ -93,6 +93,14 @@ class AppThemeConfig {
           borderSide: BorderSide.none,
         ),
       ),
+      listTileTheme: const ListTileThemeData(
+        textColor: Color(0xFFE9EDF3),
+        iconColor: Color(0xFF8A8A8E),
+        dense: true,
+        visualDensity: VisualDensity.compact,
+        minVerticalPadding: 2,
+        minTileHeight: 50,
+      ),
       textTheme: TextTheme(
         bodyLarge: TextStyle(color: textPrimary),
         bodyMedium: TextStyle(color: textPrimary),
@@ -171,7 +179,8 @@ class AppThemeConfig {
   String toJsonString() => jsonEncode(toJson());
 
   factory AppThemeConfig.fromJsonString(String jsonString) {
-    return AppThemeConfig.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
+    return AppThemeConfig.fromJson(
+        jsonDecode(jsonString) as Map<String, dynamic>);
   }
 
   @override

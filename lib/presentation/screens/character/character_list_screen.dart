@@ -10,8 +10,10 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'character_view_mode.dart';
+
+/// Menu actions available on long-press of a character row.
+enum _CharacterMenuItem { chat, edit, export, delete }
 
 /// Character list screen
 class CharacterListScreen extends ConsumerStatefulWidget {
@@ -24,6 +26,7 @@ class CharacterListScreen extends ConsumerStatefulWidget {
 
 class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
   String _searchQuery = '';
+  bool _searchOpen = false;
   CharacterViewMode _viewMode = CharacterViewMode.list;
   Timer? _searchDebounce;
 
@@ -42,6 +45,14 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       appBar: AppBar(
         title: Text(l10n.characters),
         actions: [
+          // Search toggle: taps drop a top-floating search field.
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: l10n.searchCharacters,
+            onPressed: () => setState(() {
+              _searchOpen = !_searchOpen;
+            }),
+          ),
           IconButton(
             icon: _getViewModeIcon(),
             onPressed: () => setState(() => _viewMode = _viewMode.next),
@@ -66,16 +77,27 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
       ),
       body: Column(
         children: [
-          _SearchBar(
-            onChanged: (value) {
-              setState(() => _searchQuery = value);
-              _searchDebounce?.cancel();
-              _searchDebounce = Timer(const Duration(milliseconds: 250), () {
-                if (mounted) {
-                  ref.read(characterListProvider.notifier).setQuery(value);
-                }
-              });
-            },
+          // Top-floating search field, revealed by the search button.
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: _searchOpen
+                ? _SearchBar(
+                    onChanged: (value) {
+                      setState(() => _searchQuery = value);
+                      _searchDebounce?.cancel();
+                      _searchDebounce =
+                          Timer(const Duration(milliseconds: 250), () {
+                        if (mounted) {
+                          ref
+                              .read(characterListProvider.notifier)
+                              .setQuery(value);
+                        }
+                      });
+                    },
+                  )
+                : const SizedBox(width: double.infinity, height: 0),
           ),
           Expanded(
             child: NotificationListener<ScrollNotification>(
@@ -86,51 +108,51 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 return false;
               },
               child: charactersAsync.when(
-              data: (characters) {
-                final filtered = _searchQuery.isEmpty
-                    ? characters
-                    : characters
-                        .where((c) =>
-                            c.name
-                                .toLowerCase()
-                                .contains(_searchQuery.toLowerCase()) ||
-                            c.description
-                                .toLowerCase()
-                                .contains(_searchQuery.toLowerCase()))
-                        .toList();
+                data: (characters) {
+                  final filtered = _searchQuery.isEmpty
+                      ? characters
+                      : characters
+                          .where((c) =>
+                              c.name
+                                  .toLowerCase()
+                                  .contains(_searchQuery.toLowerCase()) ||
+                              c.description
+                                  .toLowerCase()
+                                  .contains(_searchQuery.toLowerCase()))
+                          .toList();
 
-                if (filtered.isEmpty) {
-                  return const _EmptyState();
-                }
+                  if (filtered.isEmpty) {
+                    return const _EmptyState();
+                  }
 
-                switch (_viewMode) {
-                  case CharacterViewMode.list:
-                    return _CharacterListView(characters: filtered);
-                  case CharacterViewMode.grid:
-                    return _CharacterGridView(characters: filtered);
-                  case CharacterViewMode.compactGrid:
-                    return _CharacterCompactGridView(characters: filtered);
-                }
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 48, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text('${l10n.error}: $error'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () =>
-                          ref.read(characterListProvider.notifier).refresh(),
-                      child: Text(l10n.retry),
-                    ),
-                  ],
+                  switch (_viewMode) {
+                    case CharacterViewMode.list:
+                      return _CharacterListView(characters: filtered);
+                    case CharacterViewMode.grid:
+                      return _CharacterGridView(characters: filtered);
+                    case CharacterViewMode.compactGrid:
+                      return _CharacterCompactGridView(characters: filtered);
+                  }
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline,
+                          size: 48, color: Colors.red),
+                      const SizedBox(height: 16),
+                      Text('${l10n.error}: $error'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () =>
+                            ref.read(characterListProvider.notifier).refresh(),
+                        child: Text(l10n.retry),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
             ),
           ),
         ],
@@ -201,31 +223,54 @@ class _CharacterGridView extends StatelessWidget {
   }
 }
 
-class _CharacterListView extends StatelessWidget {
+class _CharacterListView extends ConsumerStatefulWidget {
   final List<Character> characters;
 
   const _CharacterListView({required this.characters});
 
   @override
+  ConsumerState<_CharacterListView> createState() => _CharacterListViewState();
+}
+
+class _CharacterListViewState extends ConsumerState<_CharacterListView> {
+  /// Swiped-away character ids, so the Dismissible leaves the tree before the
+  /// async repo delete finishes.
+  final Set<String> _dismissedIds = {};
+
+  @override
   Widget build(BuildContext context) {
+    final visible =
+        widget.characters.where((c) => !_dismissedIds.contains(c.id));
     // Neko-style rounded card wrapping only the visible characters.
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(6, 0, 6, 12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.darkCard,
-          borderRadius: BorderRadius.circular(16),
-        ),
+      child: Material(
+        color: AppTheme.darkCard,
+        borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
-            for (final character in characters)
-              _CharacterListTile(character: character),
+            for (final character in visible)
+              _CharacterListTile(
+                character: character,
+                onDismissed: () => _dismissCharacter(character.id),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _dismissCharacter(String id) async {
+    setState(() => _dismissedIds.add(id));
+    final l10n = AppLocalizations.of(context);
+    await ref.read(characterListProvider.notifier).deleteCharacter(id);
+    if (mounted && _dismissedIds.contains(id)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.characterDeleted)),
+      );
+    }
   }
 }
 
@@ -529,116 +574,141 @@ class _CharacterCompactGridCard extends ConsumerWidget {
 
 class _CharacterListTile extends ConsumerWidget {
   final Character character;
+  final VoidCallback onDismissed;
 
-  const _CharacterListTile({required this.character});
+  const _CharacterListTile({
+    required this.character,
+    required this.onDismissed,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
 
-    // Neko-style compact user row (UserCell): 46dp round avatar, bold name,
-    // grey description, no card surface.
-    return InkWell(
-      onTap: () => context.push('/characters/${character.id}'),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 46,
-              height: 46,
-              child: _buildListAvatar(),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    character.name,
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    character.description.isNotEmpty
-                        ? character.description
-                        : l10n.description,
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            AdaptivePopupMenuButton<String>(
-              icon: const Icon(
-                Icons.more_vert,
-                size: 18,
-                color: AppTheme.textMuted,
-              ),
-              padding: EdgeInsets.zero,
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'chat',
-                  child: ListTile(
-                    leading: const Icon(Icons.chat),
-                    title: Text(l10n.startChat),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+    // Neko-style compact user row (UserCell/TextSettingsCell): 40dp avatar,
+    // bold name, grey description, dense single row at Neko settings height.
+    return Dismissible(
+      key: ValueKey('character-${character.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const Icon(Icons.delete_outline, color: Colors.white),
+      ),
+      onDismissed: (_) => onDismissed(),
+      child: InkWell(
+        onTap: () => context.push('/characters/${character.id}'),
+        // Long press opens the overflow menu (chat / edit / export / delete).
+        onLongPress: () => _showLongPressMenu(context, ref),
+        child: SizedBox(
+          height: AppTheme.settingsRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: _buildListAvatar(),
                 ),
-                PopupMenuItem(
-                  value: 'edit',
-                  child: ListTile(
-                    leading: const Icon(Icons.edit),
-                    title: Text(l10n.edit),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'export',
-                  child: ListTile(
-                    leading: const Icon(Icons.file_upload),
-                    title: Text(l10n.exportChat),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: ListTile(
-                    leading: const Icon(Icons.delete, color: Colors.red),
-                    title: Text(l10n.delete,
-                        style: const TextStyle(color: Colors.red)),
-                    contentPadding: EdgeInsets.zero,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        character.name,
+                        style: const TextStyle(
+                          color: AppTheme.textPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        character.description.isNotEmpty
+                            ? character.description
+                            : l10n.description,
+                        style: const TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               ],
-              onSelected: (value) {
-                switch (value) {
-                  case 'chat':
-                    _startChat(context, ref);
-                    break;
-                  case 'edit':
-                    context.push('/characters/${character.id}/edit');
-                    break;
-                  case 'export':
-                    break;
-                  case 'delete':
-                    _confirmDelete(context, ref);
-                    break;
-                }
-              },
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  /// Overflow menu shown on long-press of a character row.
+  void _showLongPressMenu(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    final rect =
+        box == null ? Rect.zero : box.localToGlobal(Offset.zero) & box.size;
+    final screen = MediaQuery.sizeOf(context);
+
+    showMenu<_CharacterMenuItem>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        rect.right,
+        rect.top,
+        screen.width - rect.left,
+        screen.height - rect.bottom,
+      ),
+      items: [
+        _popupItem(_CharacterMenuItem.chat, Icons.chat, l10n.startChat),
+        _popupItem(_CharacterMenuItem.edit, Icons.edit, l10n.edit),
+        _popupItem(
+            _CharacterMenuItem.export, Icons.file_upload, l10n.exportChat),
+        _popupItem(_CharacterMenuItem.delete, Icons.delete, l10n.delete,
+            isDestructive: true),
+      ],
+    ).then((value) {
+      if (value == null || !context.mounted) return;
+      switch (value) {
+        case _CharacterMenuItem.chat:
+          _startChat(context, ref);
+          break;
+        case _CharacterMenuItem.edit:
+          context.push('/characters/${character.id}/edit');
+          break;
+        case _CharacterMenuItem.export:
+          break;
+        case _CharacterMenuItem.delete:
+          _confirmDelete(context, ref);
+          break;
+      }
+    });
+  }
+
+  PopupMenuItem<_CharacterMenuItem> _popupItem(
+      _CharacterMenuItem value, IconData icon, String label,
+      {bool isDestructive = false}) {
+    return PopupMenuItem<_CharacterMenuItem>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: isDestructive ? Colors.red : null),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: isDestructive
+                ? const TextStyle(color: Colors.red)
+                : const TextStyle(color: AppTheme.textPrimary),
+          ),
+        ],
       ),
     );
   }

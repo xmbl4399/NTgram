@@ -22,9 +22,11 @@ class AppTheme {
   //   rounded card / grouped panel surface          #2A313D  one step lighter
   //   top bar fuses with the page background (no hard black / no bar seam)
   //   accent  #229AF0 (chat_messagePanelSend) unchanged.
-  static const Color darkBackground = Color(0xFF222931); // page bg (grey, not black)
+  static const Color darkBackground =
+      Color(0xFF222931); // page bg (grey, not black)
   static const Color darkSurface = Color(0xFF222931); // appbar == bg (fused)
-  static const Color darkCard = Color(0xFF2A313D); // card / grouped panel surface
+  static const Color darkCard =
+      Color(0xFF2A313D); // card / grouped panel surface
   static const Color darkDivider = Color(0xFF37404D); // subtle row separator
 
   // Text colors
@@ -44,6 +46,15 @@ class AppTheme {
   static const Color glassTabBackground = Color(0xE62A313D); // translucent grey
   static const Color glassTabBorder = Color(0xFF2E3A47);
   static const double glassTabSelectedAlpha = 0.09; // Neko 9% alpha capsule
+
+  // Neko list row heights (transcribed from Nekogram sources):
+  //   DialogCell.heightDefault = 70dp  (chat / conversation rows)
+  //   TextSettingsCell.subtitle  = 50dp (single-line settings rows)
+  static const double chatRowHeight = 70; // Neko DialogCell two-line default
+  static const double settingsRowHeight = 50; // Neko TextSettingsCell
+  // The 玩法 / AI配置 / 设置 nav pages use a roomier 60dp row with no
+  // in-card dividers.
+  static const double navPageRowHeight = 60;
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -118,7 +129,8 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: darkSurface,
-        indicatorColor: glassTabSelected.withValues(alpha: glassTabSelectedAlpha),
+        indicatorColor:
+            glassTabSelected.withValues(alpha: glassTabSelectedAlpha),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(

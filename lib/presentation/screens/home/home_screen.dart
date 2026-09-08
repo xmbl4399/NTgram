@@ -13,7 +13,6 @@ import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
-import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -84,11 +83,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 }
 
-class _ChatListView extends ConsumerWidget {
+class _ChatListView extends ConsumerStatefulWidget {
   const _ChatListView();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ChatListView> createState() => _ChatListViewState();
+}
+
+class _ChatListViewState extends ConsumerState<_ChatListView> {
+  /// Chat ids that have been swiped away this frame. Keeping them here lets
+  /// the Dismissible leave the tree synchronously before the async repo
+  /// delete finishes.
+  final Set<String> _dismissedIds = {};
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final chatsAsync = ref.watch(pagedChatsProvider);
 
@@ -110,7 +119,8 @@ class _ChatListView extends ConsumerWidget {
         ),
       ),
       data: (chats) {
-        if (chats.isEmpty) {
+        final visible = chats.where((c) => !_dismissedIds.contains(c.id));
+        if (visible.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +178,11 @@ class _ChatListView extends ConsumerWidget {
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
-                    for (final chat in chats) _ChatListTile(chat: chat),
+                    for (final chat in visible)
+                      _ChatListTile(
+                        chat: chat,
+                        onDismissed: () => _dismissChat(chat.id),
+                      ),
                   ],
                 ),
               ),
@@ -178,12 +192,27 @@ class _ChatListView extends ConsumerWidget {
       },
     );
   }
+
+  Future<void> _dismissChat(String chatId) async {
+    // Remove from local tree this frame so the Dismissible doesn't assert.
+    setState(() => _dismissedIds.add(chatId));
+    final l10n = AppLocalizations.of(context);
+    await ref.read(chatRepositoryProvider).deleteChat(chatId);
+    ref.invalidate(allChatsProvider);
+    ref.invalidate(pagedChatsProvider);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.chatDeleted)),
+      );
+    }
+  }
 }
 
 class _ChatListTile extends ConsumerWidget {
   final Chat chat;
+  final VoidCallback onDismissed;
 
-  const _ChatListTile({required this.chat});
+  const _ChatListTile({required this.chat, required this.onDismissed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -197,139 +226,136 @@ class _ChatListTile extends ConsumerWidget {
 
     // Neko-style compact dialog row (mirrors Telegram DialogCell: 52dp round
     // avatar left, bold title, grey preview, time top-right, no card surface).
-    return InkWell(
-      onTap: () {
-        // Navigate to chat screen
-        context.push('/chat/${chat.id}');
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 52,
-              height: 52,
-              child: groupPresentationAsync != null
-                  ? groupPresentationAsync.when(
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      error: (_, __) => const GroupAvatar(characters: []),
-                      data: (presentation) => GroupAvatar(
-                        characters: presentation?.characters ?? const [],
-                      ),
-                    )
-                  : characterAsync.when(
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      error: (_, __) =>
-                          const CircleAvatar(child: Icon(Icons.person)),
-                      data: _buildCharacterAvatar,
-                    ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    return Dismissible(
+      key: ValueKey('chat-${chat.id}'),
+      direction: DismissDirection.endToStart,
+      background: _buildDeleteBackground(context, Alignment.centerRight),
+      onDismissed: (_) => onDismissed(),
+      child: InkWell(
+        onTap: () {
+          // Navigate to chat screen
+          context.push('/chat/${chat.id}');
+        },
+        // Neko DialogCell is exactly 70dp tall (2-line layout). Enforce a
+        // fixed row height so it always matches regardless of text metrics.
+        child: SizedBox(
+          height: AppTheme.chatRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 52,
+                  height: 52,
+                  child: groupPresentationAsync != null
+                      ? groupPresentationAsync.when(
+                          loading: () => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          error: (_, __) => const GroupAvatar(characters: []),
+                          data: (presentation) => GroupAvatar(
+                            characters: presentation?.characters ?? const [],
+                          ),
+                        )
+                      : characterAsync.when(
+                          loading: () => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          error: (_, __) =>
+                              const CircleAvatar(child: Icon(Icons.person)),
+                          data: _buildCharacterAvatar,
+                        ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: groupPresentationAsync != null
-                            ? groupPresentationAsync.when(
-                                loading: () => Text(
-                                  l10n.loading,
-                                  style: _titleStyle(context),
-                                ),
-                                error: (_, __) => Text(
-                                  chat.title,
-                                  style: _titleStyle(context),
-                                ),
-                                data: (presentation) => Text(
-                                  presentation?.group.name ?? chat.title,
-                                  style: _titleStyle(context),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            : characterAsync.when(
-                                loading: () =>
-                                    Text(l10n.loading, style: _titleStyle(context)),
-                                error: (_, __) => Text(
-                                  chat.title,
-                                  style: _titleStyle(context),
-                                ),
-                                data: (character) => Text(
-                                  character?.name ?? chat.title,
-                                  style: _titleStyle(context),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: groupPresentationAsync != null
+                                ? groupPresentationAsync.when(
+                                    loading: () => Text(
+                                      l10n.loading,
+                                      style: _titleStyle(context),
+                                    ),
+                                    error: (_, __) => Text(
+                                      chat.title,
+                                      style: _titleStyle(context),
+                                    ),
+                                    data: (presentation) => Text(
+                                      presentation?.group.name ?? chat.title,
+                                      style: _titleStyle(context),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  )
+                                : characterAsync.when(
+                                    loading: () => Text(l10n.loading,
+                                        style: _titleStyle(context)),
+                                    error: (_, __) => Text(
+                                      chat.title,
+                                      style: _titleStyle(context),
+                                    ),
+                                    data: (character) => Text(
+                                      character?.name ?? chat.title,
+                                      style: _titleStyle(context),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _formatTime(context, chat.updatedAt),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 12,
+                                    ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: lastMessageAsync.when(
+                              loading: () => const Text('...'),
+                              error: (_, __) => Text(
+                                l10n.noMessages,
+                                style: _previewStyle(context),
                               ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _formatTime(context, chat.updatedAt),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
-                              fontSize: 12,
-                            ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: lastMessageAsync.when(
-                          loading: () => const Text('...'),
-                          error: (_, __) => Text(
-                            l10n.noMessages,
-                            style: _previewStyle(context),
-                          ),
-                          data: (message) => Text(
-                            message?.content ?? l10n.noMessagesYet,
-                            style: _previewStyle(context),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      AdaptivePopupMenuButton<String>(
-                        icon: const Icon(
-                          Icons.more_vert,
-                          size: 18,
-                          color: AppTheme.textMuted,
-                        ),
-                        padding: EdgeInsets.zero,
-                        onSelected: (value) =>
-                            _handleMenuAction(context, ref, value),
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, color: Colors.red),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l10n.delete,
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ],
+                              data: (message) => Text(
+                                message?.content ?? l10n.noMessagesYet,
+                                style: _previewStyle(context),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// Red right-edge delete background shown while the row is swiped left.
+  Widget _buildDeleteBackground(BuildContext context, Alignment align) {
+    return Container(
+      color: Colors.red,
+      alignment: align,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: const Icon(Icons.delete_outline, color: Colors.white),
     );
   }
 
@@ -391,46 +417,6 @@ class _ChatListTile extends ConsumerWidget {
       // Show date
       return '${dateTime.month}/${dateTime.day}';
     }
-  }
-
-  void _handleMenuAction(BuildContext context, WidgetRef ref, String action) {
-    switch (action) {
-      case 'delete':
-        _showDeleteConfirmation(context, ref);
-        break;
-    }
-  }
-
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.deleteChat),
-        content: Text(l10n.deleteChatConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              await ref.read(chatRepositoryProvider).deleteChat(chat.id);
-              ref.invalidate(allChatsProvider);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.chatDeleted)),
-                );
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    );
   }
 }
 
