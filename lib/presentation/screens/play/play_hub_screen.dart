@@ -19,11 +19,9 @@ class PlayHubScreen extends ConsumerWidget {
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(6, 8, 6, 24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppTheme.darkCard,
-            borderRadius: BorderRadius.circular(16),
-          ),
+        child: Material(
+          color: AppTheme.darkCard,
+          borderRadius: BorderRadius.circular(16),
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [

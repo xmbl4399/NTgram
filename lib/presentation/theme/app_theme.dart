@@ -16,28 +16,32 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFF3498DB);
   static const Color accentColor = Color(0xFF229AF0);
 
-  // Neko dark theme colors: deep grey-blue page, top bar blends with the
-  // page background (no hard black / no separate bar), cards one step lighter.
-  static const Color darkBackground = Color(0xFF0E1621); // page bg (deep grey)
-  static const Color darkSurface = Color(0xFF0E1621); // appbar == bg (fused)
-  static const Color darkCard = Color(0xFF17212B); // card / panel surface
-  static const Color darkDivider = Color(0xFF232D3B);
+  // Neko dark theme colors, transcribed from the real Nekogram night UI
+  // (screenshot on device, verified pixel values):
+  //   page background (windowBackgroundGray area)  #222931  grey-blue
+  //   rounded card / grouped panel surface          #2A313D  one step lighter
+  //   top bar fuses with the page background (no hard black / no bar seam)
+  //   accent  #229AF0 (chat_messagePanelSend) unchanged.
+  static const Color darkBackground = Color(0xFF222931); // page bg (grey, not black)
+  static const Color darkSurface = Color(0xFF222931); // appbar == bg (fused)
+  static const Color darkCard = Color(0xFF2A313D); // card / grouped panel surface
+  static const Color darkDivider = Color(0xFF37404D); // subtle row separator
 
   // Text colors
-  static const Color textPrimary = Color(0xFFE4E4E7);
+  static const Color textPrimary = Color(0xFFE9EDF3); // title text (near-white)
   static const Color textSecondary = Color(0xFF8A8A8E); // grey secondary
   static const Color textMuted = Color(0xFF5E6B7A);
 
   // Chat bubble colors (Neko)
   static const Color userBubble = Color(0xFF1F4E79); // Neko out-bubble blue
-  static const Color assistantBubble = Color(0xFF17212B); // in-bubble card
+  static const Color assistantBubble = Color(0xFF2A313D); // in-bubble card
   static const Color systemBubble = Color(0xFF4B5563);
 
   // Neko GlassTab (floating bottom bar) — fallback to messagePanelSend.
   static const Color glassTabSelected = Color(0xFF229AF0); // accent blue
   static const Color glassTabSelectedText = Color(0xFFFFFFFF); // bold white
-  static const Color glassTabUnselected = Color(0xFF8E94A2); // grey
-  static const Color glassTabBackground = Color(0xE617212B); // translucent grey
+  static const Color glassTabUnselected = Color(0xFF8A8A8E); // grey
+  static const Color glassTabBackground = Color(0xE62A313D); // translucent grey
   static const Color glassTabBorder = Color(0xFF2E3A47);
   static const double glassTabSelectedAlpha = 0.09; // Neko 9% alpha capsule
 

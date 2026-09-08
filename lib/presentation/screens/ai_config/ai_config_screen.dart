@@ -171,12 +171,13 @@ class AIConfigScreen extends ConsumerWidget {
 
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: AppTheme.accentColor,
-              fontWeight: FontWeight.bold,
+              color: AppTheme.textSecondary,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
       ),
     );
@@ -1613,8 +1614,8 @@ class _ModelSelectionSheetState extends State<_ModelSelectionSheet> {
   }
 }
 
-/// Neko-style grouped settings card: rounded (#17212B) surface wrapping one
-/// group of rows, floating on the deep-grey page background.
+/// Neko-style grouped settings card: rounded (#2A313D) surface wrapping one
+/// group of rows, floating on the grey (#222931) page background.
 class _GroupCard extends StatelessWidget {
   final List<Widget> children;
 
@@ -1624,18 +1625,18 @@ class _GroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 6),
-      decoration: BoxDecoration(
+      child: Material(
         color: AppTheme.darkCard,
         borderRadius: BorderRadius.circular(16),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const Divider(height: 1, color: AppTheme.darkDivider),
-            children[i],
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) const Divider(height: 1, color: AppTheme.darkDivider),
+              children[i],
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

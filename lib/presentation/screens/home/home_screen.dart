@@ -162,11 +162,9 @@ class _ChatListView extends ConsumerWidget {
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(6, 4, 6, 12),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+              child: Material(
+                color: AppTheme.darkCard,
+                borderRadius: BorderRadius.circular(16),
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
