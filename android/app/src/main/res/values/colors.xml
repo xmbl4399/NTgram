@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nekogram-style splash: Neko dark background with the NTgram logo centered.
+     No text, no spinner — just the brand mark on a flat color, matching how
+     Telegram / Nekogram present themselves while the engine starts. -->
+<resources>
+    <color name="ntgram_launch_background">#0E1621</color>
+</resources>

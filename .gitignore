@@ -45,7 +45,6 @@ app.*.map.json
 /android/app/release
 ios
 ios_*
-android
 web
 macos
 !packages/native_tavern_live2d_macos/macos/

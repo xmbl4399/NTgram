@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fallback (API < 21; project minSdk is 21 so this rarely applies).
+     Neko dark fill only; the centered logo is drawn by the in-app
+     AppSplashGate so it is never cropped by OS splash rules. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/ntgram_launch_background" />
+</layer-list>

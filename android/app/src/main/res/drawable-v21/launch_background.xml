@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 5.0 -> 11 launch background: Neko dark fill only. The full app
+     logo is drawn centered by the in-app AppSplashGate (OS window here can
+     only show a flat color without cropping or scaling artifacts). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/ntgram_launch_background" />
+</layer-list>
