@@ -1,7 +1,7 @@
 name: native_tavern
-description: A native cross-platform SillyTavern client for iOS and Android
+description: A native cross-platform NTgram (Nekogram-style) client for iOS and Android
 publish_to: 'none'
-version: 0.1.16+40
+version: 0.1.12+28
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -117,6 +117,7 @@ flutter:
   generate: true
   
   assets:
+    - assets/splash_logo.png
     - assets/characters/
     - assets/characters/images/
     - assets/characters/json/
