@@ -10,7 +10,7 @@ import 'instruct_providers.dart';
 import '../../domain/services/llm_service.dart';
 
 const _customPresetsKey = 'ai_custom_presets';
-const _activePresetIdKey = 'ai_active_preset_id';
+const activeAIPresetIdKey = 'ai_active_preset_id';
 
 /// Provider for custom AI presets
 final aiCustomPresetsProvider =
@@ -96,15 +96,15 @@ class ActiveAIPresetIdNotifier extends StateNotifier<String?> {
   final SharedPreferences _prefs;
 
   ActiveAIPresetIdNotifier(this._prefs) : super(null) {
-    state = _prefs.getString(_activePresetIdKey);
+    state = _prefs.getString(activeAIPresetIdKey);
   }
 
   Future<void> setActivePreset(String? id) async {
     state = id;
     if (id != null) {
-      await _prefs.setString(_activePresetIdKey, id);
+      await _prefs.setString(activeAIPresetIdKey, id);
     } else {
-      await _prefs.remove(_activePresetIdKey);
+      await _prefs.remove(activeAIPresetIdKey);
     }
   }
 }
