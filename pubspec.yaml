@@ -131,3 +131,10 @@ flutter:
   #   - family: NotoSans
   #     fonts:
   #       - asset: assets/fonts/NotoSans-Regular.ttf
+
+# flutter_inappwebview_android 1.1.3 (pub.dev original) uses
+# getDefaultProguardFile('proguard-android.txt') which AGP 9 rejects on
+# release builds. third_party copy patches it to proguard-android-optimize.txt.
+dependency_overrides:
+  flutter_inappwebview_android:
+    path: third_party/flutter_inappwebview_android
