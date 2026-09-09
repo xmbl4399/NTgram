@@ -30,7 +30,11 @@ jobs:
 
       - name: Install Android NDK & CMake (flutter_live2d C++ modules)
         run: |
-          sdkmanager --install "cmake;3.10.2" "ndk;28.2.13676358" || true
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$ANDROID_HOME/cmdline-tools/bin/sdkmanager"
+          fi
+          "$SDKMANAGER" --install "cmake;3.10.2" "ndk;28.2.13676358"
 
       - name: Install dependencies
         run: flutter pub get
