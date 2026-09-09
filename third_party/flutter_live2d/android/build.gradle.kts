@@ -1,0 +1,105 @@
+group = "com.linh18nd.flutter_live2d"
+version = "1.0.2"
+
+buildscript {
+    val kotlinVersion = "2.2.20"
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.11.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+plugins {
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+android {
+    namespace = "com.linh18nd.flutter_live2d"
+
+    compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin")
+        }
+    }
+
+    defaultConfig {
+        minSdk = 24
+        // LOCAL HACK: upstream pins 27.2.12479018 which Google removed from the repo.
+        // Build with the locally installed 28.2.13676358 instead.
+        ndkVersion = "28.2.13676358"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags("-std=c++14")
+                arguments(
+                    "-DANDROID_STL=c++_shared",
+                    "-DANDROID_ARM_NEON=TRUE"
+                )
+                abiFilters("arm64-v8a", "x86_64")
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("CMakeLists.txt")
+            // LOCAL HACK: upstream pins 3.10.2 which is not installed;
+            // use the SDK's 3.22.1 (3.x is API-compatible for this project).
+            version = "3.22.1"
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            keepDebugSymbols += setOf("**/*.so")
+        }
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.useJUnitPlatform()
+
+                it.outputs.upToDateWhen { false }
+
+                it.testLogging {
+                    events("passed", "skipped", "failed", "standardOut", "standardError")
+                    showStandardStreams = true
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.mockito:mockito-core:5.0.0")
+}

@@ -135,6 +135,13 @@ flutter:
 # flutter_inappwebview_android 1.1.3 (pub.dev original) uses
 # getDefaultProguardFile('proguard-android.txt') which AGP 9 rejects on
 # release builds. third_party copy patches it to proguard-android-optimize.txt.
+#
+# flutter_live2d upstream (linh18nd git) pins cmake 3.10.2 + NDK 27.2 which
+# Google removed from the SDK repo; third_party copy pins cmake 3.22.1 +
+# NDK 28.2.13676358 (as built locally). Both are vendored so CI reproduces
+# the local working build.
 dependency_overrides:
   flutter_inappwebview_android:
     path: third_party/flutter_inappwebview_android
+  flutter_live2d:
+    path: third_party/flutter_live2d
