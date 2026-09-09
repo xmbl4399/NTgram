@@ -34,7 +34,7 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$ANDROID_HOME/cmdline-tools/bin/sdkmanager"
           fi
-          "$SDKMANAGER" --install "cmake;3.10.2" "ndk;28.2.13676358"
+          "$SDKMANAGER" --install "cmake;3.22.1" "ndk;28.2.13676358"
 
       - name: Install dependencies
         run: flutter pub get
