@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'NativeTavern';
+  String get appTitle => 'NTgram';
 
   @override
   String get home => '首页';
@@ -3810,7 +3810,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get impersonate => 'AI 代打';
 
   @override
-  String get impersonateHint => '让 AI 以你的口吻写一条回复';
+  String get impersonateHint => '让 AI 为你回复';
 
   @override
   String get startReplyWith => '回复引导';
@@ -6315,7 +6315,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw() : super('zh_TW');
 
   @override
-  String get appTitle => 'NativeTavern';
+  String get appTitle => 'NTgram';
 
   @override
   String get home => '首頁';
@@ -10116,7 +10116,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get impersonate => 'AI 代打';
 
   @override
-  String get impersonateHint => '讓 AI 以你的口吻寫一條回覆';
+  String get impersonateHint => '讓 AI 為你回覆';
 
   @override
   String get startReplyWith => '回覆引導';

@@ -37,6 +37,7 @@ class AIConfigScreen extends ConsumerWidget {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 96),
         children: [
           // Active Preset Banner
           if (activePreset != null)
@@ -124,7 +125,7 @@ class AIConfigScreen extends ConsumerWidget {
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.llmConnection),
           _GroupCard(
@@ -140,7 +141,7 @@ class AIConfigScreen extends ConsumerWidget {
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.generationSettings),
           _GroupCard(
@@ -174,7 +175,7 @@ class AIConfigScreen extends ConsumerWidget {
 
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -309,7 +310,7 @@ class _LLMProviderTile extends ConsumerWidget {
       SnackBar(
         content:
             Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -508,7 +509,7 @@ class _ApiKeyTileState extends ConsumerState<_ApiKeyTile> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.copiedToClipboard),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -574,7 +575,7 @@ class _ApiUrlTile extends ConsumerWidget {
       SnackBar(
         content:
             Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -1001,7 +1002,7 @@ class _ContextLengthTile extends ConsumerWidget {
       SnackBar(
         content:
             Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -1082,7 +1083,7 @@ class _MaxTokensTile extends ConsumerWidget {
       SnackBar(
         content:
             Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -1251,6 +1252,10 @@ class _ConnectionProfilesTile extends ConsumerWidget {
   }
 
   void _showProfilesSheet(BuildContext context, WidgetRef ref) {
+    // Hide the floating nav pill while this modal sheet is open and restore
+    // it when the sheet closes (raw showModalBottomSheet bypasses GoRouter,
+    // so the shell would otherwise stay visible behind the sheet).
+    bottomSheetNavSignal.value = true;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1329,7 +1334,7 @@ class _ConnectionProfilesTile extends ConsumerWidget {
           );
         },
       ),
-    );
+    ).whenComplete(() => bottomSheetNavSignal.value = false);
   }
 
   void _showSaveDialog(BuildContext context, WidgetRef ref, LLMConfig current) {

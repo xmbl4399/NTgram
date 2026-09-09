@@ -20,6 +20,11 @@ class VisualNovelMessageView extends ConsumerStatefulWidget {
   final void Function(ChatMessage message) onLongPress;
   final void Function(int swipeIndex, String messageId) onSwipe;
 
+  /// When true the message panel expands to fill the space below the top
+  /// "1/1" page bar (novel mode fills the page) instead of capping at ~40%
+  /// of the screen height.
+  final bool fillsAvailable;
+
   const VisualNovelMessageView({
     super.key,
     required this.messages,
@@ -28,6 +33,7 @@ class VisualNovelMessageView extends ConsumerStatefulWidget {
     this.isGenerating = false,
     required this.onLongPress,
     required this.onSwipe,
+    this.fillsAvailable = false,
   });
 
   @override
@@ -81,12 +87,17 @@ class _VisualNovelMessageViewState
     }
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      // When fillsAvailable the panel is hosted inside an Expanded, so the
+      // column has bounded height and the message area can fill the rest.
+      mainAxisSize: widget.fillsAvailable ? MainAxisSize.max : MainAxisSize.min,
       children: [
         // Navigation buttons & page indicator
         _buildNavigationBar(),
         // Message content area
-        _buildMessageArea(),
+        if (widget.fillsAvailable)
+          Expanded(child: _buildMessageArea())
+        else
+          _buildMessageArea(),
       ],
     );
   }
@@ -97,11 +108,19 @@ class _VisualNovelMessageViewState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Previous button
+          // Previous button — oval blue pill standing out from the scene.
           IconButton(
+            style: IconButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              disabledBackgroundColor: AppTheme.primaryColor,
+              shape: const StadiumBorder(),
+              minimumSize: const Size(64, 36),
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+            ),
             icon: Icon(
               Icons.chevron_left,
-              color: _currentIndex > 0 ? Colors.white : Colors.white38,
+              color: _currentIndex > 0 ? Colors.white : Colors.white70,
             ),
             onPressed: _currentIndex > 0
                 ? () {
@@ -116,7 +135,7 @@ class _VisualNovelMessageViewState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black38,
+              color: Colors.black54,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -128,13 +147,21 @@ class _VisualNovelMessageViewState
               ),
             ),
           ),
-          // Next button
+          // Next button — oval blue pill standing out from the scene.
           IconButton(
+            style: IconButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              disabledBackgroundColor: AppTheme.primaryColor,
+              shape: const StadiumBorder(),
+              minimumSize: const Size(64, 36),
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+            ),
             icon: Icon(
               Icons.chevron_right,
               color: _currentIndex < widget.messages.length - 1
                   ? Colors.white
-                  : Colors.white38,
+                  : Colors.white70,
             ),
             onPressed: _currentIndex < widget.messages.length - 1
                 ? () {
@@ -152,10 +179,12 @@ class _VisualNovelMessageViewState
 
   Widget _buildMessageArea() {
     final messagePanel = Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.4,
-        minHeight: 150,
-      ),
+      constraints: widget.fillsAvailable
+          ? const BoxConstraints(minHeight: 0)
+          : BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.4,
+              minHeight: 150,
+            ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,

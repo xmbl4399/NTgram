@@ -268,7 +268,10 @@ class _CharacterListViewState extends ConsumerState<_CharacterListView> {
     await ref.read(characterListProvider.notifier).deleteCharacter(id);
     if (mounted && _dismissedIds.contains(id)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.characterDeleted)),
+        SnackBar(
+          content: Text(l10n.characterDeleted),
+          duration: const Duration(seconds: 1),
+        ),
       );
     }
   }
@@ -602,7 +605,7 @@ class _CharacterListTile extends ConsumerWidget {
         // Long press opens the overflow menu (chat / edit / export / delete).
         onLongPress: () => _showLongPressMenu(context, ref),
         child: SizedBox(
-          height: AppTheme.settingsRowHeight,
+          height: AppTheme.navPageRowHeight,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
@@ -755,7 +758,10 @@ class _CharacterListTile extends ConsumerWidget {
                   .read(characterListProvider.notifier)
                   .deleteCharacter(character.id);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.characterDeleted)),
+                SnackBar(
+          content: Text(l10n.characterDeleted),
+          duration: const Duration(seconds: 1),
+        ),
               );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),

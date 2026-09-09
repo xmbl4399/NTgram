@@ -159,7 +159,10 @@ class _CharacterDetailContentState
             .deleteCharacter(character.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.characterDeleted)),
+            SnackBar(
+              content: Text(l10n.characterDeleted),
+              duration: const Duration(seconds: 1),
+            ),
           );
           context.pop();
         }
@@ -186,7 +189,7 @@ class _CharacterDetailContentState
       await repo.createCharacter(newCharacter);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.characterDuplicated(character.name))),
+          SnackBar(content: Text(l10n.characterDuplicated(character.name)),duration: const Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -503,7 +506,7 @@ class _SectionCardState extends State<_SectionCard> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${l10n.copiedToClipboard}: ${widget.title}'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -577,7 +580,7 @@ class _AlternateGreetingsCard extends StatelessWidget {
       SnackBar(
         content: Text(
             '${l10n.copiedToClipboard}: ${l10n.greetingNumber(index + 1)}'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -594,7 +597,7 @@ class _AlternateGreetingsCard extends StatelessWidget {
       SnackBar(
         content: Text(
             '${l10n.copiedToClipboard}: ${l10n.alternateGreetingsCount(greetings.length)}'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -700,7 +703,7 @@ class _CharacterBookCard extends StatelessWidget {
       SnackBar(
         content: Text(
             '${l10n.copiedToClipboard}: ${entry.name.isNotEmpty ? entry.name : entry.keys.join(", ")}'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -904,9 +907,10 @@ class _CharacterFriendsList extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Text(
                         l10n.momentsFriends,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: AppTheme.primaryColor,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: AppTheme.primaryColor,
+                                ),
                       ),
                     ],
                   ),

@@ -77,7 +77,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     await ref.read(groupListProvider.notifier).updateGroup(updatedGroup);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.groupSaved)),
+        SnackBar(content: Text(AppLocalizations.of(context)!.groupSaved),duration: const Duration(seconds: 1)),
       );
     }
   }

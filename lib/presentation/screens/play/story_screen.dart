@@ -773,7 +773,7 @@ Future<void> _showJotNoteSheet(
                     if (!sheetContext.mounted) return;
                     Navigator.pop(sheetContext);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.storyNoteSaved)),
+                      SnackBar(content: Text(l10n.storyNoteSaved),duration: const Duration(seconds: 1)),
                     );
                   } catch (error) {
                     if (sheetContext.mounted) {

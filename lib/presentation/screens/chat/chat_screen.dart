@@ -1242,21 +1242,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 rpgState.enabled ? l10n.rpgDisableMode : l10n.rpgEnableMode,
             onPressed: rpgState.isLoading ? null : _toggleRpgMode,
           ),
-        // Author's Note button
-        IconButton(
-          icon: Icon(
-            Icons.note_alt_outlined,
-            color: hasAuthorNote ? AppTheme.accentColor : null,
-          ),
-          tooltip: l10n.authorsNote,
-          onPressed: () => showAuthorNoteDialog(context, widget.chatId),
-        ),
-        // Bookmarks button
-        IconButton(
-          icon: const Icon(Icons.bookmark_border),
-          tooltip: l10n.bookmarks,
-          onPressed: () => _showBookmarksDialog(context),
-        ),
         // Live2D supplies a visual stage even when no image background is set.
         if (ref
                     .watch(effectiveBackgroundProvider(chatState.character?.id))
@@ -1270,8 +1255,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       'bubble'
                   ? Icons.auto_stories // Novel mode icon
                   : Icons.chat_bubble, // Bubble mode icon
+              size: 22,
             ),
             tooltip: l10n.switchLayout,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
             onPressed: () {
               final currentMode = ref.read(appSettingsProvider).chatLayoutMode;
               final newMode =
@@ -1285,180 +1277,108 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             chatState.messages.last.role == MessageRole.assistant &&
             !chatState.isGenerating)
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, size: 22),
             tooltip: l10n.regenerate,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
             onPressed: _regenerateMessage,
           ),
         AdaptivePopupMenuButton<String>(
+          iconSize: 22,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 32,
+          ),
           itemBuilder: (context) => [
-            PopupMenuItem(
+            _menuItem(
               value: chatState.isGroupChat ? 'group' : 'character',
-              child: ListTile(
-                leading: Icon(
-                  chatState.isGroupChat ? Icons.groups : Icons.person,
-                ),
-                title: Text(
-                  chatState.isGroupChat ? l10n.editGroup : l10n.viewCharacter,
-                ),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: chatState.isGroupChat ? Icons.groups : Icons.person,
+              label: chatState.isGroupChat ? l10n.editGroup : l10n.viewCharacter,
             ),
             if (chatState.character != null)
-              const PopupMenuItem(
-                value: 'live2d',
-                child: ListTile(
-                  leading: Icon(Icons.animation),
-                  title: Text('Live2D'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            PopupMenuItem(
+              _menuItem(value: 'live2d', icon: Icons.animation, label: 'Live2D'),
+            _menuItem(
               value: 'author_note',
-              child: ListTile(
-                leading: Icon(
-                  Icons.note_alt,
-                  color: hasAuthorNote ? AppTheme.accentColor : null,
-                ),
-                title: Text(l10n.authorsNote),
-                subtitle: Text(
-                  hasAuthorNote ? l10n.enabled : l10n.disabled,
-                  style: TextStyle(
-                    color: hasAuthorNote
-                        ? AppTheme.accentColor
-                        : AppTheme.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.note_alt,
+              label: l10n.authorsNote,
+              trailing: hasAuthorNote ? l10n.enabled : l10n.disabled,
+              trailingAccent: hasAuthorNote,
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'start_reply_with',
-              child: ListTile(
-                leading: Icon(
-                  Icons.format_quote,
-                  color: (ref
-                              .read(activeChatProvider)
-                              .chat
-                              ?.startReplyWith
-                              .isNotEmpty ??
-                          false)
-                      ? AppTheme.accentColor
-                      : null,
-                ),
-                title: Text(l10n.startReplyWith),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.format_quote,
+              label: l10n.startReplyWith,
+              trailingAccent: (ref
+                          .read(activeChatProvider)
+                          .chat
+                          ?.startReplyWith
+                          .isNotEmpty ??
+                      false),
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'impersonate',
-              child: ListTile(
-                leading: const Icon(Icons.theater_comedy),
-                title: Text(l10n.impersonate),
-                subtitle: Text(
-                  l10n.impersonateHint,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.theater_comedy,
+              label: l10n.impersonate,
             ),
-            PopupMenuItem(
+            _menuItem(
               key: const Key('moments-in-chat-menu'),
               value: 'moments_in_chat',
-              child: ListTile(
-                leading: Icon(
-                  Icons.dynamic_feed_outlined,
-                  color: chatState.chat?.momentsInChat == true
-                      ? AppTheme.accentColor
-                      : null,
-                ),
-                title: Text(l10n.momentsInChat),
-                subtitle: Text(
-                  chatState.chat?.momentsInChat == true
-                      ? l10n.enabled
-                      : l10n.disabled,
-                  style: TextStyle(
-                    color: chatState.chat?.momentsInChat == true
-                        ? AppTheme.accentColor
-                        : AppTheme.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.dynamic_feed_outlined,
+              label: l10n.momentsInChat,
+              trailing: chatState.chat?.momentsInChat == true
+                  ? l10n.enabled
+                  : l10n.disabled,
+              trailingAccent: chatState.chat?.momentsInChat == true,
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'chat_lorebooks',
-              child: ListTile(
-                leading: Icon(
-                  Icons.public,
-                  color: (ref
-                              .read(activeChatProvider)
-                              .chat
-                              ?.linkedWorldInfoIds
-                              .isNotEmpty ??
-                          false)
-                      ? AppTheme.accentColor
-                      : null,
-                ),
-                title: Text(l10n.chatLorebooks),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.public,
+              label: l10n.chatLorebooks,
+              trailingAccent: (ref
+                          .read(activeChatProvider)
+                          .chat
+                          ?.linkedWorldInfoIds
+                          .isNotEmpty ??
+                      false),
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'bookmarks',
-              child: ListTile(
-                leading: const Icon(
-                  Icons.bookmark,
-                  color: AppTheme.accentColor,
-                ),
-                title: Text(l10n.bookmarks),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.bookmark,
+              label: l10n.bookmarks,
+              iconColor: AppTheme.accentColor,
             ),
             if (hasStory)
-              PopupMenuItem(
+              _menuItem(
                 value: 'story',
-                child: ListTile(
-                  leading: const Icon(Icons.auto_stories_outlined),
-                  title: Text(l10n.story),
-                  contentPadding: EdgeInsets.zero,
-                ),
+                icon: Icons.auto_stories_outlined,
+                label: l10n.story,
               ),
-            PopupMenuItem(
+            _menuItem(
               key: const Key('memory-usage-menu'),
               value: 'memory_usage',
-              child: ListTile(
-                leading: const Icon(Icons.psychology_outlined),
-                title: Text(l10n.memoryUsed),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.psychology_outlined,
+              label: l10n.memoryUsed,
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'export',
-              child: ListTile(
-                leading: const Icon(Icons.upload),
-                title: Text(l10n.exportChat),
-                subtitle: Text(l10n.saveAsJsonl),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.upload,
+              label: l10n.exportChat,
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'import',
-              child: ListTile(
-                leading: const Icon(Icons.download),
-                title: Text(l10n.importChat),
-                subtitle: Text(l10n.chooseFile),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.download,
+              label: l10n.importChat,
             ),
-            PopupMenuItem(
+            _menuItem(
               value: 'clear',
-              child: ListTile(
-                leading: const Icon(Icons.delete_sweep, color: Colors.orange),
-                title: Text(l10n.clearMessages),
-                contentPadding: EdgeInsets.zero,
-              ),
+              icon: Icons.delete_sweep,
+              label: l10n.clearMessages,
+              iconColor: Colors.orange,
             ),
           ],
           onSelected: (value) async {
@@ -1689,22 +1609,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             Column(
               children: [
-                const Expanded(child: SizedBox.shrink()),
-                VisualNovelMessageView(
-                  messages: chatState.messages,
-                  character: chatState.character,
-                  characterForMessage: chatState.characterForMessage,
-                  isGenerating: chatState.isGenerating,
-                  onLongPress: (message) => _showMessageOptionsForVisualNovel(
-                    context,
-                    message,
-                    chatState,
+                // Novel mode fills the whole page (messages self-adapt to
+                // available height) with only the top "1/1" page bar kept in
+                // view above the message panel.
+                Expanded(
+                  child: VisualNovelMessageView(
+                    messages: chatState.messages,
+                    character: chatState.character,
+                    characterForMessage: chatState.characterForMessage,
+                    isGenerating: chatState.isGenerating,
+                    fillsAvailable: true,
+                    onLongPress: (message) => _showMessageOptionsForVisualNovel(
+                      context,
+                      message,
+                      chatState,
+                    ),
+                    onSwipe: (swipeIndex, messageId) {
+                      ref
+                          .read(activeChatProvider.notifier)
+                          .swipeMessage(messageId, swipeIndex);
+                    },
                   ),
-                  onSwipe: (swipeIndex, messageId) {
-                    ref
-                        .read(activeChatProvider.notifier)
-                        .swipeMessage(messageId, swipeIndex);
-                  },
                 ),
               ],
             ),
@@ -1808,6 +1733,53 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
         );
       },
+    );
+  }
+
+  /// Compact one-line row used inside the chat-screen overflow menu.
+  /// Replaces a 48dp ListTile with a tight 32dp row + 18dp icon + 13sp text.
+  PopupMenuItem<String> _menuItem({
+    Key? key,
+    required String value,
+    required IconData icon,
+    required String label,
+    String? trailing,
+    bool trailingAccent = false,
+    Color? iconColor,
+  }) {
+    return PopupMenuItem<String>(
+      key: key,
+      value: value,
+      padding: EdgeInsets.zero,
+      height: 36,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: iconColor),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 13),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (trailing != null) ...[
+              const SizedBox(width: 6),
+              Text(
+                trailing,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: trailingAccent
+                      ? AppTheme.accentColor
+                      : AppTheme.textMuted,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -2195,7 +2167,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.bookmarkCreated)));
+      ).showSnackBar(SnackBar(content: Text(l10n.bookmarkCreated),duration: const Duration(seconds: 1)));
     }
   }
 
@@ -2434,7 +2406,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row 1: Core tools
+          // Row 1: Core tools (left aligned, no Expanded)
           Row(
             children: [
               // Image attachment
@@ -2453,8 +2425,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 label: AppLocalizations.of(context).formatting,
                 onTap: () => _showFormattingMenu(),
               ),
-              const SizedBox(width: 8),
-              if (ref.watch(imageGenSettingsProvider).enabled)
+              if (ref.watch(imageGenSettingsProvider).enabled) ...[
+                const SizedBox(width: 8),
                 _InputMenuButton(
                   key: const Key('chat-input-imagine'),
                   icon: Icons.auto_awesome,
@@ -2464,35 +2436,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     _openImagineFromInput(chatState);
                   },
                 ),
-              if (ref.watch(imageGenSettingsProvider).enabled)
-                const SizedBox(width: 8),
-              // Context usage indicator
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.darkCard,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.analytics_outlined,
-                        size: 18,
-                        color: AppTheme.textMuted,
-                      ),
-                      const SizedBox(width: 8),
-                      const Expanded(child: ContextUsageIndicator()),
-                    ],
-                  ),
-                ),
-              ),
+              ],
             ],
           ),
-          // Row 2: Quick replies (if enabled)
+          // Row 2: Context usage indicator (full width, no overflow)
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: const ContextUsageIndicator(),
+          ),
+          // Row 3: Quick replies (if enabled)
           if (showQuickReplies) ...[
             const SizedBox(height: 12),
             _buildQuickRepliesInMenu(),
@@ -3656,12 +3609,13 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
             // Copy
             ListTile(
-              leading: const Icon(Icons.copy, color: AppTheme.textSecondary),
-              title: Text(l10n.copy),
+              dense: true,
+              leading: const Icon(Icons.copy, color: AppTheme.textSecondary, size: 20),
+              title: Text(l10n.copy, style: const TextStyle(fontSize: 14)),
               onTap: () {
                 Navigator.pop(context);
                 Clipboard.setData(ClipboardData(text: widget.message.content));
@@ -3676,8 +3630,9 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
             // Edit
             ListTile(
-              leading: const Icon(Icons.edit, color: AppTheme.textSecondary),
-              title: Text(l10n.edit),
+              dense: true,
+              leading: const Icon(Icons.edit, color: AppTheme.textSecondary, size: 20),
+              title: Text(l10n.edit, style: const TextStyle(fontSize: 14)),
               onTap: () {
                 Navigator.pop(context);
                 _editController.text = widget.message.content;
@@ -3688,12 +3643,13 @@ class _MessageBubbleState extends State<_MessageBubble> {
             // Regenerate (only for assistant messages)
             if (isAssistant && widget.onRegenerate != null)
               ListTile(
+                dense: true,
                 leading: const Icon(
                   Icons.refresh,
                   color: AppTheme.primaryColor,
+                  size: 20,
                 ),
-                title: Text(l10n.regenerate),
-                subtitle: Text(l10n.generateNewResponse),
+                title: Text(l10n.regenerate, style: const TextStyle(fontSize: 14)),
                 onTap: () {
                   Navigator.pop(context);
                   widget.onRegenerate!();
@@ -3702,56 +3658,42 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
             // Continue from here
             ListTile(
+              dense: true,
               leading: const Icon(
                 Icons.play_arrow,
                 color: AppTheme.accentColor,
+                size: 20,
               ),
-              title: Text(l10n.continueFromHere),
-              subtitle: Text(
-                widget.message.role == MessageRole.user
-                    ? l10n.deleteMessagesAfterAndRegenerate
-                    : l10n.deleteMessagesAfterThis,
-              ),
+              title: Text(l10n.continueFromHere, style: const TextStyle(fontSize: 14)),
               onTap: () {
                 Navigator.pop(context);
                 widget.onContinueFromHere();
               },
             ),
 
-            // Create bookmark
-            ListTile(
-              leading: const Icon(
-                Icons.bookmark_add,
-                color: AppTheme.accentColor,
-              ),
-              title: Text(l10n.createBookmark),
-              subtitle: Text(l10n.saveAsCheckpoint),
-              onTap: () {
-                Navigator.pop(context);
-                widget.onCreateBookmark();
-              },
-            ),
-
             // Generate image (if enabled)
             if (widget.onGenerateImage != null)
               ListTile(
+                dense: true,
                 leading: const Icon(
                   Icons.auto_awesome,
                   color: AppTheme.primaryColor,
+                  size: 20,
                 ),
-                title: Text(l10n.generateImagesUsingAi),
+                title: Text(l10n.generateImagesUsingAi, style: const TextStyle(fontSize: 14)),
                 onTap: () {
                   Navigator.pop(context);
                   widget.onGenerateImage!();
                 },
               ),
 
-            const Divider(),
+            const Divider(height: 8),
 
             // Delete this message
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.orange),
-              title: Text(l10n.deleteThisMessage),
+              dense: true,
+              leading: const Icon(Icons.delete_outline, color: Colors.orange, size: 20),
+              title: Text(l10n.deleteThisMessage, style: const TextStyle(fontSize: 14)),
               onTap: () {
                 Navigator.pop(context);
                 widget.onDelete();
@@ -3761,10 +3703,11 @@ class _MessageBubbleState extends State<_MessageBubble> {
             // Delete this and all after
             if (!widget.isLast)
               ListTile(
-                leading: const Icon(Icons.delete_sweep, color: Colors.red),
+                dense: true,
+                leading: const Icon(Icons.delete_sweep, color: Colors.red, size: 20),
                 title: Text(
                   l10n.deleteThisAndAllAfter,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red, fontSize: 14),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -3772,7 +3715,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 },
               ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
           ],
         ),
       ),

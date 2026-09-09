@@ -28,7 +28,7 @@ class STTSettingsScreen extends ConsumerWidget {
               ref.read(sttSettingsProvider.notifier).reset();
               ref.read(sttSessionProvider.notifier).clear();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsResetToDefaults)),
+                SnackBar(content: Text(l10n.settingsResetToDefaults),duration: const Duration(seconds: 1)),
               );
             },
           ),

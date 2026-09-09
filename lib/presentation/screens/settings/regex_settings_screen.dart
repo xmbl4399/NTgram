@@ -284,7 +284,8 @@ class RegexSettingsScreen extends ConsumerWidget {
         ref.read(globalRegexScriptsProvider.notifier).addPresets();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(AppLocalizations.of(context)!.presetScriptsAdded)),
+              content: Text(AppLocalizations.of(context)!.presetScriptsAdded),
+                    duration: const Duration(seconds: 1)),
         );
         break;
       case 'import':
@@ -441,7 +442,8 @@ class RegexSettingsScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content:
-                        Text(AppLocalizations.of(context)!.copiedToClipboard)),
+                        Text(AppLocalizations.of(context)!.copiedToClipboard),
+                          duration: const Duration(seconds: 1)),
               );
             },
             icon: const Icon(Icons.copy),

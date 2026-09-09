@@ -614,7 +614,7 @@ class _VariableTestWidgetState extends ConsumerState<_VariableTestWidget> {
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: _result!));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.copiedToClipboard)),
+                            SnackBar(content: Text(l10n.copiedToClipboard),duration: const Duration(seconds: 1)),
                           );
                         },
                         icon: const Icon(Icons.copy, size: 16),

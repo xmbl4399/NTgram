@@ -20,9 +20,56 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends State<AppShell> with RouteAware {
   bool _navVisible = true;
   double _lastOffset = 0;
+  /// When a route is pushed over the shell (e.g. a settings submenu,
+  /// character detail) the pill hides too. Raw modal bottom sheets do not
+  /// route through GoRouter, so screens opt in by toggling
+  /// [bottomSheetNavSignal] around the sheet call.
+  bool _overlayVisible = true;
+
+  bool get _pillVisible => _navVisible && _overlayVisible;
+
+  @override
+  void initState() {
+    super.initState();
+    bottomSheetNavSignal.addListener(_onSheetSignalChanged);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ModalRoute<dynamic>? route = ModalRoute.of(context);
+    if (route != null) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    bottomSheetNavSignal.removeListener(_onSheetSignalChanged);
+    super.dispose();
+  }
+
+  void _onSheetSignalChanged() {
+    final shouldHide = bottomSheetNavSignal.value;
+    if (shouldHide == !_overlayVisible) return;
+    setState(() => _overlayVisible = !shouldHide);
+  }
+
+  /// A route/modal was pushed above the shell page — cover the nav pill.
+  @override
+  void didPushNext() {
+    if (_overlayVisible) setState(() => _overlayVisible = false);
+  }
+
+  /// The covering route/modal was popped — bring the pill back.
+  @override
+  void didPopNext() {
+    if (!_overlayVisible) setState(() => _overlayVisible = true);
+  }
 
   /// Auto-hide the floating nav pill while the content scrolls down, and
   /// bring it back when scrolling up (near Neko's floating-toolbar gesture).
@@ -30,21 +77,19 @@ class _AppShellState extends State<AppShell> {
   bool _onScrollNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
       final offset = notification.metrics.pixels;
-      final max = notification.metrics.maxScrollExtent;
       // Only toggle when actually scrolling (delta, not momentum).
       final delta = offset - _lastOffset;
       _lastOffset = offset;
       final atTop = offset <= 4;
-      final atBottom = max > 0 && offset >= max - 4;
 
+      // Neko-like auto-hide: the pill stays hidden while scrolling down or
+      // resting at the bottom of a long list; it reappears only when the user
+      // scrolls up or returns to the top.
       bool shouldShow = _navVisible;
       if (delta < -2 || atTop) {
         shouldShow = true;
-      } else if (delta > 2 && !atBottom && !atTop) {
+      } else if (delta > 2) {
         shouldShow = false;
-      } else if (atBottom) {
-        // Near the end: show so the tab is reachable on the last rows.
-        shouldShow = true;
       }
       if (shouldShow != _navVisible) {
         setState(() => _navVisible = shouldShow);
@@ -72,10 +117,10 @@ class _AppShellState extends State<AppShell> {
               child: AnimatedSlide(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
-                offset: _navVisible ? Offset.zero : const Offset(0, 1.8),
+                offset: _pillVisible ? Offset.zero : const Offset(0, 1.8),
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 180),
-                  opacity: _navVisible ? 1 : 0,
+                  opacity: _pillVisible ? 1 : 0,
                   child: const _GlassNavPill(),
                 ),
               ),

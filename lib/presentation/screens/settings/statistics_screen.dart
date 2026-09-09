@@ -49,7 +49,7 @@ class StatisticsScreen extends ConsumerWidget {
               ref.read(appStatisticsProvider.notifier).reset();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.statisticsReset)),
+                SnackBar(content: Text(l10n.statisticsReset),duration: const Duration(seconds: 1)),
               );
             },
             child: Text(l10n.reset),

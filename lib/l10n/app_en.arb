@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "NativeTavern",
+  "appTitle": "NTgram",
   "@appTitle": {
     "description": "The application title"
   },
@@ -5373,7 +5373,7 @@
   "@impersonate": {
     "description": "UI label: Impersonate"
   },
-  "impersonateHint": "Let the AI write your next reply",
+  "impersonateHint": "Let AI reply for you",
   "@impersonateHint": {
     "description": "UI label: Let the AI write your next reply"
   },

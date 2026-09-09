@@ -3919,7 +3919,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get impersonate => 'Impersonate';
 
   @override
-  String get impersonateHint => 'Let the AI write your next reply';
+  String get impersonateHint => 'Let AI reply for you';
 
   @override
   String get startReplyWith => 'Start Reply With';

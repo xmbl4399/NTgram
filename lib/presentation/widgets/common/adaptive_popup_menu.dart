@@ -17,6 +17,7 @@ class AdaptivePopupMenuButton<T> extends StatelessWidget {
     this.tooltip,
     this.padding = const EdgeInsets.all(8),
     this.iconSize,
+    this.constraints,
     this.enabled = true,
     this.menuRadius = 14,
   });
@@ -27,6 +28,7 @@ class AdaptivePopupMenuButton<T> extends StatelessWidget {
   final String? tooltip;
   final EdgeInsetsGeometry padding;
   final double? iconSize;
+  final BoxConstraints? constraints;
   final bool enabled;
   final double menuRadius;
 
@@ -39,6 +41,7 @@ class AdaptivePopupMenuButton<T> extends StatelessWidget {
       tooltip: tooltip,
       padding: padding,
       iconSize: iconSize,
+      constraints: constraints,
       enabled: enabled,
       color: AppTheme.darkCard,
       elevation: 8,
@@ -46,7 +49,7 @@ class AdaptivePopupMenuButton<T> extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(menuRadius),
       ),
-      menuPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+      menuPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
       position: PopupMenuPosition.under,
     );
   }

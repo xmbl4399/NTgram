@@ -30,6 +30,7 @@ class SettingsScreen extends ConsumerWidget {
         title: Text(l10n.settings),
       ),
       body: ListView(
+        padding: const EdgeInsets.only(bottom: 96),
         children: [
           _buildSectionHeader(context, l10n.user),
           _GroupCard(
@@ -45,7 +46,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.chats),
           _GroupCard(
             iconColor: const Color(0xFF229AF0), // blue
@@ -72,7 +73,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.playHub),
           _GroupCard(
             iconColor: const Color(0xFFF59E0B), // amber
@@ -90,7 +91,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(context, 'Multimedia'),
           _GroupCard(
             iconColor: const Color(0xFFEC4899), // pink
@@ -127,7 +128,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.advanced),
           _GroupCard(
             iconColor: const Color(0xFF8B5CF6), // violet
@@ -202,7 +203,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.settings),
           _GroupCard(
             iconColor: const Color(0xFF06B6D4), // cyan
@@ -226,7 +227,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.about),
           _GroupCard(
             iconColor: const Color(0xFF64748B), // slate
@@ -249,7 +250,7 @@ class SettingsScreen extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('${l10n.copiedToClipboard}: $version'),
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 1),
                     ),
                   );
                 },
@@ -274,7 +275,7 @@ class SettingsScreen extends ConsumerWidget {
     // Neko renders section headers ("喵设置" / "帮助") as small muted-grey
     // labels floating on the page background, not as tinted-blue separators.
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -310,7 +311,7 @@ class _PersonaTile extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${l10n.copiedToClipboard}: $personaName'),
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 1),
           ),
         );
       },
@@ -452,7 +453,7 @@ class _LanguageTile extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${l10n.copiedToClipboard}: $currentLanguage'),
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 1),
           ),
         );
       },
@@ -510,6 +511,7 @@ class _LanguageTile extends ConsumerWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(l10n.languageChanged),
+                                  duration: const Duration(seconds: 1)
                         ),
                       );
                     },
@@ -533,6 +535,7 @@ class _LanguageTile extends ConsumerWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(l10n.languageChanged),
+                                    duration: const Duration(seconds: 1)
                           ),
                         );
                       },

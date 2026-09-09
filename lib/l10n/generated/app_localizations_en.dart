@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'NativeTavern';
+  String get appTitle => 'NTgram';
 
   @override
   String get home => 'Home';
@@ -3918,7 +3918,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get impersonate => 'Impersonate';
 
   @override
-  String get impersonateHint => 'Let the AI write your next reply';
+  String get impersonateHint => 'Let AI reply for you';
 
   @override
   String get startReplyWith => 'Start Reply With';

@@ -136,7 +136,7 @@ abstract class AppLocalizations {
   /// The application title
   ///
   /// In en, this message translates to:
-  /// **'NativeTavern'**
+  /// **'NTgram'**
   String get appTitle;
 
   /// Home navigation label
@@ -7168,7 +7168,7 @@ abstract class AppLocalizations {
   /// UI label: Let the AI write your next reply
   ///
   /// In en, this message translates to:
-  /// **'Let the AI write your next reply'**
+  /// **'Let AI reply for you'**
   String get impersonateHint;
 
   /// UI label: Start Reply With

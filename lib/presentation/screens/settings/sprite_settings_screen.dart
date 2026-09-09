@@ -27,7 +27,7 @@ class SpriteSettingsScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(spriteSettingsProvider.notifier).reset();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsResetToDefaults)),
+                SnackBar(content: Text(l10n.settingsResetToDefaults),duration: const Duration(seconds: 1)),
               );
             },
           ),

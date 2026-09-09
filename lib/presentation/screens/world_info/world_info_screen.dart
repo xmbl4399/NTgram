@@ -322,7 +322,7 @@ class WorldInfoScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n!.importedAndApplied(name))),
+          SnackBar(content: Text(l10n!.importedAndApplied(name)),duration: const Duration(seconds: 1)),
         );
       }
     } catch (e, st) {
@@ -979,7 +979,7 @@ class _WorldInfoEntryCard extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${l10n!.copiedToClipboard}: ${entry.keys.join(", ")}'),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }

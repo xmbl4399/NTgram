@@ -202,7 +202,10 @@ class _ChatListViewState extends ConsumerState<_ChatListView> {
     ref.invalidate(pagedChatsProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.chatDeleted)),
+        SnackBar(
+          content: Text(l10n.chatDeleted),
+          duration: const Duration(seconds: 1),
+        ),
       );
     }
   }
@@ -269,74 +272,81 @@ class _ChatListTile extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // Title occupies the upper half of the row, preview the
+                    // lower half (each half vertically centers its own line).
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: groupPresentationAsync != null
-                                ? groupPresentationAsync.when(
-                                    loading: () => Text(
-                                      l10n.loading,
-                                      style: _titleStyle(context),
-                                    ),
-                                    error: (_, __) => Text(
-                                      chat.title,
-                                      style: _titleStyle(context),
-                                    ),
-                                    data: (presentation) => Text(
-                                      presentation?.group.name ?? chat.title,
-                                      style: _titleStyle(context),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  )
-                                : characterAsync.when(
-                                    loading: () => Text(l10n.loading,
-                                        style: _titleStyle(context)),
-                                    error: (_, __) => Text(
-                                      chat.title,
-                                      style: _titleStyle(context),
-                                    ),
-                                    data: (character) => Text(
-                                      character?.name ?? chat.title,
-                                      style: _titleStyle(context),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _formatTime(context, chat.updatedAt),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: groupPresentationAsync != null
+                                    ? groupPresentationAsync.when(
+                                        loading: () => Text(
+                                          l10n.loading,
+                                          style: _titleStyle(context),
+                                        ),
+                                        error: (_, __) => Text(
+                                          chat.title,
+                                          style: _titleStyle(context),
+                                        ),
+                                        data: (presentation) => Text(
+                                          presentation?.group.name ??
+                                              chat.title,
+                                          style: _titleStyle(context),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )
+                                    : characterAsync.when(
+                                        loading: () => Text(l10n.loading,
+                                            style: _titleStyle(context)),
+                                        error: (_, __) => Text(
+                                          chat.title,
+                                          style: _titleStyle(context),
+                                        ),
+                                        data: (character) => Text(
+                                          character?.name ?? chat.title,
+                                          style: _titleStyle(context),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _formatTime(context, chat.updatedAt),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
                                       color: AppTheme.textMuted,
                                       fontSize: 12,
                                     ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: lastMessageAsync.when(
-                              loading: () => const Text('...'),
-                              error: (_, __) => Text(
-                                l10n.noMessages,
-                                style: _previewStyle(context),
-                              ),
-                              data: (message) => Text(
-                                message?.content ?? l10n.noMessagesYet,
-                                style: _previewStyle(context),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: lastMessageAsync.when(
+                            loading: () => const Text('...'),
+                            error: (_, __) => Text(
+                              l10n.noMessages,
+                              style: _previewStyle(context),
+                            ),
+                            data: (message) => Text(
+                              message?.content ?? l10n.noMessagesYet,
+                              style: _previewStyle(context),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),

@@ -131,7 +131,7 @@ class AIPresetsScreen extends ConsumerWidget {
       await ref.read(aiPresetManagerProvider).applyPreset(preset);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.appliedPreset(preset.name))),
+          SnackBar(content: Text(l10n.appliedPreset(preset.name)),duration: const Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -182,7 +182,7 @@ class AIPresetsScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.importedAndApplied(preset.name))),
+          SnackBar(content: Text(l10n.importedAndApplied(preset.name)),duration: const Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -316,7 +316,7 @@ class AIPresetsScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.savedPreset(preset.name))),
+          SnackBar(content: Text(l10n.savedPreset(preset.name)),duration: const Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -384,7 +384,7 @@ class AIPresetsScreen extends ConsumerWidget {
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deletedPreset(preset.name))),
+        SnackBar(content: Text(l10n.deletedPreset(preset.name)),duration: const Duration(seconds: 1)),
       );
     }
   }

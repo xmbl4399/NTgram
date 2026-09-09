@@ -513,7 +513,7 @@ class AdvancedSettingsScreen extends ConsumerWidget {
               ref.read(llmConfigProvider.notifier).resetToDefaults();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsResetToDefaults)),
+                SnackBar(content: Text(l10n.settingsResetToDefaults),duration: const Duration(seconds: 1)),
               );
             },
             child: Text(l10n.reset),

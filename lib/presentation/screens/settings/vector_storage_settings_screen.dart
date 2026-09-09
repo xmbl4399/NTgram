@@ -411,7 +411,7 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
           ref.read(vectorCollectionsProvider.notifier).exportCollection(id);
       Clipboard.setData(ClipboardData(text: json));
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.collectionExported)),
+        SnackBar(content: Text(l10n.collectionExported),duration: const Duration(seconds: 1)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -448,7 +448,7 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
                     .importCollection(controller.text);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.collectionImported)),
+                  SnackBar(content: Text(l10n.collectionImported),duration: const Duration(seconds: 1)),
                 );
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -708,7 +708,7 @@ class _CollectionDetails extends ConsumerWidget {
                     );
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.documentAdded)),
+                  SnackBar(content: Text(l10n.documentAdded),duration: const Duration(seconds: 1)),
                 );
               }
             },

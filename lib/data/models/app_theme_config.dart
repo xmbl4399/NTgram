@@ -97,9 +97,24 @@ class AppThemeConfig {
         textColor: Color(0xFFE9EDF3),
         iconColor: Color(0xFF8A8A8E),
         dense: true,
-        visualDensity: VisualDensity.compact,
-        minVerticalPadding: 2,
-        minTileHeight: 50,
+        visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+        minVerticalPadding: 0,
+        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        minTileHeight: 40,
+      ),
+      popupMenuTheme: const PopupMenuThemeData(
+        menuPadding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        textStyle: TextStyle(color: Color(0xFFE9EDF3), fontSize: 13),
+        color: Color(0xFF2A313D),
+        elevation: 8,
+      ),
+      sliderTheme: const SliderThemeData(
+        trackHeight: 2,
+        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
+        overlayShape: RoundSliderOverlayShape(overlayRadius: 13),
+      ),
+      switchTheme: const SwitchThemeData(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       textTheme: TextTheme(
         bodyLarge: TextStyle(color: textPrimary),

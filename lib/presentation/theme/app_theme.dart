@@ -89,7 +89,34 @@ class AppTheme {
         textColor: textPrimary,
         iconColor: textSecondary,
         dense: true,
-        visualDensity: VisualDensity.compact,
+        visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+        minVerticalPadding: 0,
+        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        minTileHeight: 40,
+      ),
+      popupMenuTheme: const PopupMenuThemeData(
+        menuPadding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        textStyle: TextStyle(color: textPrimary, fontSize: 13),
+        color: darkCard,
+        elevation: 8,
+      ),
+      sliderTheme: const SliderThemeData(
+        trackHeight: 2,
+        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
+        overlayShape: RoundSliderOverlayShape(overlayRadius: 13),
+        activeTrackColor: primaryColor,
+        inactiveTrackColor: darkDivider,
+        activeTickMarkColor: Colors.transparent,
+        inactiveTickMarkColor: Colors.transparent,
+      ),
+      switchTheme: SwitchThemeData(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? primaryColor
+              : darkDivider,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

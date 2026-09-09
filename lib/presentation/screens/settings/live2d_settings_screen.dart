@@ -276,7 +276,7 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
       final l10n = AppLocalizations.of(context);
       final suffix = result.cleanupPending ? l10n.live2dCleanupPending : '';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.live2dModelDeleted}$suffix')),
+        SnackBar(content: Text('${l10n.live2dModelDeleted}$suffix'),duration: const Duration(seconds: 1)),
       );
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());

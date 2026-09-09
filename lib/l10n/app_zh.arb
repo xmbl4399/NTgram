@@ -1,6 +1,6 @@
 {
   "@@locale": "zh",
-  "appTitle": "NativeTavern",
+  "appTitle": "NTgram",
   "home": "首页",
   "characters": "角色",
   "settings": "设置",
@@ -458,7 +458,7 @@
   "qualityAutoDescription": "自动 - 由模型决定",
   "qualityHighDescription": "高 - 更高细节与一致性",
   "impersonate": "AI 代打",
-  "impersonateHint": "让 AI 以你的口吻写一条回复",
+  "impersonateHint": "让 AI 为你回复",
   "startReplyWith": "回复引导",
   "startReplyWithHint": "AI 的回复将以这段文字开头",
   "chatLorebooks": "聊天世界书",

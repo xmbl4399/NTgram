@@ -104,12 +104,25 @@ abstract class AppRoutes {
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Shared navigator observer. Registered on the GoRouter so it observes both
+/// the root and shell navigators. Lets `AppShell` hide the floating nav when a
+/// pushed route/modal sheet covers the current page.
+final routeObserver = RouteObserver<ModalRoute<dynamic>>();
+
+/// Opt-in signal for screens that open a raw `showModalBottomSheet`
+/// (which bypasses GoRouter, so [routeObserver] never fires for it).
+/// A screen sets this to true before opening the sheet and back to false
+/// when the sheet closes, hiding / restoring the floating nav pill.
+/// Kept intentionally narrow — only opt-in call sites toggle it.
+final ValueNotifier<bool> bottomSheetNavSignal = ValueNotifier<bool>(false);
+
 /// App router provider
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
+    observers: [routeObserver],
     routes: [
       // Main shell with bottom navigation
       ShellRoute(

@@ -26,7 +26,8 @@ class ImageGenSettingsScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(
-                        AppLocalizations.of(context)!.settingsResetToDefaults)),
+                        AppLocalizations.of(context)!.settingsResetToDefaults),
+                          duration: const Duration(seconds: 1)),
               );
             },
           ),

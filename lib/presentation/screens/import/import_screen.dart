@@ -498,6 +498,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         SnackBar(
           content: Text(message),
           backgroundColor: errorCount > 0 ? Colors.orange : Colors.green,
+          duration: const Duration(seconds: 1),
         ),
       );
 

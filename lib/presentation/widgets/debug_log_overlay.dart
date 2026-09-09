@@ -233,7 +233,7 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                         final service = ref.read(debugLogServiceProvider);
                         Clipboard.setData(ClipboardData(text: service.exportLogs()));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.copiedToClipboard)),
+                          SnackBar(content: Text(l10n.copiedToClipboard),duration: const Duration(seconds: 1)),
                         );
                       },
                     ),
@@ -627,7 +627,7 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                     final service = ref.read(debugLogServiceProvider);
                     Clipboard.setData(ClipboardData(text: service.exportLogs()));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.copiedToClipboard)),
+                      SnackBar(content: Text(l10n.copiedToClipboard),duration: const Duration(seconds: 1)),
                     );
                   },
                 ),

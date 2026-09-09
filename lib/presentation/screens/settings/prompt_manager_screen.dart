@@ -693,6 +693,7 @@ class PromptManagerScreen extends ConsumerWidget {
                   content: Text(l10n.updated(
                     section.isCustom ? newName : displayName,
                   )),
+                          duration: const Duration(seconds: 1)
                 ),
               );
             },

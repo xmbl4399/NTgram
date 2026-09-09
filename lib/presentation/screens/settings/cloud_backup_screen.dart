@@ -548,7 +548,7 @@ class CloudBackupScreen extends ConsumerWidget {
 
     if (result != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.backupCreated)),
+        SnackBar(content: Text(l10n.backupCreated),duration: const Duration(seconds: 1)),
       );
     }
   }
@@ -658,7 +658,7 @@ class CloudBackupScreen extends ConsumerWidget {
 
     if (success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.signedInSuccessfully)),
+        SnackBar(content: Text(l10n.signedInSuccessfully),duration: const Duration(seconds: 1)),
       );
     }
   }
@@ -681,7 +681,7 @@ class CloudBackupScreen extends ConsumerWidget {
 
     if (result != null && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.backupCreated)),
+        SnackBar(content: Text(l10n.backupCreated),duration: const Duration(seconds: 1)),
       );
     }
   }
