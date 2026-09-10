@@ -72,7 +72,7 @@ class GroupsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             itemCount: groups.length,
             itemBuilder: (context, index) {
-              return _GroupCard(group: groups[index]);
+              return _GroupChatCard(group: groups[index]);
             },
           );
         },
@@ -109,10 +109,10 @@ class GroupsScreen extends ConsumerWidget {
   }
 }
 
-class _GroupCard extends ConsumerWidget {
+class _GroupChatCard extends ConsumerWidget {
   final Group group;
 
-  const _GroupCard({required this.group});
+  const _GroupChatCard({required this.group});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -260,7 +260,7 @@ class _GroupCard extends ConsumerWidget {
                               radius: 20,
                               errorBuilder: (_, __, ___) => CircleAvatar(
                                 radius: 20,
-                                backgroundColor: AppTheme.darkDivider,
+                                backgroundColor: context.neko.divider,
                                 child: Text(
                                   character.name.substring(0, 1).toUpperCase(),
                                   style: const TextStyle(fontSize: 16),
@@ -269,7 +269,7 @@ class _GroupCard extends ConsumerWidget {
                             )
                           : CircleAvatar(
                               radius: 20,
-                              backgroundColor: AppTheme.darkDivider,
+                              backgroundColor: context.neko.divider,
                               child: Text(
                                 character?.name.substring(0, 1).toUpperCase() ??
                                     '?',

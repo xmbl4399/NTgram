@@ -9,6 +9,7 @@ import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/core/flags/rpg_product_ui.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/common/neko_card.dart';
 import 'package:native_tavern/presentation/widgets/privacy/ai_data_sharing_consent_gate.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -33,7 +34,7 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 96),
         children: [
           _buildSectionHeader(context, l10n.user),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF14B8A6), // teal
             children: [
               _PersonaTile(),
@@ -48,7 +49,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.chats),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF229AF0), // blue
             children: [
               ListTile(
@@ -75,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.playHub),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFFF59E0B), // amber
             children: [
               const _MomentsEnabledTile(),
@@ -93,7 +94,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           _buildSectionHeader(context, 'Multimedia'),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFFEC4899), // pink
             children: [
               ListTile(
@@ -130,7 +131,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.advanced),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF8B5CF6), // violet
             children: [
               ListTile(
@@ -205,7 +206,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.settings),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF06B6D4), // cyan
             children: [
               const _LanguageTile(),
@@ -229,7 +230,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           _buildSectionHeader(context, l10n.about),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF64748B), // slate
             children: [
               ListTile(
@@ -545,39 +546,6 @@ class _LanguageTile extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Neko-style grouped settings card: a rounded (#2A313D) surface wrapping one
-/// group of rows, floating on the grey (#222931) page background.
-class _GroupCard extends StatelessWidget {
-  final List<Widget> children;
-  final Color? iconColor;
-
-  const _GroupCard({super.key, required this.children, this.iconColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      child: Material(
-        color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        clipBehavior: Clip.antiAlias,
-        child: ListTileTheme(
-          data: ListTileThemeData(
-            // Neko settings rows are 60dp tall with NO grey dividers between
-            // rows inside a card (icon + label sit directly on the card).
-            minTileHeight: AppTheme.navPageRowHeight,
-            minVerticalPadding: 0,
-            iconColor: iconColor,
-          ),
-          child: Column(
-            children: children,
-          ),
         ),
       ),
     );

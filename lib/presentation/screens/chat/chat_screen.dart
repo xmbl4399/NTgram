@@ -14,6 +14,7 @@ import 'package:native_tavern/data/models/chat_background.dart';
 import 'package:native_tavern/data/models/live2d.dart';
 import 'package:native_tavern/data/models/rpg/rpg.dart';
 import 'package:native_tavern/core/flags/rpg_product_ui.dart';
+import 'package:native_tavern/core/utils/neko_date_format.dart';
 import 'package:native_tavern/core/utils/share_utils.dart';
 import 'package:native_tavern/domain/services/chat_export_service.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
@@ -109,6 +110,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _initialMessageJumpScheduled = false;
   String? _highlightedMessageId;
 
+  /// With `reverse: true` a scroll offset equals "distance from the newest
+  /// message", so this is simply how far the reader has wandered up.
+  static const double _scrollToBottomThreshold = 300;
+
+  /// Whether the jump-to-bottom button is currently faded in.
+  bool _showScrollToBottom = false;
+
+  /// A message landed while the reader was scrolled up. The button carries a
+  /// dot until they come back to the bottom — no counter, per Neko styling.
+  bool _hasUnreadBelow = false;
+
   @override
   void initState() {
     super.initState();
@@ -130,6 +142,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Listen for text changes to show/hide slash command suggestions
     _messageController.addListener(_onTextChanged);
+    _scrollController.addListener(_handleScrollChanged);
   }
 
   void _onTextChanged() {
@@ -223,6 +236,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     unawaited(_stopTts(ownerId: widget.chatId));
     _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
+    _scrollController.removeListener(_handleScrollChanged);
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -252,6 +266,42 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ); // With reverse: true, position 0 is the bottom
       }
     });
+  }
+
+  /// Fades the jump-to-bottom button in once the reader is far enough from the
+  /// newest message, and clears the unread dot when they come back.
+  void _handleScrollChanged() {
+    if (!_scrollController.hasClients) return;
+    final distanceFromBottom = _scrollController.position.pixels;
+    final shouldShow = distanceFromBottom > _scrollToBottomThreshold;
+    final atBottom = distanceFromBottom <= 24;
+    if (shouldShow == _showScrollToBottom && !(atBottom && _hasUnreadBelow)) {
+      return;
+    }
+    setState(() {
+      _showScrollToBottom = shouldShow;
+      if (atBottom) _hasUnreadBelow = false;
+    });
+  }
+
+  /// Flattens [messages] (oldest first) into render rows, inserting a Nekogram
+  /// style day divider every time the calendar day changes.
+  List<_ChatRow> _buildChatRows(List<ChatMessage> messages) {
+    final locale = Localizations.localeOf(context).toString();
+    final rows = <_ChatRow>[];
+    for (var index = 0; index < messages.length; index++) {
+      final timestamp = messages[index].timestamp.toLocal();
+      if (index == 0 ||
+          !NekoDateFormat.isSameDay(messages[index - 1].timestamp, timestamp)) {
+        rows.add(
+          _ChatRow.divider(
+            NekoDateFormat.chatDateDivider(timestamp, locale: locale),
+          ),
+        );
+      }
+      rows.add(_ChatRow.message(index));
+    }
+    return rows;
   }
 
   /// Check if API is properly configured
@@ -1049,7 +1099,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           next.messages.isNotEmpty;
 
       if ((messageCountChanged && !olderMessagesLoaded) || loadingFinished) {
-        _scrollToBottomImmediate();
+        if (_showScrollToBottom) {
+          // Reader is reading history — don't yank them down, badge instead.
+          if (!_hasUnreadBelow) {
+            setState(() => _hasUnreadBelow = true);
+          }
+        } else {
+          _scrollToBottomImmediate();
+        }
       }
       _handleChatTTSChange(previous, next);
     });
@@ -1148,9 +1205,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               children: [
                 Text(
                   l10n.apiNotConfigured,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                    color: context.neko.textPrimary,
                   ),
                 ),
                 Text(
@@ -1794,7 +1851,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -1894,7 +1951,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final hasBackground = background.type != BackgroundType.none ||
         chatState.character?.assets?.live2d?.enabled == true;
 
-    return NotificationListener<ScrollNotification>(
+    // reverse: true renders index 0 at the bottom, so this newest-first order is
+    // what the list expects; the older-message loader is the last (top) row.
+    final showOlderLoader =
+        chatState.hasOlderMessages || chatState.isLoadingOlderMessages;
+    final displayRows = _buildChatRows(chatState.messages).reversed.toList();
+
+    final messageList = NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification.depth != 0 ||
             notification.metrics.axis != Axis.vertical ||
@@ -1916,12 +1979,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         reverse:
             true, // Build from bottom up - newest messages at bottom, always visible
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: chatState.messages.length +
-            (chatState.hasOlderMessages || chatState.isLoadingOlderMessages
-                ? 1
-                : 0),
+        itemCount: displayRows.length + (showOlderLoader ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == chatState.messages.length) {
+          if (index == displayRows.length) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
@@ -1937,7 +1997,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           }
           // With reverse: true, we need to reverse the index to maintain correct message order
           // index 0 in reversed list = last message (newest) = should be at bottom
-          final actualIndex = chatState.messages.length - 1 - index;
+          final row = displayRows[index];
+          if (row.isDivider) {
+            return _ChatDateDivider(label: row.label!);
+          }
+          final actualIndex = row.messageIndex;
           final message = chatState.messages[actualIndex];
           final isLast = actualIndex == chatState.messages.length - 1;
 
@@ -2009,6 +2073,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           );
         },
       ),
+    );
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        messageList,
+        Positioned(
+          right: 12,
+          bottom: 12,
+          child: AnimatedOpacity(
+            opacity: _showScrollToBottom ? 1 : 0,
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOut,
+            child: IgnorePointer(
+              ignoring: !_showScrollToBottom,
+              child: _ScrollToBottomButton(
+                showDot: _hasUnreadBelow,
+                onPressed: _scrollToBottom,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -2266,7 +2353,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: context.neko.card,
         // Neko message panel has no top seam: it sits flush on the page
         // background like the floating input bar.
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -2318,7 +2405,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       decoration: InputDecoration(
                         hintText: AppLocalizations.of(context).typeMessage,
                         filled: true,
-                        fillColor: AppTheme.darkBackground,
+                        fillColor: context.neko.background,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -2398,9 +2485,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground,
+        color: context.neko.background,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.darkDivider),
+        border: Border.all(color: context.neko.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2476,9 +2563,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
+                  color: context.neko.card,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.darkDivider),
+                  border: Border.all(color: context.neko.divider),
                 ),
                 child: Text(
                   reply.label,
@@ -2621,7 +2708,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     errorBuilder: (context, error, stackTrace) => Container(
                       width: 80,
                       height: 80,
-                      color: AppTheme.darkCard,
+                      color: context.neko.card,
                       child: const Icon(
                         Icons.broken_image,
                         color: AppTheme.textMuted,
@@ -2675,7 +2762,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // On mobile, show options sheet
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -3256,7 +3343,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                                   content: widget.message.content,
                                   textColor: isUser
                                       ? Colors.white
-                                      : AppTheme.textPrimary,
+                                      : context.neko.textPrimary,
                                   selectable: true,
                                   onLongPress: () =>
                                       _showMessageOptions(context),
@@ -3363,14 +3450,14 @@ class _MessageBubbleState extends State<_MessageBubble> {
       // Transparent mode: very light background with blur effect
       return BoxDecoration(
         color: isUser
-            ? AppTheme.userBubble.withValues(alpha: 0.35)
+            ? context.neko.userBubble.withValues(alpha: 0.35)
             : Colors.black.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: widget.highlighted
               ? Theme.of(context).colorScheme.tertiary
               : isUser
-                  ? AppTheme.userBubble.withValues(alpha: 0.5)
+                  ? context.neko.userBubble.withValues(alpha: 0.5)
                   : Colors.white.withValues(alpha: 0.3),
           width: widget.highlighted ? 3 : 1,
         ),
@@ -3388,11 +3475,11 @@ class _MessageBubbleState extends State<_MessageBubble> {
       return BoxDecoration(
         color: isUser
             ? (widget.hasBackground
-                ? AppTheme.userBubble.withValues(alpha: widget.bubbleOpacity)
-                : AppTheme.userBubble)
+                ? context.neko.userBubble.withValues(alpha: widget.bubbleOpacity)
+                : context.neko.userBubble)
             : (widget.hasBackground
-                ? AppTheme.darkCard.withValues(alpha: widget.bubbleOpacity)
-                : AppTheme.darkCard),
+                ? context.neko.card.withValues(alpha: widget.bubbleOpacity)
+                : context.neko.card),
         borderRadius: BorderRadius.circular(18),
         border: widget.highlighted
             ? Border.all(
@@ -3462,7 +3549,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 150,
                   height: 100,
-                  color: AppTheme.darkBackground,
+                  color: context.neko.background,
                   child: const Icon(
                     Icons.broken_image,
                     color: AppTheme.textMuted,
@@ -3494,7 +3581,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 80,
                   height: 80,
-                  color: AppTheme.darkBackground,
+                  color: context.neko.background,
                   child: const Icon(
                     Icons.broken_image,
                     size: 20,
@@ -3527,7 +3614,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                     errorBuilder: (context, error, stackTrace) => Container(
                       width: 200,
                       height: 200,
-                      color: AppTheme.darkCard,
+                      color: context.neko.card,
                       child: const Icon(
                         Icons.broken_image,
                         size: 48,
@@ -3591,7 +3678,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -3829,7 +3916,7 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Dialog(
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -3878,7 +3965,7 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                   prefixIcon: const Icon(Icons.search, size: 20),
                   isDense: true,
                   filled: true,
-                  fillColor: AppTheme.darkBackground,
+                  fillColor: context.neko.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -3930,7 +4017,7 @@ class _ModelSelectorDialogState extends State<_ModelSelectorDialog> {
                                   : FontWeight.normal,
                               color: isSelected
                                   ? AppTheme.accentColor
-                                  : AppTheme.textPrimary,
+                                  : context.neko.textPrimary,
                             ),
                           ),
                           selected: isSelected,
@@ -3987,7 +4074,7 @@ class _InputMenuButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppTheme.darkCard,
+          color: context.neko.card,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -4000,6 +4087,119 @@ class _InputMenuButton extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One row in the rendered message list: either the day divider that opens a
+/// day group, or a message inside it ([messageIndex] indexes the chat's own
+/// ascending message list).
+class _ChatRow {
+  const _ChatRow.message(this.messageIndex)
+      : isDivider = false,
+        label = null;
+
+  const _ChatRow.divider(this.label)
+      : isDivider = true,
+        messageIndex = -1;
+
+  final bool isDivider;
+  final int messageIndex;
+  final String? label;
+}
+
+/// Day separator inside a chat, matching Nekogram's `formatDateChat()` output:
+/// a plain date (`8月31日`, `2025年8月12日`) — never "today" / "yesterday".
+class _ChatDateDivider extends StatelessWidget {
+  const _ChatDateDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final neko = context.neko;
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: neko.card.withValues(alpha: 0.82),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              height: 1.2,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.2,
+              color: neko.textPrimary.withValues(alpha: 0.62),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 32dp glass button that fades in above the composer once the reader has
+/// scrolled away from the newest message. Shows a red dot (deliberately not a
+/// counter) when messages arrived while they were reading history.
+class _ScrollToBottomButton extends StatelessWidget {
+  const _ScrollToBottomButton({required this.showDot, required this.onPressed});
+
+  final bool showDot;
+  final VoidCallback onPressed;
+
+  /// Unread marker — intentionally red rather than the theme accent so it reads
+  /// as a notification in both light and dark themes.
+  static const Color _dotColor = Color(0xFFE5484D);
+
+  @override
+  Widget build(BuildContext context) {
+    final neko = context.neko;
+    return Material(
+      color: neko.glassTabBackground,
+      elevation: 3,
+      shadowColor: Colors.black.withValues(alpha: 0.3),
+      shape: CircleBorder(side: BorderSide(color: neko.glassTabBorder)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: 20,
+                color: neko.textPrimary,
+              ),
+              if (showDot)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: _dotColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: neko.glassTabBackground,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:native_tavern/core/utils/neko_date_format.dart';
 import 'package:native_tavern/data/models/chat.dart';
 import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/models/group.dart';
@@ -173,7 +174,7 @@ class _ChatListViewState extends ConsumerState<_ChatListView> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(6, 4, 6, 12),
               child: Material(
-                color: AppTheme.darkCard,
+                color: context.neko.card,
                 borderRadius: BorderRadius.circular(16),
                 clipBehavior: Clip.antiAlias,
                 child: Column(
@@ -371,7 +372,7 @@ class _ChatListTile extends ConsumerWidget {
 
   TextStyle _titleStyle(BuildContext context) {
     return TextStyle(
-      color: AppTheme.textPrimary,
+      color: context.neko.textPrimary,
       fontSize: 15,
       fontWeight: FontWeight.w600,
       height: 1.2,
@@ -409,24 +410,14 @@ class _ChatListTile extends ConsumerWidget {
     );
   }
 
+  /// Nekogram's `stringForMessageListDate()`: clock today (and for yesterday
+  /// younger than 8h), weekday within the last week, then a plain date.
+  /// Deliberately has no "Yesterday" label — upstream shows the weekday.
   String _formatTime(BuildContext context, DateTime dateTime) {
-    final l10n = AppLocalizations.of(context);
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
-
-    if (diff.inDays == 0) {
-      // Today - show time
-      final hour = dateTime.hour.toString().padLeft(2, '0');
-      final minute = dateTime.minute.toString().padLeft(2, '0');
-      return '$hour:$minute';
-    } else if (diff.inDays == 1) {
-      return l10n.yesterday;
-    } else if (diff.inDays < 7) {
-      return l10n.daysAgo(diff.inDays);
-    } else {
-      // Show date
-      return '${dateTime.month}/${dateTime.day}';
-    }
+    return NekoDateFormat.messageListDate(
+      dateTime,
+      locale: Localizations.localeOf(context).toString(),
+    );
   }
 }
 

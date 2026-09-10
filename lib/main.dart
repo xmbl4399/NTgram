@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:native_tavern/app.dart';
 import 'package:native_tavern/core/services/initialization_service.dart';
@@ -19,6 +20,10 @@ import 'package:native_tavern/presentation/screens/import/import_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Chat list / day divider dates are formatted with `intl`, which needs its
+  // locale symbol tables before the first `DateFormat` call.
+  await initializeDateFormatting();
 
   // Initialize core services
   final initData = await InitializationService.initialize();

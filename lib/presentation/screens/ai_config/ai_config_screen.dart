@@ -10,6 +10,7 @@ import '../../providers/instruct_providers.dart';
 import '../../providers/settings_providers.dart';
 import '../../router/app_router.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/neko_card.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
 /// Provider for China region detection
@@ -48,7 +49,7 @@ class AIConfigScreen extends ConsumerWidget {
                 gradient: LinearGradient(
                   colors: [
                     AppTheme.primaryColor.withValues(alpha: 0.28),
-                    AppTheme.userBubble.withValues(alpha: 0.18),
+                    context.neko.userBubble.withValues(alpha: 0.18),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
@@ -102,7 +103,7 @@ class AIConfigScreen extends ConsumerWidget {
 
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.presetsAndTemplates),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF8B5CF6), // violet
             children: [
               ListTile(
@@ -128,7 +129,7 @@ class AIConfigScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.llmConnection),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF229AF0), // blue
             children: [
               const _ConnectionProfilesTile(),
@@ -144,7 +145,7 @@ class AIConfigScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           _buildSectionHeader(
               context, AppLocalizations.of(context)!.generationSettings),
-          _GroupCard(
+          NekoCard(
             iconColor: const Color(0xFF10B981), // green
             children: [
               const _ContextLengthTile(),
@@ -1616,38 +1617,6 @@ class _ModelSelectionSheetState extends State<_ModelSelectionSheet> {
                     ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Neko-style grouped settings card: rounded (#2A313D) surface wrapping one
-/// group of rows, floating on the grey (#222931) page background.
-class _GroupCard extends StatelessWidget {
-  final List<Widget> children;
-  final Color? iconColor;
-
-  const _GroupCard({super.key, required this.children, this.iconColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      child: Material(
-        color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        clipBehavior: Clip.antiAlias,
-        child: ListTileTheme(
-          data: ListTileThemeData(
-            // 60dp rows with NO grey dividers between rows inside a card.
-            minTileHeight: AppTheme.navPageRowHeight,
-            minVerticalPadding: 0,
-            iconColor: iconColor,
-          ),
-          child: Column(
-            children: children,
-          ),
         ),
       ),
     );
