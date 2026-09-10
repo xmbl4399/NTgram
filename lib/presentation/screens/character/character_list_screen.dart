@@ -43,36 +43,42 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        // Both the search toggle and the view-mode toggle live on the left,
+        // so the title stays the only element in the middle and is therefore
+        // optically centred. Refresh is pull-to-refresh only, so it no longer
+        // takes a toolbar slot.
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _appBarIcon(
+              icon: Icons.search,
+              tooltip: l10n.searchCharacters,
+              onPressed: () => setState(() => _searchOpen = !_searchOpen),
+            ),
+            _appBarIcon(
+              icon: _getViewModeIcon(),
+              tooltip: _viewMode.getDisplayName(l10n),
+              onPressed: () => setState(() => _viewMode = _viewMode.next),
+            ),
+          ],
+        ),
+        // Wide enough for both 36dp leading buttons (72dp) without the Row
+        // overflowing its slot.
+        leadingWidth: 88,
+        centerTitle: true,
         title: Text(l10n.characters),
         actions: [
-          // Search toggle: taps drop a top-floating search field.
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: l10n.searchCharacters,
-            onPressed: () => setState(() {
-              _searchOpen = !_searchOpen;
-            }),
-          ),
-          IconButton(
-            icon: _getViewModeIcon(),
-            onPressed: () => setState(() => _viewMode = _viewMode.next),
-            tooltip: _viewMode.getDisplayName(l10n),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
+          _appBarIcon(
+            icon: Icons.add,
             tooltip: l10n.createCharacter,
             onPressed: () => context.push(AppRoutes.characterCreate),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: l10n.retry,
-            onPressed: () => ref.read(characterListProvider.notifier).refresh(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.file_download_outlined),
+          _appBarIcon(
+            icon: Icons.file_download_outlined,
             tooltip: l10n.import,
             onPressed: () => context.push(AppRoutes.import_),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Column(
@@ -100,59 +106,76 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
                 : const SizedBox(width: double.infinity, height: 0),
           ),
           Expanded(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification.metrics.extentAfter < 600) {
-                  ref.read(characterListProvider.notifier).loadMore();
-                }
-                return false;
-              },
-              child: charactersAsync.when(
-                data: (characters) {
-                  final filtered = _searchQuery.isEmpty
-                      ? characters
-                      : characters
-                          .where((c) =>
-                              c.name
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()) ||
-                              c.description
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()))
-                          .toList();
-
-                  if (filtered.isEmpty) {
-                    return const _EmptyState();
+            child: RefreshIndicator(
+              onRefresh: () =>
+                  ref.read(characterListProvider.notifier).refresh(),
+              color: Theme.of(context).colorScheme.secondary,
+              backgroundColor: context.neko.card,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.extentAfter < 600) {
+                    ref.read(characterListProvider.notifier).loadMore();
                   }
-
-                  switch (_viewMode) {
-                    case CharacterViewMode.list:
-                      return _CharacterListView(characters: filtered);
-                    case CharacterViewMode.grid:
-                      return _CharacterGridView(characters: filtered);
-                    case CharacterViewMode.compactGrid:
-                      return _CharacterCompactGridView(characters: filtered);
-                  }
+                  return false;
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text('${l10n.error}: $error'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () =>
-                            ref.read(characterListProvider.notifier).refresh(),
-                        child: Text(l10n.retry),
-                      ),
-                    ],
+                child: charactersAsync.when(
+                  data: (characters) {
+                    final filtered = _searchQuery.isEmpty
+                        ? characters
+                        : characters
+                            .where((c) =>
+                                c.name
+                                    .toLowerCase()
+                                    .contains(_searchQuery.toLowerCase()) ||
+                                c.description
+                                    .toLowerCase()
+                                    .contains(_searchQuery.toLowerCase()))
+                            .toList();
+
+                    if (filtered.isEmpty) {
+                      // Stay scrollable so pull-to-refresh still works.
+                      return LayoutBuilder(
+                        builder: (context, constraints) =>
+                            SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: constraints.maxHeight,
+                            child: const _EmptyState(),
+                          ),
+                        ),
+                      );
+                    }
+
+                    switch (_viewMode) {
+                      case CharacterViewMode.list:
+                        return _CharacterListView(characters: filtered);
+                      case CharacterViewMode.grid:
+                        return _CharacterGridView(characters: filtered);
+                      case CharacterViewMode.compactGrid:
+                        return _CharacterCompactGridView(characters: filtered);
+                    }
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline,
+                            size: 48, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text('${l10n.error}: $error'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () =>
+                              ref.read(characterListProvider.notifier).refresh(),
+                          child: Text(l10n.retry),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
+
             ),
           ),
         ],
@@ -160,15 +183,41 @@ class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
     );
   }
 
-  Icon _getViewModeIcon() {
+  IconData _getViewModeIcon() {
     switch (_viewMode) {
       case CharacterViewMode.list:
-        return const Icon(Icons.list);
+        return Icons.list;
       case CharacterViewMode.grid:
-        return const Icon(Icons.grid_view);
+        return Icons.grid_view;
       case CharacterViewMode.compactGrid:
-        return const Icon(Icons.view_compact);
+        return Icons.view_compact;
     }
+  }
+
+  /// Compact toolbar button: 20px glyph in a 36px hit box with zero padding, so
+  /// several actions fit without crowding the centered title.
+  ///
+  /// The size is pinned through `style` rather than the `constraints`
+  /// parameter: Material 3's `IconButton` enforces a 40x40 `minimumSize` that
+  /// wins over `constraints`, which silently made every "34px" button 40px and
+  /// overflowed the `leading` Row by 4px. `maximumSize` + `shrinkWrap` keep the
+  /// tap target at the visual bounds instead of padding it back out to 48.
+  Widget _appBarIcon({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return IconButton(
+      icon: Icon(icon, size: 20),
+      tooltip: tooltip,
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        minimumSize: const Size(36, 36),
+        maximumSize: const Size(36, 36),
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
   }
 }
 
@@ -208,6 +257,7 @@ class _CharacterGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -246,7 +296,7 @@ class _CharacterListViewState extends ConsumerState<_CharacterListView> {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(6, 0, 6, 12),
       child: Material(
-        color: AppTheme.darkCard,
+        color: context.neko.card,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -285,6 +335,7 @@ class _CharacterCompactGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -369,7 +420,7 @@ class _CharacterGridCard extends ConsumerWidget {
           children: [
             Expanded(
               flex: 3,
-              child: _buildAvatar(),
+              child: _buildAvatar(context),
             ),
             Expanded(
               flex: 1,
@@ -404,20 +455,20 @@ class _CharacterGridCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
     if (character.assets?.avatarPath != null) {
       return CharacterAvatarImage(
         imagePath: character.assets!.avatarPath!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _defaultAvatar(),
+        errorBuilder: (_, __, ___) => _defaultAvatar(context),
       );
     }
-    return _defaultAvatar();
+    return _defaultAvatar(context);
   }
 
-  Widget _defaultAvatar() {
+  Widget _defaultAvatar(BuildContext context) {
     final icon = _getCharacterIcon(character);
-    final color = _getCharacterColor(character);
+    final color = _getCharacterColor(context, character);
 
     return Container(
       decoration: BoxDecoration(
@@ -454,7 +505,7 @@ class _CharacterGridCard extends ConsumerWidget {
     }
   }
 
-  Color _getCharacterColor(Character character) {
+  Color _getCharacterColor(BuildContext context, Character character) {
     // Check if it's a built-in character by ID
     switch (character.id) {
       case 'builtin_coding_assistant':
@@ -464,7 +515,7 @@ class _CharacterGridCard extends ConsumerWidget {
       case 'builtin_xiaohongshu_copywriter':
         return const Color(0xFFFF5722); // Orange/Red for social media
       default:
-        return AppTheme.darkDivider;
+        return context.neko.divider;
     }
   }
 }
@@ -485,7 +536,7 @@ class _CharacterCompactGridCard extends ConsumerWidget {
           children: [
             Expanded(
               flex: 4,
-              child: _buildCompactAvatar(),
+              child: _buildCompactAvatar(context),
             ),
             Expanded(
               flex: 1,
@@ -512,20 +563,20 @@ class _CharacterCompactGridCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompactAvatar() {
+  Widget _buildCompactAvatar(BuildContext context) {
     if (character.assets?.avatarPath != null) {
       return CharacterAvatarImage(
         imagePath: character.assets!.avatarPath!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _defaultCompactAvatar(),
+        errorBuilder: (_, __, ___) => _defaultCompactAvatar(context),
       );
     }
-    return _defaultCompactAvatar();
+    return _defaultCompactAvatar(context);
   }
 
-  Widget _defaultCompactAvatar() {
+  Widget _defaultCompactAvatar(BuildContext context) {
     final icon = _getCharacterIcon(character);
-    final color = _getCharacterColor(character);
+    final color = _getCharacterColor(context, character);
 
     return Container(
       decoration: BoxDecoration(
@@ -561,7 +612,7 @@ class _CharacterCompactGridCard extends ConsumerWidget {
     }
   }
 
-  Color _getCharacterColor(Character character) {
+  Color _getCharacterColor(BuildContext context, Character character) {
     switch (character.id) {
       case 'builtin_coding_assistant':
         return const Color(0xFF2196F3);
@@ -570,7 +621,7 @@ class _CharacterCompactGridCard extends ConsumerWidget {
       case 'builtin_xiaohongshu_copywriter':
         return const Color(0xFFFF5722);
       default:
-        return AppTheme.darkDivider;
+        return context.neko.divider;
     }
   }
 }
@@ -623,8 +674,8 @@ class _CharacterListTile extends ConsumerWidget {
                     children: [
                       Text(
                         character.name,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: context.neko.textPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -671,11 +722,11 @@ class _CharacterListTile extends ConsumerWidget {
         screen.height - rect.bottom,
       ),
       items: [
-        _popupItem(_CharacterMenuItem.chat, Icons.chat, l10n.startChat),
-        _popupItem(_CharacterMenuItem.edit, Icons.edit, l10n.edit),
-        _popupItem(
+        _popupItem(context, _CharacterMenuItem.chat, Icons.chat, l10n.startChat),
+        _popupItem(context, _CharacterMenuItem.edit, Icons.edit, l10n.edit),
+        _popupItem(context,
             _CharacterMenuItem.export, Icons.file_upload, l10n.exportChat),
-        _popupItem(_CharacterMenuItem.delete, Icons.delete, l10n.delete,
+        _popupItem(context, _CharacterMenuItem.delete, Icons.delete, l10n.delete,
             isDestructive: true),
       ],
     ).then((value) {
@@ -696,7 +747,7 @@ class _CharacterListTile extends ConsumerWidget {
     });
   }
 
-  PopupMenuItem<_CharacterMenuItem> _popupItem(
+  PopupMenuItem<_CharacterMenuItem> _popupItem(BuildContext context,
       _CharacterMenuItem value, IconData icon, String label,
       {bool isDestructive = false}) {
     return PopupMenuItem<_CharacterMenuItem>(
@@ -709,7 +760,7 @@ class _CharacterListTile extends ConsumerWidget {
             label,
             style: isDestructive
                 ? const TextStyle(color: Colors.red)
-                : const TextStyle(color: AppTheme.textPrimary),
+                : TextStyle(color: context.neko.textPrimary),
           ),
         ],
       ),

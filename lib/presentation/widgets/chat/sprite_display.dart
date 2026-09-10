@@ -126,7 +126,7 @@ class _SpriteImageState extends State<_SpriteImage>
           width: widget.settings.size,
           height: widget.settings.size,
           decoration: BoxDecoration(
-            color: AppTheme.darkCard,
+            color: context.neko.card,
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(
@@ -174,7 +174,7 @@ class _SpriteImageState extends State<_SpriteImage>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withValues(alpha: 0.8),
+            color: context.neko.card.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -350,7 +350,7 @@ class SpritePreview extends StatelessWidget {
                       return Container(
                         width: size,
                         height: size,
-                        color: AppTheme.darkCard,
+                        color: context.neko.card,
                         child: const Icon(
                           Icons.broken_image,
                           color: AppTheme.textMuted,

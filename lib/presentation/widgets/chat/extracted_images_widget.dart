@@ -59,7 +59,7 @@ class ExtractedImagesWidget extends StatelessWidget {
         child: Container(
           constraints: BoxConstraints(maxHeight: maxHeight),
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground,
+            color: context.neko.background,
             borderRadius: BorderRadius.circular(12),
           ),
           child: CachedNetworkImage(
@@ -67,7 +67,7 @@ class ExtractedImagesWidget extends StatelessWidget {
             fit: BoxFit.contain,
             placeholder: (context, url) => Container(
               height: 200,
-              color: AppTheme.darkBackground,
+              color: context.neko.background,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -87,7 +87,7 @@ class ExtractedImagesWidget extends StatelessWidget {
             ),
             errorWidget: (context, url, error) => Container(
               height: 100,
-              color: AppTheme.darkBackground,
+              color: context.neko.background,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

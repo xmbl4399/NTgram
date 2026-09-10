@@ -43,7 +43,7 @@ class AdaptivePopupMenuButton<T> extends StatelessWidget {
       iconSize: iconSize,
       constraints: constraints,
       enabled: enabled,
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       elevation: 8,
       shadowColor: Colors.black.withValues(alpha: 0.35),
       shape: RoundedRectangleBorder(

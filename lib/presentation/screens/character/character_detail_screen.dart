@@ -468,7 +468,7 @@ class _CharacterDetailContentState
 
   Widget _defaultBackground() {
     return Container(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: const Center(
         child: Icon(
           Icons.person,
@@ -640,9 +640,9 @@ class _AlternateGreetingsCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface,
+                        color: context.neko.surface,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.darkDivider),
+                        border: Border.all(color: context.neko.divider),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -768,13 +768,13 @@ class _CharacterBookCard extends StatelessWidget {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: entry.enabled
-                            ? AppTheme.darkSurface
+                            ? context.neko.surface
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: entry.enabled
                               ? AppTheme.primaryColor.withValues(alpha: 0.3)
-                              : AppTheme.darkDivider,
+                              : context.neko.divider,
                         ),
                       ),
                       child: Column(

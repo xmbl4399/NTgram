@@ -3467,7 +3467,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cloudBackupDescription => '跨设备同步数据';
 
   @override
-  String get cloudBackupSubtitle => '备份到 iCloud 或 Google Drive，在任何设备上恢复';
+  String get cloudBackupSubtitle => '备份到 iCloud 或 Google Drive';
 
   @override
   String get backupContents => '备份内容';

@@ -469,7 +469,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
               decoration: BoxDecoration(
                 color: AppTheme.primaryColor,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.darkCard, width: 2),
+                border: Border.all(color: context.neko.card, width: 2),
               ),
               child:
                   const Icon(Icons.camera_alt, size: 20, color: Colors.white),
@@ -488,7 +488,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

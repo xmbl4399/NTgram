@@ -205,9 +205,9 @@ class STTSettingsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppTheme.darkBackground,
+                      color: context.neko.background,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.darkDivider),
+                      border: Border.all(color: context.neko.divider),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
@@ -360,7 +360,7 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

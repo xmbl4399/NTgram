@@ -315,7 +315,7 @@
   "cloudBackup": "云备份",
   "cloudBackupInfo": "云备份",
   "cloudBackupDescription": "跨设备同步数据",
-  "cloudBackupSubtitle": "备份到 iCloud 或 Google Drive，在任何设备上恢复",
+  "cloudBackupSubtitle": "备份到 iCloud 或 Google Drive",
   "backupContents": "备份内容",
   "allTextData": "全部文本数据",
   "allTextDataDescription": "角色、聊天、消息、世界书、群组、Persona、记忆、Data Bank、RPG 数据、故事、动态和应用状态",

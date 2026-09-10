@@ -450,7 +450,7 @@ class ImageGenSettingsScreen extends ConsumerWidget {
     required List<Widget> children,
   }) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -720,7 +720,7 @@ class _ImageGenTestWidgetState extends ConsumerState<_ImageGenTestWidget> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.darkBackground,
+                color: context.neko.background,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppTheme.accentColor),
               ),
@@ -785,7 +785,7 @@ class _ImageGenTestWidgetState extends ConsumerState<_ImageGenTestWidget> {
                                     return Container(
                                       width: 200,
                                       height: 200,
-                                      color: AppTheme.darkCard,
+                                      color: context.neko.card,
                                       child: const Center(
                                         child: Icon(Icons.broken_image,
                                             color: AppTheme.textMuted),

@@ -58,7 +58,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Info section
-          _buildSection(
+          _buildSection(context,
             title: l10n.aboutVariables,
             children: [
               ListTile(
@@ -83,7 +83,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Global variables
-          _buildSection(
+          _buildSection(context,
             title: l10n.globalVariablesCount(globalVars.length),
             children: [
               if (globalVars.isEmpty)
@@ -126,7 +126,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Local variables
-            _buildSection(
+            _buildSection(context,
               title: l10n.localVariablesCount(localVars.length),
               children: [
                 if (localVars.isEmpty)
@@ -169,7 +169,7 @@ class VariablesSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Test section
-          _buildSection(
+          _buildSection(context,
             title: l10n.test,
             children: [
               _VariableTestWidget(chatId: chatId),
@@ -180,12 +180,12 @@ class VariablesSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSection({
+  Widget _buildSection(BuildContext context, {
     required String title,
     required List<Widget> children,
   }) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -599,7 +599,7 @@ class _VariableTestWidgetState extends ConsumerState<_VariableTestWidget> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkBackground,
+                      color: context.neko.background,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: SelectableText(

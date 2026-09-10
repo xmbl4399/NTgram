@@ -198,7 +198,7 @@ class _PersonaCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       color: isActive
           ? AppTheme.primaryColor.withValues(alpha: 0.15)
-          : AppTheme.darkCard,
+          : context.neko.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: isActive
@@ -504,7 +504,7 @@ class _PersonaDialogState extends State<_PersonaDialog> {
                   color: AppTheme.primaryColor,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppTheme.darkCard,
+                    color: context.neko.card,
                     width: 2,
                   ),
                 ),
@@ -531,7 +531,7 @@ class _PersonaDialogState extends State<_PersonaDialog> {
     // On mobile, show options sheet
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:native_tavern/data/models/app_theme_config.dart';
+
+// Re-exported so widgets that already import this file can use `context.neko`
+// without an extra import.
+export 'package:native_tavern/data/models/app_theme_config.dart'
+    show NekoColors, NekoContextX;
 
 /// App theme configuration matching Nekogram's AMOLED dark aesthetic.
 ///
@@ -56,175 +62,13 @@ class AppTheme {
   // in-card dividers.
   static const double navPageRowHeight = 60;
 
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
-        primary: primaryColor,
-        secondary: secondaryColor,
-        tertiary: accentColor,
-        surface: darkSurface,
-        onSurface: textPrimary,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-      ),
-      scaffoldBackgroundColor: darkBackground,
-      cardColor: darkCard,
-      dividerColor: darkDivider,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: darkSurface,
-        foregroundColor: textPrimary,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      cardTheme: CardThemeData(
-        color: darkCard,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      listTileTheme: const ListTileThemeData(
-        textColor: textPrimary,
-        iconColor: textSecondary,
-        dense: true,
-        visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-        minVerticalPadding: 0,
-        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-        minTileHeight: 40,
-      ),
-      popupMenuTheme: const PopupMenuThemeData(
-        menuPadding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        textStyle: TextStyle(color: textPrimary, fontSize: 13),
-        color: darkCard,
-        elevation: 8,
-      ),
-      sliderTheme: const SliderThemeData(
-        trackHeight: 2,
-        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
-        overlayShape: RoundSliderOverlayShape(overlayRadius: 13),
-        activeTrackColor: primaryColor,
-        inactiveTrackColor: darkDivider,
-        activeTickMarkColor: Colors.transparent,
-        inactiveTickMarkColor: Colors.transparent,
-      ),
-      switchTheme: SwitchThemeData(
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? primaryColor
-              : darkDivider,
-        ),
-        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: darkCard,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
-          borderSide: const BorderSide(color: darkDivider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
-          borderSide: const BorderSide(color: darkDivider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
-          borderSide: const BorderSide(color: primaryColor, width: 2),
-        ),
-        hintStyle: const TextStyle(color: textMuted),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: darkSurface,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: textMuted,
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: darkSurface,
-        indicatorColor:
-            glassTabSelected.withValues(alpha: glassTabSelectedAlpha),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              color: glassTabSelectedText,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            );
-          }
-          return const TextStyle(color: glassTabUnselected, fontSize: 12);
-        }),
-      ),
-      textTheme: const TextTheme(
-        headlineLarge: TextStyle(
-          color: textPrimary,
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-        ),
-        headlineMedium: TextStyle(
-          color: textPrimary,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-        titleLarge: TextStyle(
-          color: textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-        titleMedium: TextStyle(
-          color: textPrimary,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        bodyLarge: TextStyle(
-          color: textPrimary,
-          fontSize: 16,
-        ),
-        bodyMedium: TextStyle(
-          color: textSecondary,
-          fontSize: 14,
-        ),
-        bodySmall: TextStyle(
-          color: textMuted,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
+  /// The default Neko dark theme.
+  ///
+  /// Delegates to the config-driven factory ([AppThemeConfig.toThemeData]) so
+  /// the app keeps exactly one theme implementation. Kept for callers that
+  /// want the default dark Neko look without building a config first.
+  static ThemeData get darkTheme => BuiltInThemes.defaultDark.toThemeData();
 
-  static ThemeData get lightTheme {
-    // Light theme for users who prefer it
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
-        primary: primaryColor,
-        secondary: secondaryColor,
-        tertiary: accentColor,
-        surface: Colors.white,
-        onSurface: Colors.grey[900]!,
-      ),
-      scaffoldBackgroundColor: Colors.grey[50],
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.grey[900],
-        elevation: 0,
-        centerTitle: true,
-      ),
-    );
-  }
+  /// The default light theme (same single source of truth as [darkTheme]).
+  static ThemeData get lightTheme => BuiltInThemes.defaultLight.toThemeData();
 }

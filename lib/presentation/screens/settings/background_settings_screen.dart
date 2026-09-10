@@ -304,7 +304,7 @@ class _BackgroundSettingsScreenState
               _BackgroundPreviewFull(background: _currentBackground)
             else
               Container(
-                color: AppTheme.darkBackground,
+                color: context.neko.background,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -332,13 +332,13 @@ class _BackgroundSettingsScreenState
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkCard
+                      color: context.neko.card
                           .withValues(alpha: _currentBackground.bubbleOpacity),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       AppLocalizations.of(context).sampleMessage1,
-                      style: const TextStyle(color: AppTheme.textPrimary),
+                      style: TextStyle(color: context.neko.textPrimary),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -556,7 +556,7 @@ class _BackgroundSettingsScreenState
                     fit: BoxFit.cover,
                     cacheWidth: 300,
                     errorBuilder: (_, __, ___) => Container(
-                      color: AppTheme.darkCard,
+                      color: context.neko.card,
                       child: const Icon(Icons.broken_image,
                           color: AppTheme.textMuted),
                     ),
@@ -834,7 +834,7 @@ class _BackgroundPreviewFull extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (background.type) {
       case BackgroundType.none:
-        return Container(color: AppTheme.darkBackground);
+        return Container(color: context.neko.background);
 
       case BackgroundType.color:
         return Container(color: _parseColor(background.color));

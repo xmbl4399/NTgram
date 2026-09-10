@@ -37,7 +37,7 @@ class SpriteSettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Enable/Disable toggle
-          _buildSection(
+          _buildSection(context,
             title: l10n.general,
             children: [
               SwitchListTile(
@@ -54,7 +54,7 @@ class SpriteSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Display settings
-          _buildSection(
+          _buildSection(context,
             title: l10n.display,
             children: [
               // Size slider
@@ -132,7 +132,7 @@ class SpriteSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Animation settings
-          _buildSection(
+          _buildSection(context,
             title: l10n.animation,
             children: [
               SwitchListTile(
@@ -186,7 +186,7 @@ class SpriteSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Emotion detection info
-          _buildSection(
+          _buildSection(context,
             title: l10n.emotionDetection,
             children: [
               ListTile(
@@ -222,12 +222,12 @@ class SpriteSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSection({
+  Widget _buildSection(BuildContext context, {
     required String title,
     required List<Widget> children,
   }) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -347,7 +347,7 @@ class _CharacterSpritesScreenState
       children: [
         // Stats card
         Card(
-          color: AppTheme.darkCard,
+          color: context.neko.card,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -501,7 +501,7 @@ class _CharacterSpritesScreenState
     final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

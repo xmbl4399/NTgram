@@ -257,7 +257,7 @@ class RegexSettingsScreen extends ConsumerWidget {
     required List<Widget> children,
   }) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -305,7 +305,7 @@ class RegexSettingsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       builder: (context) => _RegexScriptEditor(
         script: script,
         onSave: (newScript) {
@@ -421,7 +421,7 @@ class RegexSettingsScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.darkBackground,
+                color: context.neko.background,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SelectableText(
@@ -904,7 +904,7 @@ class _RegexTestWidgetState extends ConsumerState<_RegexTestWidget> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkBackground,
+                        color: context.neko.background,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: SelectableText(

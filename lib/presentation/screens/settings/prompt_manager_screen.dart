@@ -820,7 +820,7 @@ class _PromptSectionTile extends StatelessWidget {
                 displayName,
                 style: TextStyle(
                   color: section.enabled
-                      ? AppTheme.textPrimary
+                      ? context.neko.textPrimary
                       : AppTheme.textMuted,
                   fontWeight:
                       section.enabled ? FontWeight.w500 : FontWeight.normal,
@@ -888,7 +888,6 @@ class _PromptSectionTile extends StatelessWidget {
             Switch(
               value: section.enabled,
               onChanged: (_) => onToggle(),
-              activeColor: AppTheme.primaryColor,
             ),
           ],
         ),

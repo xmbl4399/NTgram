@@ -108,7 +108,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
     final settings = ref.watch(imageGenSettingsProvider);
 
     return AlertDialog(
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       title: Row(
         children: [
           const Icon(Icons.image, color: AppTheme.primaryColor),
@@ -116,7 +116,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
           Expanded(
             child: Text(
               l10n.generateImagesUsingAi,
-              style: const TextStyle(color: AppTheme.textPrimary),
+              style: TextStyle(color: context.neko.textPrimary),
             ),
           ),
           if (!settings.enabled)
@@ -137,7 +137,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBackground,
+                  color: context.neko.background,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -200,12 +200,12 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
               TextField(
                 controller: _promptController,
                 maxLines: 4,
-                style: const TextStyle(color: AppTheme.textPrimary),
+                style: TextStyle(color: context.neko.textPrimary),
                 decoration: InputDecoration(
                   hintText: l10n.enterPromptToGenerate,
                   hintStyle: const TextStyle(color: AppTheme.textMuted),
                   filled: true,
-                  fillColor: AppTheme.darkBackground,
+                  fillColor: context.neko.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -230,12 +230,12 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                   TextField(
                     controller: _negativePromptController,
                     maxLines: 2,
-                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12),
+                    style: TextStyle(color: context.neko.textPrimary, fontSize: 12),
                     decoration: InputDecoration(
                       hintText: l10n.enterTermsToAvoid,
                       hintStyle: const TextStyle(color: AppTheme.textMuted),
                       filled: true,
-                      fillColor: AppTheme.darkBackground,
+                      fillColor: context.neko.background,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
@@ -251,7 +251,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                 const SizedBox(height: 16),
                 LinearProgressIndicator(
                   value: _progress,
-                  backgroundColor: AppTheme.darkBackground,
+                  backgroundColor: context.neko.background,
                   valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                 ),
                 const SizedBox(height: 8),
@@ -480,7 +480,7 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              color: AppTheme.darkBackground,
+              color: context.neko.background,
               borderRadius: BorderRadius.circular(8),
             ),
             child: DropdownButtonHideUnderline(
@@ -488,9 +488,9 @@ class _ImageGenerationDialogState extends ConsumerState<ImageGenerationDialog> {
                 value: availableModels.contains(currentModel) ? currentModel : null,
                 isExpanded: true,
                 isDense: true,
-                dropdownColor: AppTheme.darkCard,
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
+                dropdownColor: context.neko.card,
+                style: TextStyle(
+                  color: context.neko.textPrimary,
                   fontSize: 12,
                 ),
                 hint: Text(

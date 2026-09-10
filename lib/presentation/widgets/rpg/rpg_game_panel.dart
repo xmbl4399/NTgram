@@ -33,9 +33,9 @@ class RpgGamePanel extends ConsumerWidget {
       child: Container(
         key: const Key('rpg-game-panel'),
         height: panelHeight,
-        decoration: const BoxDecoration(
-          color: AppTheme.darkCard,
-          border: Border(top: BorderSide(color: AppTheme.darkDivider)),
+        decoration: BoxDecoration(
+          color: context.neko.card,
+          border: Border(top: BorderSide(color: context.neko.divider)),
         ),
         child: Material(
           color: Colors.transparent,

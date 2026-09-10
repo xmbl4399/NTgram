@@ -55,7 +55,14 @@ class AppThemeConfig {
   Color get textSecondary => hexToColor(textSecondaryColor);
   Color get divider => hexToColor(dividerColor);
 
-  /// Generate a ThemeData from this config
+  /// Generate a ThemeData from this config.
+  ///
+  /// This is the single source of truth for the runtime theme — `app.dart`
+  /// feeds `activeTheme.toThemeData()` into `MaterialApp`. Every component
+  /// theme below is derived from the config colors, so light and custom themes
+  /// stay coherent instead of inheriting hardcoded Neko-dark values.
+  ///
+  /// `AppTheme.darkTheme` delegates here as well (see `app_theme.dart`).
   ThemeData toThemeData() {
     final colorScheme = ColorScheme(
       brightness: isDark ? Brightness.dark : Brightness.light,
@@ -69,21 +76,117 @@ class AppThemeConfig {
       onSurface: textPrimary,
     );
 
+    // Neko panels are flat: cards, dialogs, sheets and menus all sit on the
+    // same `card` surface with zero elevation and no surface tint.
+    final panel = card;
+    final onPanel = textPrimary;
+
+    final sheetShape = RoundedRectangleBorder(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+    );
+
     return ThemeData(
       useMaterial3: true,
       brightness: isDark ? Brightness.dark : Brightness.light,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
-      cardColor: card,
+      canvasColor: panel,
+      cardColor: panel,
       dividerColor: divider,
+      extensions: <ThemeExtension<dynamic>>[NekoColors.fromConfig(this)],
       appBarTheme: AppBarTheme(
         backgroundColor: surface,
         foregroundColor: textPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: textPrimary,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       cardTheme: CardThemeData(
-        color: card,
+        color: panel,
         elevation: 0,
+        margin: EdgeInsets.zero,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: panel,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        titleTextStyle: TextStyle(
+          color: onPanel,
+          fontSize: 17,
+          fontWeight: FontWeight.w500,
+        ),
+        contentTextStyle: TextStyle(
+          color: textSecondary,
+          fontSize: 14,
+          height: 1.45,
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: panel,
+        modalBackgroundColor: panel,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        modalElevation: 0,
+        dragHandleColor: divider,
+        shape: sheetShape,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: panel,
+        contentTextStyle: TextStyle(color: onPanel, fontSize: 13),
+        actionTextColor: accent,
+        behavior: SnackBarBehavior.floating,
+        elevation: 2,
+        insetPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        showCloseIcon: false,
+        dismissDirection: DismissDirection.down,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: panel,
+        selectedColor: accent.withValues(alpha: isDark ? 0.28 : 0.16),
+        disabledColor: divider,
+        side: BorderSide(color: divider, width: 0.5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        labelStyle: TextStyle(color: onPanel, fontSize: 13),
+        secondaryLabelStyle: TextStyle(color: onPanel, fontSize: 13),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        showCheckmark: false,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: panel,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: divider, width: 0.5),
+        ),
+        textStyle: TextStyle(color: onPanel, fontSize: 12),
+        waitDuration: const Duration(milliseconds: 400),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: accent,
+        unselectedLabelColor: textSecondary,
+        indicatorColor: accent,
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(fontSize: 13),
+        overlayColor: WidgetStatePropertyAll(
+          accent.withValues(alpha: 0.08),
+        ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: accent,
+        linearTrackColor: divider,
+        circularTrackColor: Colors.transparent,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -93,28 +196,40 @@ class AppThemeConfig {
           borderSide: BorderSide.none,
         ),
       ),
-      listTileTheme: const ListTileThemeData(
-        textColor: Color(0xFFE9EDF3),
-        iconColor: Color(0xFF8A8A8E),
+      listTileTheme: ListTileThemeData(
+        textColor: onPanel,
+        iconColor: textSecondary,
         dense: true,
-        visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
         minVerticalPadding: 0,
-        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
         minTileHeight: 40,
       ),
-      popupMenuTheme: const PopupMenuThemeData(
-        menuPadding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        textStyle: TextStyle(color: Color(0xFFE9EDF3), fontSize: 13),
-        color: Color(0xFF2A313D),
+      popupMenuTheme: PopupMenuThemeData(
+        menuPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+        textStyle: TextStyle(color: onPanel, fontSize: 13),
+        color: panel,
+        surfaceTintColor: Colors.transparent,
         elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      sliderTheme: const SliderThemeData(
+      sliderTheme: SliderThemeData(
         trackHeight: 2,
-        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
-        overlayShape: RoundSliderOverlayShape(overlayRadius: 13),
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 13),
+        activeTrackColor: accent,
+        inactiveTrackColor: divider,
+        thumbColor: accent,
+        activeTickMarkColor: Colors.transparent,
+        inactiveTickMarkColor: Colors.transparent,
       ),
-      switchTheme: const SwitchThemeData(
+      switchTheme: SwitchThemeData(
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? accent : divider,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
       ),
       textTheme: TextTheme(
         bodyLarge: TextStyle(color: textPrimary),
@@ -516,4 +631,188 @@ class BuiltInThemes {
     paper,
     sepia,
   ];
+}
+
+/// Semantic Neko color tokens resolved from the active theme.
+///
+/// Widgets read these through `context.neko` (see [NekoContextX]) instead of
+/// referencing the dark constants on `AppTheme`, so a single code path serves
+/// every built-in and user-created theme. Registered as a [ThemeExtension] by
+/// [AppThemeConfig.toThemeData].
+@immutable
+class NekoColors extends ThemeExtension<NekoColors> {
+  /// Page background (content scrolls behind the floating nav pill).
+  final Color background;
+
+  /// Bar / panel surface that fuses with [background] — Neko app bars show no
+  /// seam against the page.
+  final Color surface;
+
+  /// Grouped card / dialog / sheet / menu surface.
+  final Color card;
+
+  /// Subtle row separator inside a [card].
+  final Color divider;
+
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textMuted;
+
+  /// Outgoing (user) chat bubble.
+  final Color userBubble;
+
+  /// Incoming (assistant) chat bubble.
+  final Color assistantBubble;
+
+  /// Accent used for selection, links and the send action.
+  final Color accent;
+
+  /// Floating GlassTab pill (see `app_shell.dart`).
+  final Color glassTabBackground;
+  final Color glassTabBorder;
+  final Color glassTabSelected;
+  final Color glassTabUnselected;
+  final Color glassTabSelectedText;
+
+  const NekoColors({
+    required this.background,
+    required this.surface,
+    required this.card,
+    required this.divider,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textMuted,
+    required this.userBubble,
+    required this.assistantBubble,
+    required this.accent,
+    required this.glassTabBackground,
+    required this.glassTabBorder,
+    required this.glassTabSelected,
+    required this.glassTabUnselected,
+    required this.glassTabSelectedText,
+  });
+
+  /// Used when a widget renders outside a themed subtree (route transitions,
+  /// frames before `MaterialApp` mounts). Mirrors the dark Neko palette.
+  static const NekoColors fallback = NekoColors(
+    background: Color(0xFF222931),
+    surface: Color(0xFF222931),
+    card: Color(0xFF2A313D),
+    divider: Color(0xFF37404D),
+    textPrimary: Color(0xFFE9EDF3),
+    textSecondary: Color(0xFF8A8A8E),
+    textMuted: Color(0xFF5E6B7A),
+    userBubble: Color(0xFF1F4E79),
+    assistantBubble: Color(0xFF2A313D),
+    accent: Color(0xFF229AF0),
+    glassTabBackground: Color(0xE62A313D),
+    glassTabBorder: Color(0xFF2E3A47),
+    glassTabSelected: Color(0xFF229AF0),
+    glassTabUnselected: Color(0xFF8A8A8E),
+    glassTabSelectedText: Color(0xFFFFFFFF),
+  );
+
+  /// Derive the token set from a theme config.
+  factory NekoColors.fromConfig(AppThemeConfig cfg) {
+    final bool dark = cfg.isDark;
+    return NekoColors(
+      background: cfg.background,
+      surface: cfg.surface,
+      card: cfg.card,
+      divider: cfg.divider,
+      textPrimary: cfg.textPrimary,
+      textSecondary: cfg.textSecondary,
+      // The config has no muted slot: fade secondary text toward the page
+      // background (30% on dark, 10% on light so it stays legible).
+      textMuted: Color.lerp(
+        cfg.textSecondary,
+        cfg.background,
+        dark ? 0.30 : 0.10,
+      )!,
+      // Dark keeps the hand-picked Neko navy; light derives a soft blue tint.
+      userBubble: dark
+          ? const Color(0xFF1F4E79)
+          : Color.alphaBlend(cfg.primary.withValues(alpha: 0.14), cfg.card),
+      assistantBubble: cfg.card,
+      accent: cfg.accent,
+      glassTabBackground: cfg.card.withValues(alpha: 0.90),
+      glassTabBorder: cfg.divider,
+      glassTabSelected: cfg.accent,
+      glassTabUnselected: cfg.textSecondary,
+      // A white label only reads on the dark pill; light themes use the accent.
+      glassTabSelectedText: dark ? Colors.white : cfg.accent,
+    );
+  }
+
+  /// Tokens for [context], falling back to the dark Neko palette.
+  static NekoColors of(BuildContext context) =>
+      Theme.of(context).extension<NekoColors>() ?? fallback;
+
+  @override
+  NekoColors copyWith({
+    Color? background,
+    Color? surface,
+    Color? card,
+    Color? divider,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? textMuted,
+    Color? userBubble,
+    Color? assistantBubble,
+    Color? accent,
+    Color? glassTabBackground,
+    Color? glassTabBorder,
+    Color? glassTabSelected,
+    Color? glassTabUnselected,
+    Color? glassTabSelectedText,
+  }) {
+    return NekoColors(
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      card: card ?? this.card,
+      divider: divider ?? this.divider,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      textMuted: textMuted ?? this.textMuted,
+      userBubble: userBubble ?? this.userBubble,
+      assistantBubble: assistantBubble ?? this.assistantBubble,
+      accent: accent ?? this.accent,
+      glassTabBackground: glassTabBackground ?? this.glassTabBackground,
+      glassTabBorder: glassTabBorder ?? this.glassTabBorder,
+      glassTabSelected: glassTabSelected ?? this.glassTabSelected,
+      glassTabUnselected: glassTabUnselected ?? this.glassTabUnselected,
+      glassTabSelectedText:
+          glassTabSelectedText ?? this.glassTabSelectedText,
+    );
+  }
+
+  @override
+  NekoColors lerp(covariant NekoColors? other, double t) {
+    if (other == null) return this;
+    return NekoColors(
+      background: Color.lerp(background, other.background, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      card: Color.lerp(card, other.card, t)!,
+      divider: Color.lerp(divider, other.divider, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      userBubble: Color.lerp(userBubble, other.userBubble, t)!,
+      assistantBubble: Color.lerp(assistantBubble, other.assistantBubble, t)!,
+      accent: Color.lerp(accent, other.accent, t)!,
+      glassTabBackground:
+          Color.lerp(glassTabBackground, other.glassTabBackground, t)!,
+      glassTabBorder: Color.lerp(glassTabBorder, other.glassTabBorder, t)!,
+      glassTabSelected: Color.lerp(glassTabSelected, other.glassTabSelected, t)!,
+      glassTabUnselected:
+          Color.lerp(glassTabUnselected, other.glassTabUnselected, t)!,
+      glassTabSelectedText:
+          Color.lerp(glassTabSelectedText, other.glassTabSelectedText, t)!,
+    );
+  }
+}
+
+/// `context.neko` — semantic Neko tokens for the active theme.
+extension NekoContextX on BuildContext {
+  NekoColors get neko => NekoColors.of(this);
 }

@@ -153,7 +153,7 @@ class _BottomFade extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                AppTheme.darkBackground.withValues(alpha: 0.55),
+                context.neko.background.withValues(alpha: 0.55),
               ],
             ),
           ),
@@ -183,9 +183,9 @@ class _GlassNavPill extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: _maxWidth),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: AppTheme.glassTabBackground,
+          color: context.neko.glassTabBackground,
           borderRadius: BorderRadius.circular(_radius),
-          border: Border.all(color: AppTheme.glassTabBorder),
+          border: Border.all(color: context.neko.glassTabBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.20),
@@ -304,7 +304,7 @@ class _PillTab extends StatelessWidget {
           curve: Curves.easeInOutCubic,
           decoration: BoxDecoration(
             color: selected
-                ? AppTheme.glassTabSelected.withValues(
+                ? context.neko.glassTabSelected.withValues(
                     alpha: AppTheme.glassTabSelectedAlpha,
                   )
                 : Colors.transparent,
@@ -320,8 +320,8 @@ class _PillTab extends StatelessWidget {
                   selected ? iconSel : icon,
                   size: 23,
                   color: selected
-                      ? AppTheme.glassTabSelected
-                      : AppTheme.glassTabUnselected,
+                      ? context.neko.glassTabSelected
+                      : context.neko.glassTabUnselected,
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -330,8 +330,8 @@ class _PillTab extends StatelessWidget {
                     fontSize: 10.5,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color: selected
-                        ? AppTheme.glassTabSelectedText
-                        : AppTheme.glassTabUnselected,
+                        ? context.neko.glassTabSelectedText
+                        : context.neko.glassTabUnselected,
                   ),
                 ),
               ],

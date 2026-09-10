@@ -135,7 +135,7 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                       width: 200,
                       child: LinearProgressIndicator(
                         value: cloudOperationState.progress,
-                        backgroundColor: AppTheme.darkCard,
+                        backgroundColor: context.neko.card,
                         valueColor: const AlwaysStoppedAnimation<Color>(
                             AppTheme.accentColor),
                       ),
@@ -774,7 +774,7 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
     required List<Widget> children,
   }) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -920,7 +920,7 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: AppTheme.darkCard,
+        backgroundColor: context.neko.card,
         builder: (context) => DraggableScrollableSheet(
           initialChildSize: 0.7,
           minChildSize: 0.5,

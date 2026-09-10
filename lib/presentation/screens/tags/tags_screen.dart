@@ -374,7 +374,7 @@ class _TagEditDialogState extends State<_TagEditDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard,
+                color: context.neko.card,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(

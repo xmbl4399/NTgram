@@ -140,7 +140,7 @@ class _MarkdownInputFieldState extends State<MarkdownInputField> {
                 InputDecoration(
                   hintText: widget.hintText,
                   filled: true,
-                  fillColor: AppTheme.darkBackground,
+                  fillColor: context.neko.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,
@@ -172,9 +172,9 @@ class _MarkdownToolbar extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: context.neko.card,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.darkDivider),
+        border: Border.all(color: context.neko.divider),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -268,7 +268,7 @@ class _ToolbarDivider extends StatelessWidget {
       width: 1,
       height: 20,
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      color: AppTheme.darkDivider,
+      color: context.neko.divider,
     );
   }
 }
@@ -316,16 +316,16 @@ class MarkdownToolbar extends StatelessWidget {
     if (compact) {
       return _buildCompactToolbar(context);
     }
-    return _buildFullToolbar();
+    return _buildFullToolbar(context);
   }
 
-  Widget _buildFullToolbar() {
+  Widget _buildFullToolbar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: context.neko.card,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.darkDivider),
+        border: Border.all(color: context.neko.divider),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

@@ -49,9 +49,9 @@ class ContextUsageIndicator extends ConsumerWidget {
                 CircularProgressIndicator(
                   value: 1.0,
                   strokeWidth: 2,
-                  backgroundColor: AppTheme.darkDivider,
+                  backgroundColor: context.neko.divider,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.darkDivider,
+                    context.neko.divider,
                   ),
                 ),
                 CircularProgressIndicator(
@@ -144,7 +144,7 @@ class ContextUsageDialog extends ConsumerWidget {
     }
 
     return AlertDialog(
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -157,8 +157,8 @@ class ContextUsageDialog extends ConsumerWidget {
           const SizedBox(width: 8),
           Text(
             l10n.contextUsage,
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
+            style: TextStyle(
+              color: context.neko.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -177,13 +177,13 @@ class ContextUsageDialog extends ConsumerWidget {
             // Usage summary
             _buildUsageSummary(context, usage, l10n),
             const SizedBox(height: 16),
-            const Divider(color: AppTheme.darkDivider),
+            Divider(color: context.neko.divider),
             const SizedBox(height: 8),
             // Component breakdown
             Text(
               l10n.breakdown,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
+              style: TextStyle(
+                color: context.neko.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -223,7 +223,7 @@ class ContextUsageDialog extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: (percentage / 100).clamp(0.0, 1.0),
             minHeight: 8,
-            backgroundColor: AppTheme.darkDivider,
+            backgroundColor: context.neko.divider,
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -269,7 +269,7 @@ class ContextUsageDialog extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground,
+        color: context.neko.background,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -277,7 +277,7 @@ class ContextUsageDialog extends ConsumerWidget {
           _buildSummaryRow(
             l10n.totalTokens,
             _formatTokenCount(usage.totalTokens),
-            AppTheme.textPrimary,
+            context.neko.textPrimary,
           ),
           const SizedBox(height: 8),
           _buildSummaryRow(
@@ -350,8 +350,8 @@ class ContextUsageDialog extends ConsumerWidget {
               Expanded(
                 child: Text(
                   component.name,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
+                  style: TextStyle(
+                    color: context.neko.textPrimary,
                     fontSize: 13,
                   ),
                 ),
@@ -372,7 +372,7 @@ class ContextUsageDialog extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: (percentage / 100).clamp(0.0, 1.0),
             minHeight: 3,
-            backgroundColor: AppTheme.darkDivider,
+            backgroundColor: context.neko.divider,
             valueColor: AlwaysStoppedAnimation<Color>(
               _getComponentColor(component.name),
             ),

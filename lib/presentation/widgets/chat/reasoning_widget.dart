@@ -102,7 +102,7 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withValues(alpha: 0.5),
+        color: context.neko.background.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _getAccentColor().withValues(alpha: 0.3),
@@ -296,7 +296,7 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withValues(alpha: 0.5),
+        color: context.neko.background.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _getAccentColor().withValues(alpha: 0.3),

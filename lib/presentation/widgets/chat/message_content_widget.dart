@@ -434,14 +434,14 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
                 fit: BoxFit.contain,
                 placeholder: (context, url) => Container(
                   height: 200,
-                  color: AppTheme.darkBackground,
+                  color: context.neko.background,
                   child: const Center(
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
                 errorWidget: (context, url, error) => Container(
                   height: 150,
-                  color: AppTheme.darkBackground,
+                  color: context.neko.background,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -480,12 +480,12 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
           ),
           code: TextStyle(
             color: widget.textColor,
-            backgroundColor: AppTheme.darkBackground.withValues(alpha: 0.5),
+            backgroundColor: context.neko.background.withValues(alpha: 0.5),
             fontFamily: 'monospace',
             fontSize: effectiveFontSize * 0.9,
           ),
           codeblockDecoration: BoxDecoration(
-            color: AppTheme.darkBackground.withValues(alpha: 0.5),
+            color: context.neko.background.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8),
           ),
           codeblockPadding: const EdgeInsets.all(12),
@@ -542,7 +542,7 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
           horizontalRuleDecoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkDivider,
+                color: context.neko.divider,
                 width: 1,
               ),
             ),

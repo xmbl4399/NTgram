@@ -20,7 +20,7 @@ class PlayHubScreen extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(6, 8, 6, 24),
         child: Material(
-          color: AppTheme.darkCard,
+          color: context.neko.card,
           borderRadius: BorderRadius.circular(16),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -103,8 +103,8 @@ class _PlayHubRow extends StatelessWidget {
       leading: Icon(icon, size: 24, color: iconColor),
       title: Text(
         title,
-        style: const TextStyle(
-          color: AppTheme.textPrimary,
+        style: TextStyle(
+          color: context.neko.textPrimary,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),

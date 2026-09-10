@@ -29,7 +29,7 @@ class SlashCommandSuggestions extends ConsumerWidget {
     return Container(
       constraints: const BoxConstraints(maxHeight: 250),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
+        color: context.neko.card,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -133,7 +133,7 @@ class _CommandSuggestionTile extends StatelessWidget {
                   Text(
                     command.description,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textPrimary,
+                      color: context.neko.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

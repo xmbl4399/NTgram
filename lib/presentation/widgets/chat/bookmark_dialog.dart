@@ -364,7 +364,7 @@ class BookmarkPreviewDialog extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: isUser 
                           ? AppTheme.accentColor.withValues(alpha: 0.2)
-                          : AppTheme.darkCard,
+                          : context.neko.card,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(

@@ -360,7 +360,7 @@ class _WorldInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -989,7 +989,7 @@ class _WorldInfoEntryCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: InkWell(
         onTap: onTap,
         onLongPress: () => _copyToClipboard(context),

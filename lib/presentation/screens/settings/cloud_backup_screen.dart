@@ -51,7 +51,7 @@ class CloudBackupScreen extends ConsumerWidget {
                       width: 200,
                       child: LinearProgressIndicator(
                         value: operationState.progress,
-                        backgroundColor: AppTheme.darkCard,
+                        backgroundColor: context.neko.card,
                         valueColor: const AlwaysStoppedAnimation<Color>(
                             AppTheme.accentColor),
                       ),
@@ -502,7 +502,7 @@ class CloudBackupScreen extends ConsumerWidget {
     required List<Widget> children,
   }) {
     return Card(
-      color: AppTheme.darkCard,
+      color: context.neko.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

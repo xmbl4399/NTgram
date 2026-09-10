@@ -619,10 +619,10 @@ class _FilePickerViewState extends State<_FilePickerView> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(48),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
+                  color: context.neko.card,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.darkDivider,
+                    color: context.neko.divider,
                     width: 2,
                   ),
                 ),
@@ -689,10 +689,10 @@ class _FilePickerViewState extends State<_FilePickerView> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard,
+                  color: context.neko.card,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.darkDivider,
+                    color: context.neko.divider,
                     width: 2,
                   ),
                 ),
@@ -979,7 +979,7 @@ class _BatchImportResults extends StatelessWidget {
         // Progress header
         Container(
           padding: const EdgeInsets.all(16),
-          color: AppTheme.darkCard,
+          color: context.neko.card,
           child: Column(
             children: [
               if (isLoading) ...[
@@ -1228,7 +1228,7 @@ class _CharacterPreview extends StatelessWidget {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppTheme.darkDivider,
+                      color: context.neko.divider,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: character.assets?.avatarPath != null

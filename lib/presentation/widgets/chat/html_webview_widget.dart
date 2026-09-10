@@ -11,7 +11,10 @@ import 'package:url_launcher/url_launcher.dart';
 class HtmlWebViewWidget extends StatefulWidget {
   final String htmlContent;
   final Color backgroundColor;
-  final Color textColor;
+
+  /// Body text colour. `null` resolves to `context.neko.textPrimary` so the
+  /// HTML always follows the active theme.
+  final Color? textColor;
   final double? fontSize;
   final VoidCallback? onLongPress;
   /// Unique key to force rebuild when content changes significantly
@@ -21,7 +24,7 @@ class HtmlWebViewWidget extends StatefulWidget {
     super.key,
     required this.htmlContent,
     this.backgroundColor = Colors.transparent,
-    this.textColor = AppTheme.textPrimary,
+    this.textColor,
     this.fontSize,
     this.onLongPress,
     this.contentKey,
@@ -134,7 +137,7 @@ class _HtmlWebViewWidgetState extends State<HtmlWebViewWidget> {
   /// Build the complete HTML document
   String _buildHtml() {
     final effectiveFontSize = widget.fontSize ?? 14.0;
-    final textColorHex = _colorToHex(widget.textColor);
+    final textColorHex = _colorToHex(widget.textColor ?? context.neko.textPrimary);
     final content = widget.htmlContent.replaceAllMapped(
       RegExp(r'<details\b', caseSensitive: false),
       (match) => '<details open',
@@ -530,7 +533,9 @@ $content
             const SizedBox(height: 8),
             Text(
               'Failed to render HTML content',
-              style: TextStyle(color: widget.textColor),
+              style: TextStyle(
+                color: widget.textColor ?? context.neko.textPrimary,
+              ),
             ),
             if (_errorMessage != null)
               Text(
@@ -666,7 +671,7 @@ $content
             if (_isLoading)
               Positioned.fill(
                 child: Container(
-                  color: AppTheme.darkCard,
+                  color: context.neko.card,
                   child: const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

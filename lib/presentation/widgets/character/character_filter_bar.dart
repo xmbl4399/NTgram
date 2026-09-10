@@ -50,7 +50,7 @@ class CharacterFilterBar extends ConsumerWidget {
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: AppTheme.darkCard,
+                    fillColor: context.neko.card,
                   ),
                   onChanged: (value) {
                     ref
@@ -206,7 +206,7 @@ class CharacterFilterBar extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.darkCard,
+      backgroundColor: context.neko.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

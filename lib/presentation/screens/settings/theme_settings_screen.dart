@@ -384,7 +384,7 @@ class _ThemeCard extends StatelessWidget {
             // Name
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              color: AppTheme.darkCard,
+              color: context.neko.card,
               child: Row(
                 children: [
                   Expanded(
