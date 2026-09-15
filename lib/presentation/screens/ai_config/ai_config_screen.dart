@@ -28,6 +28,7 @@ class AIConfigScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(AppLocalizations.of(context)!.aiConfiguration),
         actions: [
           IconButton(

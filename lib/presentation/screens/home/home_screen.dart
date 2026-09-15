@@ -65,6 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(l10n.appTitle),
         actions: [
           IconButton(

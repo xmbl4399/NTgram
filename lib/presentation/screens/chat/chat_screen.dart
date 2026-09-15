@@ -1243,6 +1243,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         true;
 
     return AppBar(
+      centerTitle: false,
+      titleSpacing: 0,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

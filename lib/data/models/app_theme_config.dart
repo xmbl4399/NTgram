@@ -99,7 +99,11 @@ class AppThemeConfig {
         foregroundColor: textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
+        // Secondary pages (back button + title) keep the title next to the
+        // back arrow: a centred title drifts left as soon as the actions row
+        // grows, so its position is unstable across pages. Root tab screens
+        // that genuinely want a centred title opt in explicitly.
+        centerTitle: false,
         titleTextStyle: TextStyle(
           color: textPrimary,
           fontSize: 16,

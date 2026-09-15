@@ -14,7 +14,7 @@ class PlayHubScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.playHub)),
+      appBar: AppBar(title: Text(l10n.playHub), centerTitle: true),
       // Neko-style rounded card wrapping the hub rows, height follows content.
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
