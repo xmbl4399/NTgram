@@ -320,7 +320,7 @@ class _LLMProviderTile extends ConsumerWidget {
   String _providerName(LLMProvider provider) {
     switch (provider) {
       case LLMProvider.openai:
-        return 'OAI Compatible';
+        return 'OpenAI';
       case LLMProvider.claude:
         return 'Claude (Anthropic)';
       case LLMProvider.openRouter:
@@ -343,38 +343,55 @@ class _LLMProviderTile extends ConsumerWidget {
         return 'Z.AI (智谱 GLM)';
       case LLMProvider.miniMax:
         return 'MiniMax';
+      case LLMProvider.tencentHunyuan:
+        return 'Tencent Hunyuan (腾讯混元)';
+      case LLMProvider.xiaomiMiMo:
+        return 'Xiaomi MiMo (小米)';
       case LLMProvider.openAICompatible:
-        return 'OAI Compatible';
+        return 'OAI Compatible (Custom)';
     }
   }
 
-  /// Check if OpenAI should be hidden based on region or language setting
-  bool _shouldHideOpenAI(BuildContext context, bool isChinaRegion) {
-    // Hide if in China region (detected via App Store/SIM)
-    if (isChinaRegion) {
-      return true;
-    }
+  /// Explicit, hand-ordered provider list for the picker.
+  ///
+  /// Deliberately NOT `LLMProvider.values`: the enum order is an implementation
+  /// detail (and appended to for back-compat), while this order is the product
+  /// decision.
+  ///
+  /// Ordering principle (decided 2026-09-16 from real relay-station token
+  /// volume — Top 20 `tokens processed` aggregated by vendor): custom slot
+  /// first, then mainland-China vendors by actual consumption volume
+  /// (DeepSeek 25.3T > Hunyuan 17.9T > GLM 15.2T > MiMo 7.96T > MiniMax 1.45T
+  /// > Kimi 1.40T), then the domestic aggregator, then the international
+  /// aggregator (in China an aggregator is the first hop to any foreign API),
+  /// then the foreign official APIs, then local backends.
+  ///
+  /// Qwen sits below Kimi on purpose: it does not appear in the Top 20 at all
+  /// (its volume runs through Alibaba's own channels), so its old #3 slot was
+  /// over-rated. It is kept, not dropped.
+  ///
+  /// Every provider is always visible, including OpenAI.
+  static const List<LLMProvider> _orderedProviders = [
+    LLMProvider.openAICompatible,
+    LLMProvider.deepSeek,
+    LLMProvider.tencentHunyuan,
+    LLMProvider.zai,
+    LLMProvider.xiaomiMiMo,
+    LLMProvider.miniMax,
+    LLMProvider.moonshot,
+    LLMProvider.qwen,
+    LLMProvider.siliconFlow,
+    LLMProvider.openRouter,
+    LLMProvider.openai,
+    LLMProvider.claude,
+    LLMProvider.gemini,
+    LLMProvider.ollama,
+    LLMProvider.koboldCpp,
+  ];
 
-    // Also hide if app language is set to Chinese (zh)
-    final locale = Localizations.localeOf(context);
-    if (locale.languageCode == 'zh') {
-      return true;
-    }
-
-    return false;
-  }
-
-  /// Get filtered list of providers based on region and language
   List<LLMProvider> _getAvailableProviders(
       BuildContext context, bool isChinaRegion) {
-    final hideOpenAI = _shouldHideOpenAI(context, isChinaRegion);
-    return LLMProvider.values.where((provider) {
-      // Hide OpenAI in China region or when language is Chinese
-      if (hideOpenAI && provider == LLMProvider.openai) {
-        return false;
-      }
-      return true;
-    }).toList();
+    return _orderedProviders;
   }
 
   void _showProviderPicker(
@@ -438,29 +455,33 @@ class _LLMProviderTile extends ConsumerWidget {
   String _providerDescription(LLMProvider provider) {
     switch (provider) {
       case LLMProvider.openai:
-        return '5.2';
+        return 'GPT-5.6 Luna (default), Terra, Sol — needs your own network';
       case LLMProvider.claude:
-        return 'Claude 4.5';
+        return 'Claude Haiku 4.5 (default), Sonnet 5, Opus 5';
       case LLMProvider.openRouter:
-        return 'Multiple providers';
+        return '400+ models — defaults to GLM-5.3 Flash';
       case LLMProvider.gemini:
-        return 'Gemini 3 Pro, Flash';
+        return 'Gemini 3.8 Flash, 3.1 Pro';
       case LLMProvider.ollama:
         return 'Local models';
       case LLMProvider.koboldCpp:
         return 'GGUF models';
       case LLMProvider.deepSeek:
-        return 'DeepSeek V3.2, DeepSeek R1';
+        return 'DeepSeek V4.1-Flash, V4-Pro';
       case LLMProvider.qwen:
-        return 'Qwen Plus, Qwen Max';
+        return 'Qwen3.8 Flash, Qwen3.8 Max';
       case LLMProvider.siliconFlow:
-        return 'DeepSeek, Qwen, GLM hosting';
+        return 'DeepSeek, Qwen, GLM, Kimi hosting';
       case LLMProvider.moonshot:
-        return 'Kimi K2, Kimi Latest';
+        return 'Kimi K2.5 (default), K2.6, K3';
       case LLMProvider.zai:
-        return 'GLM-5, GLM-5 Turbo';
+        return 'GLM-5.3 Flash (default), GLM-5.3';
       case LLMProvider.miniMax:
-        return 'MiniMax M2 series';
+        return 'MiniMax M3 (flagship and cheapest)';
+      case LLMProvider.tencentHunyuan:
+        return 'Hunyuan TurboS (default), Lite, Hy4 preview';
+      case LLMProvider.xiaomiMiMo:
+        return 'MiMo V2.5 (default), V2.5 Pro';
       case LLMProvider.openAICompatible:
         return 'Custom OAI-compatible API';
     }

@@ -235,7 +235,10 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     else {
       // Convert HTML to Markdown-friendly format
       final processedContent = hasHtml ? _convertHtmlToMarkdown(widget.content) : widget.content;
-      contentWidget = _buildMarkdownContent(context, processedContent);
+      contentWidget = _buildMarkdownContent(
+        context,
+        _normalizeQuoteBlocks(processedContent),
+      );
     }
 
     // Wrap with gesture detector for context menu (except for WebView which handles its own)
@@ -250,6 +253,71 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
     );
   }
   
+  /// Repair the two ways a `>`-marked dialogue block ends up swallowing the
+  /// action lines around it, so dialogue and actions render as separate blocks.
+  ///
+  /// 1. `> （她歪了歪头）` — models frequently prefix an *action* line with `>`
+  ///    as well, which merges it into the dialogue block (this is exactly what
+  ///    "台词和动作揉在一起" looks like). Any quote line whose body starts with
+  ///    `（` / `(` is unwrapped back into a plain paragraph.
+  /// 2. `> line` immediately followed by a plain line — CommonMark's lazy
+  ///    continuation parses both as ONE blockquote, gluing the next action
+  ///    paragraph into the dialogue block. A blank line is inserted at that
+  ///    boundary.
+  ///
+  /// Consecutive quote lines are left untouched so multi-line dialogue stays a
+  /// single block, and the plain → quote direction is untouched (`>` interrupts
+  /// a paragraph on its own). Fenced code blocks are never rewritten.
+  String _normalizeQuoteBlocks(String source) {
+    if (!source.contains('>')) return source;
+
+    bool isFence(String line) {
+      final trimmed = line.trimLeft();
+      return trimmed.startsWith('```') || trimmed.startsWith('~~~');
+    }
+
+    bool isQuote(String line) => line.trimLeft().startsWith('>');
+
+    // Pass 1 — unwrap quote lines that hold parenthesised action / inner voice.
+    final unwrapped = <String>[];
+    var inFence = false;
+    for (final raw in source.split('\n')) {
+      if (isFence(raw)) inFence = !inFence;
+      if (!inFence && isQuote(raw)) {
+        final body = raw.trimLeft().substring(1).trimLeft();
+        if (body.startsWith('（') || body.startsWith('(')) {
+          unwrapped.add(body);
+          continue;
+        }
+      }
+      unwrapped.add(raw);
+    }
+
+    // Pass 2 — break lazy continuation at quote → plain boundaries.
+    final out = <String>[];
+    inFence = false;
+    for (var i = 0; i < unwrapped.length; i++) {
+      final line = unwrapped[i];
+      if (isFence(line)) inFence = !inFence;
+
+      if (!inFence && i > 0) {
+        final prev = unwrapped[i - 1];
+        final isBoundary = prev.trim().isNotEmpty &&
+            line.trim().isNotEmpty &&
+            !isFence(prev) &&
+            isQuote(prev) &&
+            !isQuote(line);
+        if (isBoundary) {
+          out.add(''); // break the lazy continuation
+        }
+      }
+
+      out.add(line);
+    }
+
+    return out.join('\n');
+  }
+
   /// Convert simple HTML tags to Markdown equivalents
   String _convertHtmlToMarkdown(String html) {
     var result = html;

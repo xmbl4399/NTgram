@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/data/models/chat.dart';
@@ -8,10 +7,18 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
 import 'package:native_tavern/presentation/widgets/chat/reasoning_widget.dart';
-import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 
-/// Visual novel style message view - displays messages at the bottom of the screen
-/// with the background image visible above
+/// Visual novel style message view.
+///
+/// One message per page; swipe left/right to turn pages. There are no chevron
+/// buttons — the only chrome is a translucent `n / total` counter that sits
+/// directly on top of the bubble, horizontally centred. Long-pressing that
+/// counter opens the same message menu the bubble used to open (that gesture is
+/// unreliable on the bubble itself because the reply text is selectable).
+///
+/// The bubble follows the classic bubble layout (same colours, radius and
+/// left/right alignment as `_MessageBubble`), hugs the bottom edge and only
+/// takes the height it needs — the artwork above stays visible.
 class VisualNovelMessageView extends ConsumerStatefulWidget {
   final List<ChatMessage> messages;
   final Character? character;
@@ -20,10 +27,16 @@ class VisualNovelMessageView extends ConsumerStatefulWidget {
   final void Function(ChatMessage message) onLongPress;
   final void Function(int swipeIndex, String messageId) onSwipe;
 
-  /// When true the message panel expands to fill the space below the top
-  /// "1/1" page bar (novel mode fills the page) instead of capping at ~40%
-  /// of the screen height.
+  /// When true the pager fills the space given by the parent (novel mode) instead
+  /// of capping at ~50% of the screen height.
   final bool fillsAvailable;
+
+  /// Whether an image background is active — drives bubble translucency, exactly
+  /// like bubble mode.
+  final bool hasBackground;
+
+  /// Bubble opacity when [hasBackground] is true.
+  final double bubbleOpacity;
 
   const VisualNovelMessageView({
     super.key,
@@ -34,6 +47,8 @@ class VisualNovelMessageView extends ConsumerStatefulWidget {
     required this.onLongPress,
     required this.onSwipe,
     this.fillsAvailable = false,
+    this.hasBackground = false,
+    this.bubbleOpacity = 0.8,
   });
 
   @override
@@ -86,182 +101,198 @@ class _VisualNovelMessageViewState
       return const SizedBox.shrink();
     }
 
-    return Column(
-      // When fillsAvailable the panel is hosted inside an Expanded, so the
-      // column has bounded height and the message area can fill the rest.
-      mainAxisSize: widget.fillsAvailable ? MainAxisSize.max : MainAxisSize.min,
-      children: [
-        // Navigation buttons & page indicator
-        _buildNavigationBar(),
-        // Message content area
-        if (widget.fillsAvailable)
-          Expanded(child: _buildMessageArea())
-        else
-          _buildMessageArea(),
-      ],
-    );
+    // Just the pager: the page counter lives inside each page (above the
+    // bubble), so nothing is reserved below it and the bubble can sit lower.
+    return _buildPager();
   }
 
-  Widget _buildNavigationBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Previous button — oval blue pill standing out from the scene.
-          IconButton(
-            style: IconButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              disabledBackgroundColor: AppTheme.primaryColor,
-              shape: const StadiumBorder(),
-              minimumSize: const Size(64, 36),
-              padding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
-            ),
-            icon: Icon(
-              Icons.chevron_left,
-              color: _currentIndex > 0 ? Colors.white : Colors.white70,
-            ),
-            onPressed: _currentIndex > 0
-                ? () {
-                    _pageController.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                    );
-                  }
-                : null,
-          ),
-          // Page indicator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '${_currentIndex + 1} / ${widget.messages.length}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          // Next button — oval blue pill standing out from the scene.
-          IconButton(
-            style: IconButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              disabledBackgroundColor: AppTheme.primaryColor,
-              shape: const StadiumBorder(),
-              minimumSize: const Size(64, 36),
-              padding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
-            ),
-            icon: Icon(
-              Icons.chevron_right,
-              color: _currentIndex < widget.messages.length - 1
-                  ? Colors.white
-                  : Colors.white70,
-            ),
-            onPressed: _currentIndex < widget.messages.length - 1
-                ? () {
-                    _pageController.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                    );
-                  }
-                : null,
-          ),
-        ],
-      ),
-    );
-  }
+  // ------------------------------------------------------------------ chrome
 
-  Widget _buildMessageArea() {
-    final messagePanel = Container(
-      constraints: widget.fillsAvailable
-          ? const BoxConstraints(minHeight: 0)
-          : BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.4,
-              minHeight: 150,
-            ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.6),
-            Colors.black.withValues(alpha: 0.8),
-          ],
+  /// The `n / total` pill that floats directly above the bubble.
+  ///
+  /// Visual style is taken verbatim from the upstream (`fatsnk/NativeTavern`)
+  /// navigation bar: a `Colors.black38` pill, 20 radius, 16/6 padding, white
+  /// 13px medium text. Only its *position* changed — upstream drew it in a
+  /// chrome row at the top, here it sits centred on top of the bubble so the
+  /// bubble can rest lower.
+  ///
+  /// Long-press opens the message menu — this is the visual-novel equivalent of
+  /// the old "long-press the speaker name" gesture.
+  Widget _buildPageChip(ChatMessage message, int index) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () => widget.onLongPress(message),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black38,
+          borderRadius: BorderRadius.circular(20),
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 1),
+        child: Text(
+          '${index + 1} / ${widget.messages.length}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.messages.length,
-        onPageChanged: (index) {
-          setState(() => _currentIndex = index);
-        },
-        itemBuilder: (context, index) {
-          final message = widget.messages[index];
-          final isLast = index == widget.messages.length - 1;
-          final isGenerating = isLast && widget.isGenerating;
-
-          return _buildMessageCard(message, isGenerating);
-        },
-      ),
-    );
-
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: messagePanel,
-      ),
     );
   }
 
-  Widget _buildMessageCard(ChatMessage message, bool isGenerating) {
+  // ------------------------------------------------------------------- pager
+
+  Widget _buildPager() {
+    final pager = PageView.builder(
+      controller: _pageController,
+      itemCount: widget.messages.length,
+      onPageChanged: (index) {
+        setState(() => _currentIndex = index);
+      },
+      itemBuilder: (context, index) {
+        final message = widget.messages[index];
+        final isLast = index == widget.messages.length - 1;
+        final isGenerating = isLast && widget.isGenerating;
+        return _buildMessageCard(message, isGenerating, index);
+      },
+    );
+
+    if (widget.fillsAvailable) {
+      return pager;
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+        minHeight: 120,
+      ),
+      child: pager,
+    );
+  }
+
+  // ------------------------------------------------------------------ bubble
+
+  Widget _buildMessageCard(
+    ChatMessage message,
+    bool isGenerating,
+    int index,
+  ) {
     final isUser = message.role == MessageRole.user;
     final hasSwipes = message.swipes.length > 1;
     final isLast =
         widget.messages.isNotEmpty && message == widget.messages.last;
 
-    return GestureDetector(
-      onLongPress: () => widget.onLongPress(message),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Speaker header
-            _buildSpeakerHeader(message, isUser),
-            const SizedBox(height: 12),
-            // Show reasoning/thinking content if available (for AI messages)
-            if (!isUser && message.hasReasoning)
-              _buildReasoningSection(message, isGenerating && isLast),
-            // Message content
-            if (isGenerating && message.content.isEmpty)
-              _buildTypingIndicator()
-            else
-              MessageContentWidget(
-                content: message.content,
-                textColor: Colors.white,
-                selectable: true,
-                onLongPress: () => widget.onLongPress(message),
-                isStreaming: isGenerating,
-                messageId: message.id,
-              ),
-            if (!isUser && !isGenerating)
-              DataBankCitationPreview(message: message),
-            // Swipe controls
-            if (hasSwipes && !isGenerating) _buildSwipeControls(message),
-          ],
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The page, not the screen, is the real budget: the chat area already
+        // excludes the top bar and the input bar, and with the keyboard open it
+        // is much shorter than the screen. Capping the bubble at half the
+        // *screen* overflowed the column by ~17px whenever the counter chip and
+        // paddings were added on top of that cap. Half of the page keeps the
+        // artwork visible and always fits.
+        final pageHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : MediaQuery.sizeOf(context).height * 0.5;
+        final maxBubbleHeight = pageHeight * 0.5;
+
+        return Align(
+          // Counter + bubble hug the bottom edge; the artwork above stays
+          // uncovered. No speaker name and no avatar here — the sprite is the
+          // speaker.
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Page counter sits tight on top of the bubble, centred on screen.
+                Center(child: _buildPageChip(message, index)),
+                const SizedBox(height: 6),
+                // Flexible is the overflow guard: whatever the chip and the
+                // paddings actually consume, the bubble shrinks into what is
+                // left instead of pushing the column past the page.
+                Flexible(
+                  child: Row(
+                    // Same geometry as bubble mode: the bubble hugs its own side
+                    // and may grow to the full row width; it is never
+                    // artificially narrowed.
+                    mainAxisAlignment: isUser
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: GestureDetector(
+                          onLongPress: () => widget.onLongPress(message),
+                          child: Container(
+                            constraints:
+                                BoxConstraints(maxHeight: maxBubbleHeight),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: _buildBubbleDecoration(isUser),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Show reasoning/thinking content (AI messages only)
+                                  if (!isUser && message.hasReasoning) ...[
+                                    _buildReasoningSection(
+                                      message,
+                                      isGenerating && isLast,
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  if (isGenerating && message.content.isEmpty)
+                                    _buildTypingIndicator()
+                                  else
+                                    MessageContentWidget(
+                                      content: message.content,
+                                      textColor: isUser
+                                          ? Colors.white
+                                          : context.neko.textPrimary,
+                                      selectable: true,
+                                      onLongPress: () =>
+                                          widget.onLongPress(message),
+                                      isStreaming: isGenerating,
+                                      messageId: message.id,
+                                    ),
+                                  if (!isUser && !isGenerating)
+                                    DataBankCitationPreview(message: message),
+                                  if (hasSwipes && !isGenerating)
+                                    _buildSwipeControls(message),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (isUser) const SizedBox(width: 8),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Same colour rules as bubble mode (`_MessageBubble._buildMessageDecoration`).
+  BoxDecoration _buildBubbleDecoration(bool isUser) {
+    final neko = context.neko;
+    final base = isUser ? neko.userBubble : neko.card;
+    final color = widget.hasBackground
+        ? base.withValues(alpha: widget.bubbleOpacity)
+        : base;
+
+    return BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(18),
     );
   }
 
@@ -275,88 +306,18 @@ class _VisualNovelMessageViewState
 
     // During streaming, show the streaming version
     if (isStreaming) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: StreamingReasoningWidget(
-          reasoning: reasoning,
-          isStreaming: true,
-          label: l10n.thinking,
-        ),
+      return StreamingReasoningWidget(
+        reasoning: reasoning,
+        isStreaming: true,
+        label: l10n.thinking,
       );
     }
 
     // For completed messages, show the collapsible version
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: ReasoningWidget(
-        reasoning: reasoning,
-        initiallyExpanded: false,
-        label: l10n.thinking,
-      ),
-    );
-  }
-
-  Widget _buildSpeakerHeader(ChatMessage message, bool isUser) {
-    final character =
-        widget.characterForMessage?.call(message) ?? widget.character;
-    return Row(
-      children: [
-        // Avatar
-        if (!isUser && character?.assets?.avatarPath != null)
-          CharacterAvatarCircle(
-            imagePath: character!.assets!.avatarPath!,
-            radius: 18,
-            errorBuilder: (_, __, ___) => CircleAvatar(
-              radius: 18,
-              backgroundColor: AppTheme.accentColor.withValues(alpha: 0.3),
-              child: const Icon(Icons.person, size: 18, color: Colors.white),
-            ),
-          )
-        else
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: isUser
-                ? AppTheme.accentColor.withValues(alpha: 0.5)
-                : AppTheme.accentColor.withValues(alpha: 0.3),
-            child: Icon(
-              isUser ? Icons.person : Icons.smart_toy,
-              size: 18,
-              color: Colors.white,
-            ),
-          ),
-        const SizedBox(width: 10),
-        // Name
-        Text(
-          isUser ? 'You' : (character?.name ?? 'AI'),
-          style: TextStyle(
-            color: isUser ? AppTheme.accentColor : Colors.amber,
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        // Speaking indicator for generating
-        if (!isUser &&
-            widget.messages.isNotEmpty &&
-            message == widget.messages.last &&
-            widget.isGenerating)
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.greenAccent,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.greenAccent.withValues(alpha: 0.5),
-                    blurRadius: 6,
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
+    return ReasoningWidget(
+      reasoning: reasoning,
+      initiallyExpanded: false,
+      label: l10n.thinking,
     );
   }
 
@@ -377,7 +338,7 @@ class _VisualNovelMessageViewState
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.neko.textSecondary,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -388,43 +349,45 @@ class _VisualNovelMessageViewState
   }
 
   Widget _buildSwipeControls(ChatMessage message) {
+    final neko = context.neko;
     final currentSwipeIndex = message.currentSwipeIndex;
     final totalSwipes = message.swipes.length;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
             icon: Icon(
               Icons.arrow_back_ios,
-              size: 16,
-              color: currentSwipeIndex > 0 ? Colors.white70 : Colors.white24,
+              size: 14,
+              color:
+                  currentSwipeIndex > 0 ? neko.textSecondary : neko.textMuted,
             ),
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(),
             onPressed: currentSwipeIndex > 0
                 ? () => widget.onSwipe(currentSwipeIndex - 1, message.id)
                 : null,
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(12),
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               '${currentSwipeIndex + 1} / $totalSwipes',
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: TextStyle(color: neko.textSecondary, fontSize: 12),
             ),
           ),
           IconButton(
             icon: Icon(
               Icons.arrow_forward_ios,
-              size: 16,
+              size: 14,
               color: currentSwipeIndex < totalSwipes - 1
-                  ? Colors.white70
-                  : Colors.white24,
+                  ? neko.textSecondary
+                  : neko.textMuted,
             ),
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(),
             onPressed: currentSwipeIndex < totalSwipes - 1
                 ? () => widget.onSwipe(currentSwipeIndex + 1, message.id)
                 : null,

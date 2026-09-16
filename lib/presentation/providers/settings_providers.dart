@@ -46,6 +46,16 @@ class LLMConfigNotifier extends StateNotifier<LLMConfig> {
   static const _configKey = 'llm_config';
   static const _providerConfigKeyPrefix = 'llm_provider_config_';
 
+  /// Context window this fork shipped with before 0.1.12+32. Anything still on
+  /// exactly this value has never been touched by the user, so it is safe to
+  /// migrate to [_defaultContextLength].
+  static const _legacyDefaultContextLength = 1000000;
+
+  /// 300K — matches the built-in DS-zh preset. A 1M window is unreachable in
+  /// practice for RP and makes long histories slow and expensive well before the
+  /// model actually runs out of room.
+  static const _defaultContextLength = 300000;
+
   LLMConfigNotifier(this._prefs, this._db) : super(_defaultConfig()) {
     _loadConfig();
   }
@@ -55,13 +65,18 @@ class LLMConfigNotifier extends StateNotifier<LLMConfig> {
   Future<void> _writeQueue = Future<void>.value();
   bool _stateChangedBeforeLoad = false;
 
+  /// First-launch default (also the fallback when nothing is stored yet).
+  ///
+  /// Points at the "OAI compatible (custom)" entry so a fresh install starts on
+  /// the neutral, provider-agnostic slot; the user fills in URL/key themselves.
   static LLMConfig _defaultConfig() {
     return const LLMConfig(
-      provider: LLMProvider.claude,
-      model: 'claude-sonnet-4-5-20250929',
+      provider: LLMProvider.openAICompatible,
+      model: '',
       apiKey: '',
-      apiUrl: 'https://api.anthropic.com',
+      apiUrl: 'http://localhost:8080/v1',
       maxTokens: 8192,
+      contextLength: _defaultContextLength,
       temperature: 0.8,
       topP: 0.95,
       topK: 40,
@@ -98,38 +113,86 @@ class LLMConfigNotifier extends StateNotifier<LLMConfig> {
         return 'https://open.bigmodel.cn/api/paas/v4';
       case LLMProvider.miniMax:
         return 'https://api.minimaxi.com/v1';
+      case LLMProvider.tencentHunyuan:
+        // Official OpenAI-compatible endpoint. Tencent has announced the
+        // compatible interface is migrating to TokenHub; this URL stays valid
+        // for existing accounts.
+        return 'https://api.hunyuan.cloud.tencent.com/v1';
+      case LLMProvider.xiaomiMiMo:
+        // Pay-as-you-go line. Token-plan subscribers use
+        // https://token-plan-cn.xiaomimimo.com/v1 instead.
+        return 'https://api.xiaomimimo.com/v1';
       case LLMProvider.openAICompatible:
         return 'http://localhost:8080/v1';
     }
   }
 
-  /// Get default model for a provider
+  /// Get default model for a provider.
+  ///
+  /// Every entry is the vendor's **cheap / flash tier**, never the flagship: a
+  /// fresh install should cost cents, not dollars, and the user can always pull
+  /// the live `/models` list from the AI config screen to step up. Names were
+  /// verified against each vendor's own pricing page in 2026-09; they move fast.
+  ///
+  /// | provider      | default                       | list price / 1M      |
+  /// |---------------|-------------------------------|----------------------|
+  /// | OpenAI        | `gpt-5.6-luna`                | $0.20 / $1.20        |
+  /// | Anthropic     | `claude-haiku-4-5`            | $1 / $5              |
+  /// | OpenRouter    | `z-ai/glm-5.3-flash`          | $0.15 / $0.50        |
+  /// | Google        | `gemini-3.8-flash`            | $0.75 / $3.75 (promo)|
+  /// | DeepSeek      | `deepseek-flash` (V4.1-Flash) | $0.14 / $0.28        |
+  /// | Qwen          | `qwen3.8-flash`               | ¥0.8 / ¥2.7          |
+  /// | SiliconFlow   | `deepseek-ai/DeepSeek-V4-Flash` | —                  |
+  /// | Moonshot      | `kimi-k2.5`                   | ¥4 / ¥21             |
+  /// | Z.ai (GLM)    | `glm-5.3-flash`               | ¥0.8 / ¥2.8          |
+  /// | MiniMax       | `MiniMax-M3`                  | $0.30 / $1.20        |
+  /// | Tencent Hy    | `hunyuan-turbos`              | ¥0.8 / ¥2            |
+  /// | Xiaomi MiMo   | `mimo-v2.5`                   | cheaper than -pro    |
   static String _getDefaultModel(LLMProvider provider) {
     switch (provider) {
       case LLMProvider.openai:
-        return 'gpt-5.2';
+        // Luna is the nano-priced tier of the 5.6 family ($0.20/$1.20) and is
+        // what OpenAI itself positions for cost-sensitive, high-volume work.
+        return 'gpt-5.6-luna';
       case LLMProvider.claude:
-        return 'claude-sonnet-4-6';
+        // Haiku is still the cheapest Claude tier ($1/$5); Haiku 5 not out yet.
+        return 'claude-haiku-4-5';
       case LLMProvider.openRouter:
-        return 'anthropic/claude-sonnet-4.5';
+        // Gateway default stays on a cheap, widely-mirrored flash model rather
+        // than a flagship — OpenRouter bills whatever the route resolves to.
+        return 'z-ai/glm-5.3-flash';
       case LLMProvider.gemini:
-        return 'gemini-2.5-flash';
+        return 'gemini-3.8-flash';
       case LLMProvider.ollama:
         return 'llama3.2';
       case LLMProvider.koboldCpp:
         return '';
       case LLMProvider.deepSeek:
-        return 'deepseek-chat';
+        // `deepseek-flash` is the canonical id for DeepSeek-V4.1-Flash; the old
+        // `deepseek-v4-flash` name now just forwards to it at Flash price.
+        return 'deepseek-flash';
       case LLMProvider.qwen:
-        return 'qwen-plus';
+        return 'qwen3.8-flash';
       case LLMProvider.siliconFlow:
-        return 'deepseek-ai/DeepSeek-V3';
+        return 'deepseek-ai/DeepSeek-V4-Flash';
       case LLMProvider.moonshot:
-        return 'kimi-latest';
+        // K2.5 is the value tier and the cheapest Kimi chat model. K3 is the
+        // newest flagship but rejects temperature/top_p, which this app always
+        // sends, so it is deliberately not the default.
+        return 'kimi-k2.5';
       case LLMProvider.zai:
-        return 'glm-5';
+        return 'glm-5.3-flash';
       case LLMProvider.miniMax:
-        return 'MiniMax-M2';
+        // M3 is both the current flagship and the cheapest MiniMax row
+        // ($0.30/$1.20), so there is nothing to step down to.
+        return 'MiniMax-M3';
+      case LLMProvider.tencentHunyuan:
+        // TurboS is the cheap fast tier (¥0.8/¥2). `hunyuan-lite` is free but
+        // far too weak for role-play; Hy4 preview is the flagship.
+        return 'hunyuan-turbos';
+      case LLMProvider.xiaomiMiMo:
+        // `mimo-v2.5` (native omni) is ~3x cheaper than the -pro line.
+        return 'mimo-v2.5';
       case LLMProvider.openAICompatible:
         return '';
     }
@@ -256,15 +319,29 @@ class LLMConfigNotifier extends StateNotifier<LLMConfig> {
       try {
         final map = jsonDecode(jsonStr) as Map<String, dynamic>;
         final loaded = LLMConfig.fromJson(map);
+
+        // One-off migration: the shipped default context window shrank from 1M
+        // to 300K. A config still sitting on exactly the old default was never
+        // edited, so bump it; any other value is the user's own choice.
+        final migrated = loaded.contextLength == _legacyDefaultContextLength
+            ? loaded.copyWith(contextLength: _defaultContextLength)
+            : loaded;
+        final contextMigrated = migrated.contextLength != loaded.contextLength;
+
         if (!_stateChangedBeforeLoad) {
-          state = loaded.copyWith(
-            apiUrl: _normalizeApiUrl(loaded.provider, loaded.apiUrl),
+          state = migrated.copyWith(
+            apiUrl: _normalizeApiUrl(migrated.provider, migrated.apiUrl),
           );
         }
 
-        if (needsMigration) {
-          _log('Migrating LLM config from SharedPreferences to Database');
-          _enqueuePersistence(); // Save to DB
+        if (needsMigration || contextMigrated) {
+          if (needsMigration) {
+            _log('Migrating LLM config from SharedPreferences to Database');
+          }
+          if (contextMigrated) {
+            _log('Migrated context length 1M → 300K');
+          }
+          _enqueuePersistence(); // Persist the migrated config
         }
       } catch (e) {
         // Use default config on error
@@ -1244,6 +1321,8 @@ class ModelFetchNotifier extends StateNotifier<ModelFetchState> {
           case LLMProvider.moonshot:
           case LLMProvider.zai:
           case LLMProvider.miniMax:
+          case LLMProvider.xiaomiMiMo:
+          case LLMProvider.tencentHunyuan:
           case LLMProvider.openAICompatible:
           case LLMProvider.openai:
             message = 'No models found. Check your API key.';

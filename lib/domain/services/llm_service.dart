@@ -24,6 +24,14 @@ enum LLMProvider {
   moonshot,
   zai,
   miniMax,
+
+  /// Xiaomi MiMo (api.xiaomimimo.com) — appended so existing presets, which
+  /// serialise the provider by `name`, keep resolving.
+  xiaomiMiMo,
+
+  /// Tencent Hunyuan (api.hunyuan.cloud.tencent.com) — OpenAI-compatible, so it
+  /// rides the same branch as the other OpenAI-protocol vendors.
+  tencentHunyuan,
 }
 
 /// LLM Response with content and optional reasoning/thinking
@@ -300,7 +308,10 @@ class LLMConfig {
     required this.apiKey,
     required this.apiUrl,
     this.maxTokens = 8192,
-    this.contextLength = 1000000,
+    // 300K, matching the built-in DS-zh preset. A 1M window is rarely reachable
+    // in practice and makes long RP histories slow and expensive long before the
+    // model actually runs out of room.
+    this.contextLength = 300000,
     this.temperature = 1,
     this.topP = 0.95,
     this.topK = 40,
@@ -436,7 +447,7 @@ class LLMConfig {
         apiKey: json['apiKey'] as String? ?? '',
         apiUrl: json['apiUrl'] as String? ?? 'https://api.openai.com/v1',
         maxTokens: json['maxTokens'] as int? ?? 8192,
-        contextLength: json['contextLength'] as int? ?? 1000000,
+        contextLength: json['contextLength'] as int? ?? 300000,
         temperature: (json['temperature'] as num?)?.toDouble() ?? 0.8,
         topP: (json['topP'] as num?)?.toDouble() ?? 0.95,
         topK: json['topK'] as int? ?? 40,
@@ -581,7 +592,9 @@ class LLMService {
       LLMProvider.siliconFlow ||
       LLMProvider.moonshot ||
       LLMProvider.zai ||
-      LLMProvider.miniMax =>
+      LLMProvider.miniMax ||
+      LLMProvider.xiaomiMiMo ||
+      LLMProvider.tencentHunyuan =>
         _generateOpenAiToolTurn(
           fittedBase,
           continuationMessages,
@@ -1356,6 +1369,8 @@ class LLMService {
       case LLMProvider.moonshot:
       case LLMProvider.zai:
       case LLMProvider.miniMax:
+      case LLMProvider.xiaomiMiMo:
+      case LLMProvider.tencentHunyuan:
       case LLMProvider.openAICompatible:
       case LLMProvider.openai:
         return _generateOpenAIWithReasoning(messages, config);
@@ -1449,6 +1464,8 @@ class LLMService {
       case LLMProvider.moonshot:
       case LLMProvider.zai:
       case LLMProvider.miniMax:
+      case LLMProvider.xiaomiMiMo:
+      case LLMProvider.tencentHunyuan:
       case LLMProvider.openAICompatible:
       case LLMProvider.openai:
         return _streamOpenAIWithReasoning(messages, config);
@@ -1481,6 +1498,8 @@ class LLMService {
         case LLMProvider.moonshot:
         case LLMProvider.zai:
         case LLMProvider.miniMax:
+        case LLMProvider.xiaomiMiMo:
+        case LLMProvider.tencentHunyuan:
         case LLMProvider.openAICompatible:
         case LLMProvider.openai:
           if (config.apiKey.isEmpty) {
@@ -1764,6 +1783,8 @@ class LLMService {
         case LLMProvider.moonshot:
         case LLMProvider.zai:
         case LLMProvider.miniMax:
+        case LLMProvider.xiaomiMiMo:
+        case LLMProvider.tencentHunyuan:
         case LLMProvider.openAICompatible:
         case LLMProvider.openai:
           _log('Fetching models from ${config.apiUrl}/models');

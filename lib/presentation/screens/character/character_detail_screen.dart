@@ -189,7 +189,9 @@ class _CharacterDetailContentState
       await repo.createCharacter(newCharacter);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.characterDuplicated(character.name)),duration: const Duration(seconds: 1)),
+          SnackBar(
+              content: Text(l10n.characterDuplicated(character.name)),
+              duration: const Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -439,6 +441,13 @@ class _CharacterDetailContentState
 
   Widget _buildAvatarBackground(Character character) {
     if (character.assets?.avatarPath != null) {
+      // The app-bar icons/back arrow are painted with `textPrimary`, so a light
+      // artwork swallows them. Both scrims borrow the app bar's own background
+      // colour: contrast is guaranteed on any artwork, and because the collapsed
+      // bar is filled with that very colour the scrim melts into it seamlessly.
+      final barColor = Theme.of(context).appBarTheme.backgroundColor ??
+          Theme.of(context).colorScheme.surface;
+
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -447,16 +456,47 @@ class _CharacterDetailContentState
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => _defaultBackground(),
           ),
-          // Gradient overlay for better text readability
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.7),
-                ],
+          // Top scrim: keeps the back arrow and the three action icons readable
+          // however bright the upper part of the artwork is. Tall and soft so
+          // the falloff never shows a hard edge.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 170 + MediaQuery.paddingOf(context).top,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      barColor.withValues(alpha: 0.78),
+                      barColor.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Bottom gradient overlay for better title readability
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 160,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      barColor.withValues(alpha: 0),
+                      barColor.withValues(alpha: 0.72),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

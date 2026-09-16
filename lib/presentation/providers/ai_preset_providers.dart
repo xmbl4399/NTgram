@@ -221,6 +221,10 @@ class AIPresetManager {
     llmNotifier.updateMirostatTau(gen.mirostatTau);
     llmNotifier.updateMirostatEta(gen.mirostatEta);
     llmNotifier.updateMaxTokens(gen.maxTokens);
+    // The context window used to be silently ignored here: a preset could
+    // declare 1M (or 300K) and nothing ever read it, so switching presets left
+    // whatever was already in the config. Push it like every other sampler.
+    llmNotifier.updateContextLength(gen.contextLength);
     llmNotifier.updateStopSequences(gen.stopSequences);
     llmNotifier.updateSeed(gen.seed);
     llmNotifier.updateStreamEnabled(gen.streamEnabled);

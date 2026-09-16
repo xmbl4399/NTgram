@@ -229,9 +229,13 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Card-coloured pill instead of a bare underline: an unfilled TextField
+    // blends into the page background and reads as placeholder text. The colour
+    // and 16px radius match the character list card right below it.
+    final radius = BorderRadius.circular(16);
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(6, 8, 6, 10),
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
@@ -242,6 +246,25 @@ class _SearchBar extends StatelessWidget {
             onPressed: () {
               // TODO: Show filter options
             },
+          ),
+          filled: true,
+          fillColor: context.neko.card,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: const BorderSide(
+              color: AppTheme.primaryColor,
+              width: 1.5,
+            ),
           ),
         ),
       ),

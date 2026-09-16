@@ -1601,7 +1601,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     if (layoutMode == 'visualNovel' && (hasBackground || hasLive2D)) {
-      return _buildVisualNovelView(chatState);
+      return _buildVisualNovelView(
+        chatState,
+        hasBackground: hasBackground,
+        bubbleOpacity: background.bubbleOpacity,
+      );
     }
 
     if (hasLive2D) {
@@ -1645,7 +1649,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return _buildMessageList(chatState);
   }
 
-  Widget _buildVisualNovelView(ActiveChatState chatState) {
+  Widget _buildVisualNovelView(
+    ActiveChatState chatState, {
+    bool hasBackground = false,
+    double bubbleOpacity = 0.8,
+  }) {
     final character = chatState.character;
     final live2d = character?.assets?.live2d;
 
@@ -1668,9 +1676,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             Column(
               children: [
-                // Novel mode fills the whole page (messages self-adapt to
-                // available height) with only the top "1/1" page bar kept in
-                // view above the message panel.
+                // One message per page. The bubble is bottom-aligned and only
+                // takes the height it needs, so the artwork above stays visible.
                 Expanded(
                   child: VisualNovelMessageView(
                     messages: chatState.messages,
@@ -1678,6 +1685,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     characterForMessage: chatState.characterForMessage,
                     isGenerating: chatState.isGenerating,
                     fillsAvailable: true,
+                    hasBackground: hasBackground,
+                    bubbleOpacity: bubbleOpacity,
                     onLongPress: (message) => _showMessageOptionsForVisualNovel(
                       context,
                       message,
@@ -2352,79 +2361,90 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildInputArea(ActiveChatState chatState) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(
-        color: context.neko.card,
-        // Neko message panel has no top seam: it sits flush on the page
-        // background like the floating input bar.
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: SafeArea(
+    final neko = context.neko;
+    final l10n = AppLocalizations.of(context);
+
+    // Neko-style floating bar: one pill inset from the screen edges, uniform
+    // 26px radius, three segments only — menu · input · send. The voice button
+    // lives inside the input segment so the bar keeps reading as three parts.
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        decoration: BoxDecoration(
+          color: neko.card,
+          borderRadius: BorderRadius.circular(26),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Pending attachments preview
             if (_pendingAttachments.isNotEmpty) _buildAttachmentsPreview(),
-            // Input row with menu button
             CompositedTransformTarget(
               link: _inputMenuLayerLink,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Menu button
+                  // 1/3 — menu
                   IconButton(
                     icon: Icon(
                       _showInputMenu ? Icons.close : Icons.menu,
                       size: 24,
-                      color: _showInputMenu
-                          ? AppTheme.primaryColor
-                          : AppTheme.textMuted,
                     ),
+                    color: AppTheme.primaryColor,
                     onPressed: () => _setInputMenuVisible(!_showInputMenu),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
-                      minWidth: 40,
-                      minHeight: 40,
+                      minWidth: 44,
+                      minHeight: 44,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  // Input field
+                  // 2/3 — input (voice folded into this segment)
                   Expanded(
-                    child: MarkdownInputField(
-                      controller: _messageController,
-                      focusNode: _focusNode,
-                      maxLines: 5,
-                      minLines: 1,
-                      hintText: AppLocalizations.of(context).typeMessage,
-                      onSubmitted: Platform.isIOS || Platform.isAndroid
-                          ? null
-                          : (_) => _sendMessage(),
-                      textInputAction: Platform.isIOS || Platform.isAndroid
-                          ? TextInputAction.newline
-                          : TextInputAction.send,
-                      showToolbar: false,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context).typeMessage,
-                        filled: true,
-                        fillColor: context.neko.background,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: MarkdownInputField(
+                            controller: _messageController,
+                            focusNode: _focusNode,
+                            maxLines: 5,
+                            minLines: 1,
+                            hintText: l10n.typeMessage,
+                            onSubmitted:
+                                Platform.isIOS || Platform.isAndroid
+                                ? null
+                                : (_) => _sendMessage(),
+                            textInputAction:
+                                Platform.isIOS || Platform.isAndroid
+                                ? TextInputAction.newline
+                                : TextInputAction.send,
+                            showToolbar: false,
+                            decoration: InputDecoration(
+                              hintText: l10n.typeMessage,
+                              // Seamless: the field shares the pill background
+                              // instead of drawing its own box.
+                              filled: false,
+                              isDense: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                        ChatVoiceInputButton(
+                          controller: _messageController,
+                          onAutoSend: _sendMessage,
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ChatVoiceInputButton(
-                    controller: _messageController,
-                    onAutoSend: _sendMessage,
-                  ),
-                  // Show stop button when generating, send button otherwise
+                  // 3/3 — send / stop
                   if (chatState.isGenerating)
                     IconButton.filled(
                       onPressed: () => ref
@@ -2432,13 +2452,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           .cancelGeneration(),
                       icon: const Icon(Icons.stop_circle),
                       style: IconButton.styleFrom(backgroundColor: Colors.red),
-                      tooltip: AppLocalizations.of(context).stopGenerating,
+                      tooltip: l10n.stopGenerating,
                     )
                   else
                     IconButton.filled(
                       onPressed: _sendMessage,
                       icon: const Icon(Icons.send),
-                      tooltip: AppLocalizations.of(context).send,
+                      tooltip: l10n.send,
                     ),
                 ],
               ),

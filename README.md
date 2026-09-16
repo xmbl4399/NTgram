@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  🌐 <a href="https://github.com/fatsnk/NativeTavern">上游 NativeTavern</a> · Android applicationId <code>com.xmbl4399.ntgram</code> · 当前 <code>v0.1.12+28</code>
+  🌐 <a href="https://github.com/fatsnk/NativeTavern">上游 NativeTavern</a> · Android applicationId <code>com.xmbl4399.ntgram</code> · 当前 <code>v0.1.12+32</code>
 </p>
 
 NativeTavern 的二次改造 fork。整体 UI 重写为 **Neko 风格**（视觉范式参考 Telegram 第三方客户端 [Nekogram](https://github.com/Nekogram/Nekogram)），同时扩展数据模型、修复上游构建链路、精简原生层。
