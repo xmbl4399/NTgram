@@ -244,7 +244,7 @@ class _VisualNovelMessageViewState
                                       message,
                                       isGenerating && isLast,
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 6),
                                   ],
                                   if (isGenerating && message.content.isEmpty)
                                     _buildTypingIndicator()

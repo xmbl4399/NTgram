@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 import 'package:native_tavern/presentation/widgets/chat/message_content_widget.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 
@@ -85,11 +86,10 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
 
   void _copyReasoning() {
     Clipboard.setData(ClipboardData(text: widget.reasoning));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.reasoningCopiedToClipboard),
-        duration: Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      AppLocalizations.of(context)!.reasoningCopiedToClipboard,
+      duration: Duration(seconds: 1),
     );
   }
 
@@ -100,7 +100,7 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 6),
       decoration: BoxDecoration(
         color: context.neko.background.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
@@ -120,12 +120,12 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
               bottom: Radius.circular(12),
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               child: Row(
                 children: [
                   // Thinking icon with animation
                   _buildThinkingIcon(),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   // Label
                   Expanded(
                     child: Text(
@@ -133,7 +133,7 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
                       style: TextStyle(
                         color: _getAccentColor(),
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -142,24 +142,36 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
                     AppLocalizations.of(context)!.charsCount(widget.reasoning.length),
                     style: TextStyle(
                       color: AppTheme.textMuted,
-                      fontSize: 11,
+                      fontSize: 10.5,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  // Copy button
-                  IconButton(
-                    icon: Icon(
-                      Icons.copy,
-                      size: 16,
-                      color: AppTheme.textMuted,
+                  const SizedBox(width: 6),
+                  // Copy button.
+                  //
+                  // The tight 24x24 box is load-bearing, not cosmetic: IconButton
+                  // defaults to `MaterialTapTargetSize.padded`, which silently
+                  // inflates its layout box to 48dp. That made the whole header
+                  // row 48dp tall and the "collapsed" card ~70dp (≈94px on the
+                  // test device) instead of the intended ~32dp. Tight
+                  // constraints keep the tap target at the Material minimum
+                  // while letting the header actually collapse.
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.copy,
+                        size: 13,
+                        color: AppTheme.textMuted,
+                      ),
+                      onPressed: _copyReasoning,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 24,
+                        height: 24,
+                      ),
+                      tooltip: AppLocalizations.of(context)!.copyReasoning,
                     ),
-                    onPressed: _copyReasoning,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight: 24,
-                    ),
-                    tooltip: AppLocalizations.of(context)!.copyReasoning,
                   ),
                   // Expand/collapse arrow
                   RotationTransition(
@@ -167,7 +179,7 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
                     child: Icon(
                       Icons.keyboard_arrow_down,
                       color: _getAccentColor(),
-                      size: 20,
+                      size: 18,
                     ),
                   ),
                 ],
@@ -202,15 +214,15 @@ class _ReasoningWidgetState extends State<ReasoningWidget>
 
   Widget _buildThinkingIcon() {
     return Container(
-      width: 24,
-      height: 24,
+      width: 20,
+      height: 20,
       decoration: BoxDecoration(
         color: _getAccentColor().withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(5),
       ),
       child: Icon(
         Icons.psychology,
-        size: 16,
+        size: 13,
         color: _getAccentColor(),
       ),
     );
@@ -294,7 +306,7 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 6),
       decoration: BoxDecoration(
         color: context.neko.background.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
@@ -308,7 +320,7 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             child: Row(
               children: [
                 // Animated thinking icon
@@ -318,22 +330,22 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
                     return Opacity(
                       opacity: widget.isStreaming ? _pulseAnimation.value : 1.0,
                       child: Container(
-                        width: 24,
-                        height: 24,
+                        width: 20,
+                        height: 20,
                         decoration: BoxDecoration(
                           color: _getAccentColor().withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(5),
                         ),
                         child: Icon(
                           Icons.psychology,
-                          size: 16,
+                          size: 13,
                           color: _getAccentColor(),
                         ),
                       ),
                     );
                   },
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 // Label with streaming indicator
                 Expanded(
                   child: Row(
@@ -343,7 +355,7 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
                         style: TextStyle(
                           color: _getAccentColor(),
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                       if (widget.isStreaming) ...[
@@ -365,7 +377,7 @@ class _StreamingReasoningWidgetState extends State<StreamingReasoningWidget>
                   AppLocalizations.of(context)!.charsCount(widget.reasoning.length),
                   style: TextStyle(
                     color: AppTheme.textMuted,
-                    fontSize: 11,
+                    fontSize: 10.5,
                   ),
                 ),
               ],
