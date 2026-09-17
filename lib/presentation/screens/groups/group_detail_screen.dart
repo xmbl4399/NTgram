@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -76,8 +77,10 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
 
     await ref.read(groupListProvider.notifier).updateGroup(updatedGroup);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.groupSaved),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context)!.groupSaved,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -123,10 +126,9 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         characters.where((c) => !currentMemberIds.contains(c.id)).toList();
 
     if (availableCharacters.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(AppLocalizations.of(context)!.noMoreCharactersAvailable)),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context)!.noMoreCharactersAvailable,
       );
       return;
     }
@@ -189,10 +191,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         await ref.read(activeChatProvider.notifier).createGroupChat(group);
     if (!mounted) return;
     if (chatId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToCreateChat)),
-      );
+      AppToast.show(context, AppLocalizations.of(context)!.failedToCreateChat);
       return;
     }
     context.push('/chat/$chatId');

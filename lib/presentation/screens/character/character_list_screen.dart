@@ -11,6 +11,7 @@ import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'character_view_mode.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Menu actions available on long-press of a character row.
 enum _CharacterMenuItem { chat, edit, export, delete }
@@ -340,11 +341,10 @@ class _CharacterListViewState extends ConsumerState<_CharacterListView> {
     final l10n = AppLocalizations.of(context);
     await ref.read(characterListProvider.notifier).deleteCharacter(id);
     if (mounted && _dismissedIds.contains(id)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.characterDeleted),
-          duration: const Duration(seconds: 1),
-        ),
+      AppToast.show(
+        context,
+        l10n.characterDeleted,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -799,15 +799,11 @@ class _CharacterListTile extends ConsumerWidget {
       if (chatId != null && context.mounted) {
         context.push('/chat/$chatId');
       } else if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.error)),
-        );
+        AppToast.show(context, l10n.error);
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.error}: $e')),
-        );
+        AppToast.show(context, '${l10n.error}: $e');
       }
     }
   }
@@ -831,11 +827,10 @@ class _CharacterListTile extends ConsumerWidget {
               ref
                   .read(characterListProvider.notifier)
                   .deleteCharacter(character.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-          content: Text(l10n.characterDeleted),
-          duration: const Duration(seconds: 1),
-        ),
+              AppToast.show(
+                context,
+                l10n.characterDeleted,
+                duration: const Duration(seconds: 1),
               );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),

@@ -10,6 +10,7 @@ import '../../providers/background_providers.dart';
 import '../../providers/settings_providers.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/chat/chat_background_widget.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing chat backgrounds
 class BackgroundSettingsScreen extends ConsumerStatefulWidget {
@@ -686,8 +687,7 @@ class _BackgroundSettingsScreenState
       await _loadGallery();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(AppLocalizations.of(context).moveFailed('$e'))));
+        AppToast.show(context, AppLocalizations.of(context).moveFailed('$e'));
       }
     }
   }
@@ -701,8 +701,7 @@ class _BackgroundSettingsScreenState
       await _loadGallery();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(AppLocalizations.of(context).deleteFailed('$e'))));
+        AppToast.show(context, AppLocalizations.of(context).deleteFailed('$e'));
       }
     }
   }
@@ -749,10 +748,10 @@ class _BackgroundSettingsScreenState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)
-                  .failedToLoadImage(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)
+          .failedToLoadImage(e.toString()),
         );
       }
     } finally {

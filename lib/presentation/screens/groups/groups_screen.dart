@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/widgets/common/character_avatar_image
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Groups list screen
 class GroupsScreen extends ConsumerWidget {
@@ -309,10 +310,7 @@ class _GroupChatCard extends ConsumerWidget {
         await ref.read(activeChatProvider.notifier).createGroupChat(group);
     if (!context.mounted) return;
     if (chatId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!.failedToCreateChat)),
-      );
+      AppToast.show(context, AppLocalizations.of(context)!.failedToCreateChat);
       return;
     }
     context.push('/chat/$chatId');
@@ -334,10 +332,10 @@ class _GroupChatCard extends ConsumerWidget {
             onPressed: () {
               Navigator.pop(context);
               ref.read(groupListProvider.notifier).deleteGroup(group.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(AppLocalizations.of(context)!
-                        .groupDeleted(group.name))),
+              AppToast.show(
+                context,
+                AppLocalizations.of(context)!
+                .groupDeleted(group.name),
               );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -514,10 +512,9 @@ class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
   Future<void> _createGroup() async {
     if (_nameController.text.trim().isEmpty) return;
     if (_selectedCharacterIds.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(AppLocalizations.of(context)!.selectAtLeast2Characters)),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context)!.selectAtLeast2Characters,
       );
       return;
     }
@@ -535,18 +532,17 @@ class _CreateGroupDialogState extends ConsumerState<_CreateGroupDialog> {
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(AppLocalizations.of(context)!.groupCreatedSuccessfully)),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!.groupCreatedSuccessfully,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToCreateGroup(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToCreateGroup(e.toString()),
         );
       }
     } finally {

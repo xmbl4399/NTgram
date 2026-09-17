@@ -6,6 +6,7 @@ import 'package:native_tavern/domain/services/stt_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/stt_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class STTSettingsScreen extends ConsumerWidget {
   const STTSettingsScreen({super.key});
@@ -27,8 +28,10 @@ class STTSettingsScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(sttSettingsProvider.notifier).reset();
               ref.read(sttSessionProvider.notifier).clear();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsResetToDefaults),duration: const Duration(seconds: 1)),
+              AppToast.show(
+                context,
+                l10n.settingsResetToDefaults,
+                duration: const Duration(seconds: 1),
               );
             },
           ),

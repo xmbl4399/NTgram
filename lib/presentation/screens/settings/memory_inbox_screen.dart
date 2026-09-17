@@ -7,6 +7,7 @@ import 'package:native_tavern/domain/services/long_term_memory_governance_servic
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/memory_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class MemoryInboxScreen extends ConsumerStatefulWidget {
   const MemoryInboxScreen({super.key});
@@ -447,9 +448,7 @@ class _MemoryInboxScreenState extends ConsumerState<MemoryInboxScreen> {
       await action();
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      AppToast.show(context, error.toString());
     }
   }
 }

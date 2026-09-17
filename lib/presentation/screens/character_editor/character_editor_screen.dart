@@ -8,6 +8,7 @@ import 'package:native_tavern/data/models/character.dart';
 import 'package:native_tavern/data/repositories/character_repository.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Character editor screen for creating/editing characters
 class CharacterEditorScreen extends ConsumerStatefulWidget {
@@ -112,10 +113,10 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToLoadCharacter(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToLoadCharacter(e.toString()),
         );
       }
     }
@@ -151,10 +152,10 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToPickImage(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToPickImage(e.toString()),
         );
       }
     }
@@ -235,19 +236,18 @@ class _CharacterEditorScreenState extends ConsumerState<CharacterEditorScreen>
       ref.invalidate(characterDetailProvider(character.id));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  AppLocalizations.of(context)!.characterSavedSuccessfully)),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!.characterSavedSuccessfully,
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToSaveCharacter(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToSaveCharacter(e.toString()),
         );
       }
     } finally {

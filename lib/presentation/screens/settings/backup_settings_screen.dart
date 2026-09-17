@@ -12,6 +12,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/backup_providers.dart';
 import 'package:native_tavern/presentation/providers/cloud_backup_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing backups (local + cloud)
 class BackupSettingsScreen extends ConsumerStatefulWidget {
@@ -539,10 +540,9 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
                               .read(backupOperationProvider.notifier)
                               .cleanupOldBackups();
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text(l10n.deletedOldBackups(deleted))),
+                            AppToast.show(
+                              context,
+                              l10n.deletedOldBackups(deleted),
                             );
                           }
                         },
@@ -826,10 +826,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)
-                  .errorReadingBackup(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)
+          .errorReadingBackup(e.toString()),
         );
       }
     }
@@ -862,10 +862,9 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
           ElevatedButton.icon(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: jsonContent));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content:
-                        Text(AppLocalizations.of(context).copiedToClipboard)),
+              AppToast.show(
+                context,
+                AppLocalizations.of(context).copiedToClipboard,
               );
             },
             icon: const Icon(Icons.copy),
@@ -989,8 +988,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
         .uploadToICloud(() => dbBackupService.exportAllData());
 
     if (result != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.backupCreated),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.backupCreated,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -1033,15 +1034,14 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
               );
 
           if (result != null && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.restoreComplete(
-                  result.totalAdded,
-                  result.totalUpdated,
-                  result.totalSkipped,
-                )),
-                        duration: const Duration(seconds: 1)
+            AppToast.show(
+              context,
+              l10n.restoreComplete(
+                result.totalAdded,
+                result.totalUpdated,
+                result.totalSkipped,
               ),
+              duration: const Duration(seconds: 1),
             );
           }
         },
@@ -1086,8 +1086,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
         .signInToGoogleDrive();
 
     if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.signedInSuccessfully),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.signedInSuccessfully,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -1110,8 +1112,10 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
         .uploadToGoogleDrive(() => dbBackupService.exportAllData());
 
     if (result != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.backupCreated),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.backupCreated,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -1154,15 +1158,14 @@ class _BackupSettingsScreenState extends ConsumerState<BackupSettingsScreen> {
               );
 
           if (result != null && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.restoreComplete(
-                  result.totalAdded,
-                  result.totalUpdated,
-                  result.totalSkipped,
-                )),
-                        duration: const Duration(seconds: 1)
+            AppToast.show(
+              context,
+              l10n.restoreComplete(
+                result.totalAdded,
+                result.totalUpdated,
+                result.totalSkipped,
               ),
+              duration: const Duration(seconds: 1),
             );
           }
         },

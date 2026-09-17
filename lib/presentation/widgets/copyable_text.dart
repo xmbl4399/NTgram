@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// A widget that displays text with long-press to copy functionality.
 /// Shows a snackbar when text is copied to clipboard.
@@ -50,14 +51,10 @@ class CopyableText extends StatelessWidget {
 
     Clipboard.setData(ClipboardData(text: text));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          copyMessage ?? AppLocalizations.of(context).copiedToClipboard,
-        ),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppToast.show(
+      context,
+      copyMessage ?? AppLocalizations.of(context).copiedToClipboard,
+      duration: const Duration(seconds: 2),
     );
   }
 }
@@ -111,14 +108,10 @@ class CopyableListTile extends StatelessWidget {
 
     Clipboard.setData(ClipboardData(text: subtitle!));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          copyMessage ?? AppLocalizations.of(context).copiedToClipboard,
-        ),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppToast.show(
+      context,
+      copyMessage ?? AppLocalizations.of(context).copiedToClipboard,
+      duration: const Duration(seconds: 2),
     );
   }
 }
@@ -164,14 +157,10 @@ class CopyableSwitchListTile extends StatelessWidget {
 
     Clipboard.setData(ClipboardData(text: textToCopy));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          copyMessage ?? AppLocalizations.of(context).copiedToClipboard,
-        ),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppToast.show(
+      context,
+      copyMessage ?? AppLocalizations.of(context).copiedToClipboard,
+      duration: const Duration(seconds: 2),
     );
   }
 }

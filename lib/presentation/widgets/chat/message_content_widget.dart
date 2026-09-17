@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/html_webview_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Widget that renders message content with support for Markdown
 ///
@@ -125,11 +126,10 @@ class _MessageContentWidgetState extends State<MessageContentWidget> {
 
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.copiedToClipboard),
-        duration: Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      AppLocalizations.of(context)!.copiedToClipboard,
+      duration: Duration(seconds: 1),
     );
   }
 

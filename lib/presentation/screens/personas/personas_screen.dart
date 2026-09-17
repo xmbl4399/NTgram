@@ -12,6 +12,7 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing user personas
 class PersonasScreen extends ConsumerWidget {
@@ -600,10 +601,10 @@ class _PersonaDialogState extends State<_PersonaDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToPickImage(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToPickImage(e.toString()),
         );
       }
     }
@@ -624,10 +625,10 @@ class _PersonaDialogState extends State<_PersonaDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToPickImage(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToPickImage(e.toString()),
         );
       }
     }
@@ -648,10 +649,10 @@ class _PersonaDialogState extends State<_PersonaDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToTakePhoto(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToTakePhoto(e.toString()),
         );
       }
     }
@@ -680,10 +681,10 @@ class _PersonaDialogState extends State<_PersonaDialog> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .failedToSaveAvatar(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .failedToSaveAvatar(e.toString()),
         );
       }
     }
@@ -692,9 +693,7 @@ class _PersonaDialogState extends State<_PersonaDialog> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterName)),
-      );
+      AppToast.show(context, AppLocalizations.of(context)!.pleaseEnterName);
       return;
     }
 
@@ -708,9 +707,7 @@ class _PersonaDialogState extends State<_PersonaDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.error}: $e')),
-        );
+        AppToast.show(context, '${AppLocalizations.of(context)!.error}: $e');
         setState(() => _isSaving = false);
       }
     }

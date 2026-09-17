@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/providers/bookmark_providers.dart';
 import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Dialog for creating a new bookmark
 class CreateBookmarkDialog extends ConsumerStatefulWidget {
@@ -215,8 +216,9 @@ class BookmarksListDialog extends ConsumerWidget {
       await ref.read(activeChatProvider.notifier).branchFromBookmark(bookmark);
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.branchedFrom(bookmark.name))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!.branchedFrom(bookmark.name),
         );
       }
     }

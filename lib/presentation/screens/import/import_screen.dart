@@ -21,6 +21,7 @@ import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/providers/external_call_audit_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Import service provider
 final importServiceProvider = Provider<ImportService>((ref) {
@@ -494,12 +495,11 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               : l10n.importSummarySuccess(successCount)
           : l10n.importSummaryFailed;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: errorCount > 0 ? Colors.orange : Colors.green,
-          duration: const Duration(seconds: 1),
-        ),
+      AppToast.show(
+        context,
+        message,
+        kind: errorCount > 0 ? AppToastKind.error : AppToastKind.success,
+        duration: const Duration(seconds: 1),
       );
 
       // Clear and go back if any successful

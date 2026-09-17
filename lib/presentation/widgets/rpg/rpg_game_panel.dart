@@ -7,6 +7,7 @@ import 'package:native_tavern/domain/services/rpg_game_session_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/rpg_chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class RpgGamePanel extends ConsumerWidget {
   const RpgGamePanel({
@@ -434,9 +435,7 @@ class _ActionView extends ConsumerWidget {
                   if (!context.mounted) return;
                   final result = ref.read(rpgChatProvider(chatId)).lastResult;
                   if (result != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(result.feedback)),
-                    );
+                    AppToast.show(context, result.feedback);
                   }
                 }
               : null,
@@ -521,9 +520,7 @@ class _LogView extends ConsumerWidget {
                   }
                 } catch (error) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(error.toString())),
-                    );
+                    AppToast.show(context, error.toString());
                   }
                 }
               },

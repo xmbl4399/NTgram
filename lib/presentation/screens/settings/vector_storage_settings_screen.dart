@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/providers/vector_storage_providers.da
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Settings screen for Vector Storage / RAG
 class VectorStorageSettingsScreen extends ConsumerWidget {
@@ -139,10 +140,11 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
                           endpoint: chatConfig.apiUrl,
                           apiKey: chatConfig.apiKey,
                         );
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(AppLocalizations.of(context)
-                          .chatConnectionAppliedToEmbeddings),
-                    ));
+                    AppToast.show(
+                      context,
+                      AppLocalizations.of(context)
+                      .chatConnectionAppliedToEmbeddings,
+                    );
                   }
                 : null,
           ),
@@ -226,18 +228,19 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
             label: Text(AppLocalizations.of(context).embedPendingDocuments),
             onPressed: settings.enabled && settings.activeCollectionId != null
                 ? () async {
-                    final messenger = ScaffoldMessenger.of(context);
+                    final overlay = Overlay.maybeOf(context, rootOverlay: true);
                     final l10n = AppLocalizations.of(context);
                     try {
                       final count = await ref.read(embedCollectionProvider)(
                           settings.activeCollectionId!);
-                      messenger.showSnackBar(SnackBar(
-                          content: Text(count > 0
-                              ? l10n.embeddedDocuments('$count')
-                              : l10n.allDocumentsEmbedded)));
+                      AppToast.showIn(
+                        overlay,
+                        count > 0
+                            ? l10n.embeddedDocuments('$count')
+                            : l10n.allDocumentsEmbedded,
+                      );
                     } catch (e) {
-                      messenger.showSnackBar(
-                          SnackBar(content: Text(l10n.embeddingFailed('$e'))));
+                      AppToast.showIn(overlay, l10n.embeddingFailed('$e'));
                     }
                   }
                 : null,
@@ -410,13 +413,13 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
       final json =
           ref.read(vectorCollectionsProvider.notifier).exportCollection(id);
       Clipboard.setData(ClipboardData(text: json));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.collectionExported),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.collectionExported,
+        duration: const Duration(seconds: 1),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.exportFailed('$e'))),
-      );
+      AppToast.show(context, l10n.exportFailed('$e'));
     }
   }
 
@@ -447,13 +450,13 @@ class VectorStorageSettingsScreen extends ConsumerWidget {
                     .read(vectorCollectionsProvider.notifier)
                     .importCollection(controller.text);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.collectionImported),duration: const Duration(seconds: 1)),
+                AppToast.show(
+                  context,
+                  l10n.collectionImported,
+                  duration: const Duration(seconds: 1),
                 );
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.importFailed('$e'))),
-                );
+                AppToast.show(context, l10n.importFailed('$e'));
               }
             },
             child: Text(l10n.import),
@@ -707,8 +710,10 @@ class _CollectionDetails extends ConsumerWidget {
                       content: controller.text.trim(),
                     );
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.documentAdded),duration: const Duration(seconds: 1)),
+                AppToast.show(
+                  context,
+                  l10n.documentAdded,
+                  duration: const Duration(seconds: 1),
                 );
               }
             },

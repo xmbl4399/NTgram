@@ -11,6 +11,7 @@ import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Character detail screen
 class CharacterDetailScreen extends ConsumerWidget {
@@ -88,16 +89,12 @@ class _CharacterDetailContentState
         context.push('/chat/$chatId');
       } else if (mounted) {
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.failedToCreateChat)),
-        );
+        AppToast.show(context, l10n.failedToCreateChat);
       }
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.error}: $e')),
-        );
+        AppToast.show(context, '${l10n.error}: $e');
       }
     } finally {
       if (mounted) {
@@ -117,15 +114,11 @@ class _CharacterDetailContentState
         break;
       case 'export':
         // TODO: Implement PNG export
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.pngExportComingSoon)),
-        );
+        AppToast.show(context, l10n.pngExportComingSoon);
         break;
       case 'export_charx':
         // TODO: Implement CharX export
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.charxExportComingSoon)),
-        );
+        AppToast.show(context, l10n.charxExportComingSoon);
         break;
     }
   }
@@ -158,19 +151,16 @@ class _CharacterDetailContentState
             .read(characterListProvider.notifier)
             .deleteCharacter(character.id);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.characterDeleted),
-              duration: const Duration(seconds: 1),
-            ),
+          AppToast.show(
+            context,
+            l10n.characterDeleted,
+            duration: const Duration(seconds: 1),
           );
           context.pop();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.failedToDelete(e.toString()))),
-          );
+          AppToast.show(context, l10n.failedToDelete(e.toString()));
         }
       }
     }
@@ -188,17 +178,15 @@ class _CharacterDetailContentState
       );
       await repo.createCharacter(newCharacter);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(l10n.characterDuplicated(character.name)),
-              duration: const Duration(seconds: 1)),
+        AppToast.show(
+          context,
+          l10n.characterDuplicated(character.name),
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.failedToDuplicate(e.toString()))),
-        );
+        AppToast.show(context, l10n.failedToDuplicate(e.toString()));
       }
     }
   }
@@ -543,11 +531,10 @@ class _SectionCardState extends State<_SectionCard> {
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: widget.content));
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${l10n.copiedToClipboard}: ${widget.title}'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${l10n.copiedToClipboard}: ${widget.title}',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -616,12 +603,10 @@ class _AlternateGreetingsCard extends StatelessWidget {
   void _copyGreeting(BuildContext context, String greeting, int index) {
     Clipboard.setData(ClipboardData(text: greeting));
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            '${l10n.copiedToClipboard}: ${l10n.greetingNumber(index + 1)}'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${l10n.copiedToClipboard}: ${l10n.greetingNumber(index + 1)}',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -633,12 +618,10 @@ class _AlternateGreetingsCard extends StatelessWidget {
         .join('\n\n');
     Clipboard.setData(ClipboardData(text: allText));
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            '${l10n.copiedToClipboard}: ${l10n.alternateGreetingsCount(greetings.length)}'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${l10n.copiedToClipboard}: ${l10n.alternateGreetingsCount(greetings.length)}',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -739,12 +722,10 @@ class _CharacterBookCard extends StatelessWidget {
         'Name: ${entry.name}\nKeys: ${entry.keys.join(", ")}\nContent: ${entry.content}';
     Clipboard.setData(ClipboardData(text: text));
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            '${l10n.copiedToClipboard}: ${entry.name.isNotEmpty ? entry.name : entry.keys.join(", ")}'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${l10n.copiedToClipboard}: ${entry.name.isNotEmpty ? entry.name : entry.keys.join(", ")}',
+      duration: const Duration(seconds: 1),
     );
   }
 

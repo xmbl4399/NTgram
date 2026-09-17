@@ -4,6 +4,7 @@ import 'package:native_tavern/domain/services/translation_service.dart';
 import 'package:native_tavern/presentation/providers/translation_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for translation settings
 class TranslationSettingsScreen extends ConsumerWidget {
@@ -23,11 +24,10 @@ class TranslationSettingsScreen extends ConsumerWidget {
             tooltip: AppLocalizations.of(context)!.resetToDefaults,
             onPressed: () {
               ref.read(translationSettingsProvider.notifier).reset();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                        AppLocalizations.of(context)!.settingsResetToDefaults),
-                          duration: const Duration(seconds: 1)),
+              AppToast.show(
+                context,
+                AppLocalizations.of(context)!.settingsResetToDefaults,
+                duration: const Duration(seconds: 1),
               );
             },
           ),

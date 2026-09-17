@@ -11,6 +11,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../providers/ai_preset_providers.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/adaptive_popup_menu.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing AI presets
 class AIPresetsScreen extends ConsumerWidget {
@@ -130,15 +131,15 @@ class AIPresetsScreen extends ConsumerWidget {
     try {
       await ref.read(aiPresetManagerProvider).applyPreset(preset);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.appliedPreset(preset.name)),duration: const Duration(seconds: 1)),
+        AppToast.show(
+          context,
+          l10n.appliedPreset(preset.name),
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.failedToApplyPreset(e.toString()))),
-        );
+        AppToast.show(context, l10n.failedToApplyPreset(e.toString()));
       }
     }
   }
@@ -181,15 +182,15 @@ class AIPresetsScreen extends ConsumerWidget {
       await ref.read(aiPresetManagerProvider).applyPreset(preset);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.importedAndApplied(preset.name)),duration: const Duration(seconds: 1)),
+        AppToast.show(
+          context,
+          l10n.importedAndApplied(preset.name),
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.importFailed(e.toString()))),
-        );
+        AppToast.show(context, l10n.importFailed(e.toString()));
       }
     }
   }
@@ -242,9 +243,7 @@ class AIPresetsScreen extends ConsumerWidget {
       ));
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.exportFailed(e.toString()))),
-        );
+        AppToast.show(context, l10n.exportFailed(e.toString()));
       }
     }
   }
@@ -288,9 +287,7 @@ class AIPresetsScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.pleaseEnterAName)),
-                );
+                AppToast.show(context, l10n.pleaseEnterAName);
                 return;
               }
               Navigator.pop(context, {
@@ -315,15 +312,15 @@ class AIPresetsScreen extends ConsumerWidget {
       await ref.read(activeAIPresetIdProvider.notifier).setActivePreset(preset.id);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.savedPreset(preset.name)),duration: const Duration(seconds: 1)),
+        AppToast.show(
+          context,
+          l10n.savedPreset(preset.name),
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.saveFailed(e.toString()))),
-        );
+        AppToast.show(context, l10n.saveFailed(e.toString()));
       }
     }
   }
@@ -347,9 +344,7 @@ class AIPresetsScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.exportFailed(e.toString()))),
-        );
+        AppToast.show(context, l10n.exportFailed(e.toString()));
       }
     }
   }
@@ -383,8 +378,10 @@ class AIPresetsScreen extends ConsumerWidget {
     await ref.read(aiCustomPresetsProvider.notifier).deletePreset(preset.id);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deletedPreset(preset.name)),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.deletedPreset(preset.name),
+        duration: const Duration(seconds: 1),
       );
     }
   }

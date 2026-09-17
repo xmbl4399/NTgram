@@ -5,6 +5,7 @@ import 'package:native_tavern/presentation/providers/world_info_providers.dart';
 import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Enhanced World Info Entry Editor Screen with all new fields
 class WorldInfoEntryEditorScreen extends ConsumerStatefulWidget {
@@ -643,9 +644,7 @@ class _WorldInfoEntryEditorScreenState
 
   void _showError(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      AppToast.show(context, message);
     }
   }
 

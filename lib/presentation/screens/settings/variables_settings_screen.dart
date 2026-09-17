@@ -6,6 +6,7 @@ import 'package:native_tavern/presentation/providers/variables_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing variables
 class VariablesSettingsScreen extends ConsumerWidget {
@@ -613,8 +614,10 @@ class _VariableTestWidgetState extends ConsumerState<_VariableTestWidget> {
                       TextButton.icon(
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: _result!));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.copiedToClipboard),duration: const Duration(seconds: 1)),
+                          AppToast.show(
+                            context,
+                            l10n.copiedToClipboard,
+                            duration: const Duration(seconds: 1),
                           );
                         },
                         icon: const Icon(Icons.copy, size: 16),

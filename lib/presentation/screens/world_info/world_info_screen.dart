@@ -17,6 +17,7 @@ import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.da
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Log a message to the console
 void _log(String message, {String? error, StackTrace? stackTrace}) {
@@ -321,17 +322,18 @@ class WorldInfoScreen extends ConsumerWidget {
       _log('Import completed successfully');
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n!.importedAndApplied(name)),duration: const Duration(seconds: 1)),
+        AppToast.show(
+          context,
+          l10n!.importedAndApplied(name),
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e, st) {
       _log('Import failed', error: e.toString(), stackTrace: st);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  '${AppLocalizations.of(context)!.importFailed(e.toString())}')),
+        AppToast.show(
+          context,
+          '${AppLocalizations.of(context)!.importFailed(e.toString())}',
         );
       }
     }
@@ -526,9 +528,7 @@ class _WorldInfoCard extends StatelessWidget {
     } catch (e) {
       if (context.mounted) {
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n!.exportFailed(e.toString()))),
-        );
+        AppToast.show(context, l10n!.exportFailed(e.toString()));
       }
     }
   }
@@ -747,18 +747,14 @@ class _WorldInfoDialogState extends State<_WorldInfoDialog> {
     final l10n = AppLocalizations.of(context)!;
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.pleaseEnterName2)),
-      );
+      AppToast.show(context, l10n.pleaseEnterName2);
       return;
     }
 
     // Validate character selection if specific character is chosen
     if (_scope == _WorldInfoScope.specificCharacter &&
         _selectedCharacterId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.pleaseSelectCharacter)),
-      );
+      AppToast.show(context, l10n.pleaseSelectCharacter);
       return;
     }
 
@@ -787,9 +783,7 @@ class _WorldInfoDialogState extends State<_WorldInfoDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.error}: $e')),
-        );
+        AppToast.show(context, '${l10n.error}: $e');
         setState(() => _isSaving = false);
       }
     }
@@ -976,11 +970,10 @@ class _WorldInfoEntryCard extends StatelessWidget {
         'Content: ${entry.content}';
     Clipboard.setData(ClipboardData(text: text));
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${l10n!.copiedToClipboard}: ${entry.keys.join(", ")}'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${l10n!.copiedToClipboard}: ${entry.keys.join(", ")}',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -1316,9 +1309,7 @@ class _WorldInfoEntryDialogState extends State<_WorldInfoEntryDialog> {
     if (content.isEmpty) {
       final message = l10n.pleaseEnterContent;
       _log('Validation failed: $message');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      AppToast.show(context, message);
       return;
     }
 
@@ -1357,9 +1348,7 @@ class _WorldInfoEntryDialogState extends State<_WorldInfoEntryDialog> {
       if (mounted) {
         final message = '${l10n.error}: $e';
         _log('Showing error: $message');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        AppToast.show(context, message);
         setState(() => _isSaving = false);
       }
     }

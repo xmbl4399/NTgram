@@ -12,6 +12,7 @@ import '../../router/app_router.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/neko_card.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Provider for China region detection
 final isChinaRegionProvider = FutureProvider<bool>((ref) async {
@@ -308,12 +309,10 @@ class _LLMProviderTile extends ConsumerWidget {
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${AppLocalizations.of(context)!.copiedToClipboard}: $text',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -529,11 +528,10 @@ class _ApiKeyTileState extends ConsumerState<_ApiKeyTile> {
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.copiedToClipboard),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      AppLocalizations.of(context)!.copiedToClipboard,
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -594,12 +592,10 @@ class _ApiUrlTile extends ConsumerWidget {
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${AppLocalizations.of(context)!.copiedToClipboard}: $text',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -661,12 +657,11 @@ class _ModelTileState extends ConsumerState<_ModelTile> {
       } else if (next.status == ModelFetchStatus.error) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(next.errorMessage ??
-                    AppLocalizations.of(context)!.failedToFetchModels),
-                backgroundColor: Colors.red,
-              ),
+            AppToast.show(
+              context,
+              next.errorMessage ??
+              AppLocalizations.of(context)!.failedToFetchModels,
+              kind: AppToastKind.error,
             );
           }
         });
@@ -1021,12 +1016,10 @@ class _ContextLengthTile extends ConsumerWidget {
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${AppLocalizations.of(context)!.copiedToClipboard}: $text',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -1102,12 +1095,10 @@ class _MaxTokensTile extends ConsumerWidget {
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('${AppLocalizations.of(context)!.copiedToClipboard}: $text'),
-        duration: const Duration(seconds: 1),
-      ),
+    AppToast.show(
+      context,
+      '${AppLocalizations.of(context)!.copiedToClipboard}: $text',
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -1339,11 +1330,11 @@ class _ConnectionProfilesTile extends ConsumerWidget {
                                       .apply(profile.id);
                                   if (context.mounted) {
                                     Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(AppLocalizations.of(
-                                                  context)!
-                                              .appliedProfile(profile.name))),
+                                    AppToast.show(
+                                      context,
+                                      AppLocalizations.of(
+                                          context)!
+                                      .appliedProfile(profile.name),
                                     );
                                   }
                                 },

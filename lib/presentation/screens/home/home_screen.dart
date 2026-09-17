@@ -14,6 +14,7 @@ import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 import 'package:native_tavern/presentation/widgets/common/group_avatar.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Home screen showing recent chats
 class HomeScreen extends ConsumerStatefulWidget {
@@ -203,11 +204,10 @@ class _ChatListViewState extends ConsumerState<_ChatListView> {
     ref.invalidate(allChatsProvider);
     ref.invalidate(pagedChatsProvider);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.chatDeleted),
-          duration: const Duration(seconds: 1),
-        ),
+      AppToast.show(
+        context,
+        l10n.chatDeleted,
+        duration: const Duration(seconds: 1),
       );
     }
   }

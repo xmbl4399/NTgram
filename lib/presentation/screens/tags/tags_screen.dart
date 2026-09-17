@@ -5,6 +5,7 @@ import 'package:native_tavern/presentation/providers/tag_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing tags
 class TagsScreen extends ConsumerStatefulWidget {
@@ -442,10 +443,7 @@ class _TagEditDialogState extends State<_TagEditDialog> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!.pleaseEnterTagName)),
-      );
+      AppToast.show(context, AppLocalizations.of(context)!.pleaseEnterTagName);
       return;
     }
 
@@ -462,9 +460,7 @@ class _TagEditDialogState extends State<_TagEditDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.error}: $e')),
-        );
+        AppToast.show(context, '${AppLocalizations.of(context)!.error}: $e');
       }
     } finally {
       if (mounted) {

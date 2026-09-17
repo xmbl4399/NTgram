@@ -16,6 +16,7 @@ import 'package:native_tavern/presentation/providers/character_providers.dart';
 import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/providers/persona_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 import 'package:native_tavern/presentation/widgets/common/character_avatar_image.dart';
 
 /// WeChat Moments-style public feed. Browsing only; posting is a full page.
@@ -812,17 +813,7 @@ class _MomentPhotoPreviewState extends State<_MomentPhotoPreview> {
   }
 
   void _showFeedback(String message) {
-    final messenger = _messengerKey.currentState;
-    if (messenger == null) return;
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-          content: Text(message),
-        ),
-      );
+    AppToast.show(context, message, duration: const Duration(seconds: 3));
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:native_tavern/presentation/providers/sprite_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/chat/sprite_display.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing sprite settings
 class SpriteSettingsScreen extends ConsumerWidget {
@@ -26,8 +27,10 @@ class SpriteSettingsScreen extends ConsumerWidget {
             tooltip: l10n.resetToDefaults,
             onPressed: () {
               ref.read(spriteSettingsProvider.notifier).reset();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsResetToDefaults),duration: const Duration(seconds: 1)),
+              AppToast.show(
+                context,
+                l10n.settingsResetToDefaults,
+                duration: const Duration(seconds: 1),
               );
             },
           ),
@@ -454,10 +457,9 @@ class _CharacterSpritesScreenState
         .addSprite(emotion, File(image.path));
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(AppLocalizations.of(context).addedSpriteEmotion(emotion))),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context).addedSpriteEmotion(emotion),
       );
     }
   }
@@ -677,11 +679,10 @@ class _CharacterSpritesScreenState
     // Note: Folder picking requires file_picker package
     // For now, show a message that this feature requires additional setup
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.folderImportRequiresPackage),
-          duration: const Duration(seconds: 3),
-        ),
+      AppToast.show(
+        context,
+        l10n.folderImportRequiresPackage,
+        duration: const Duration(seconds: 3),
       );
     }
   }

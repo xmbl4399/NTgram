@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/storage_governance_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/storage_governance_providers.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 import 'package:path/path.dart' as path;
 
 class StorageManagementScreen extends ConsumerStatefulWidget {
@@ -303,9 +304,7 @@ class _StorageManagementScreenState
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    AppToast.show(context, message);
   }
 }
 

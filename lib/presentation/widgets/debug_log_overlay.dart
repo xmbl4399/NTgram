@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/domain/services/debug_log_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Floating debug ball widget that can be dragged around
 class DebugFloatingBall extends StatefulWidget {
@@ -232,8 +233,10 @@ class _DebugLogViewerState extends ConsumerState<DebugLogViewer> {
                       onPressed: () {
                         final service = ref.read(debugLogServiceProvider);
                         Clipboard.setData(ClipboardData(text: service.exportLogs()));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.copiedToClipboard),duration: const Duration(seconds: 1)),
+                        AppToast.show(
+                          context,
+                          l10n.copiedToClipboard,
+                          duration: const Duration(seconds: 1),
                         );
                       },
                     ),
@@ -440,11 +443,10 @@ class _LogEntryTile extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: log.toString()));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppLocalizations.of(context).copiedToClipboard),
-                      duration: const Duration(seconds: 1),
-                    ),
+                  AppToast.show(
+                    context,
+                    AppLocalizations.of(context).copiedToClipboard,
+                    duration: const Duration(seconds: 1),
                   );
                 },
                 child: Icon(
@@ -626,8 +628,10 @@ class _DebugLogViewerInlineState extends ConsumerState<DebugLogViewerInline> {
                   onPressed: () {
                     final service = ref.read(debugLogServiceProvider);
                     Clipboard.setData(ClipboardData(text: service.exportLogs()));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.copiedToClipboard),duration: const Duration(seconds: 1)),
+                    AppToast.show(
+                      context,
+                      l10n.copiedToClipboard,
+                      duration: const Duration(seconds: 1),
                     );
                   },
                 ),

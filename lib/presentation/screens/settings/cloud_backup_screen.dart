@@ -8,6 +8,7 @@ import 'package:native_tavern/domain/services/google_drive_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/cloud_backup_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for cloud backup settings (Google Drive & iCloud)
 class CloudBackupScreen extends ConsumerWidget {
@@ -547,8 +548,10 @@ class CloudBackupScreen extends ConsumerWidget {
         .uploadToICloud(dbBackupService.exportAllData);
 
     if (result != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.backupCreated),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.backupCreated,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -591,15 +594,14 @@ class CloudBackupScreen extends ConsumerWidget {
 
           if (result != null && context.mounted) {
             final operation = ref.read(cloudBackupOperationProvider);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_restoreResultMessage(
-                  l10n: l10n,
-                  added: result.totalAdded,
-                  updated: result.totalUpdated,
-                  skipped: result.totalSkipped,
-                  operation: operation,
-                )),
+            AppToast.show(
+              context,
+              _restoreResultMessage(
+                l10n: l10n,
+                added: result.totalAdded,
+                updated: result.totalUpdated,
+                skipped: result.totalSkipped,
+                operation: operation,
               ),
             );
           }
@@ -657,8 +659,10 @@ class CloudBackupScreen extends ConsumerWidget {
         .signInToGoogleDrive();
 
     if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.signedInSuccessfully),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.signedInSuccessfully,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -680,8 +684,10 @@ class CloudBackupScreen extends ConsumerWidget {
         .uploadToGoogleDrive(dbBackupService.exportAllData);
 
     if (result != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.backupCreated),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        l10n.backupCreated,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -731,15 +737,14 @@ class CloudBackupScreen extends ConsumerWidget {
 
           if (result != null && context.mounted) {
             final operation = ref.read(cloudBackupOperationProvider);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(_restoreResultMessage(
-                  l10n: l10n,
-                  added: result.totalAdded,
-                  updated: result.totalUpdated,
-                  skipped: result.totalSkipped,
-                  operation: operation,
-                )),
+            AppToast.show(
+              context,
+              _restoreResultMessage(
+                l10n: l10n,
+                added: result.totalAdded,
+                updated: result.totalUpdated,
+                skipped: result.totalSkipped,
+                operation: operation,
               ),
             );
           }

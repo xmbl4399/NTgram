@@ -10,6 +10,7 @@ import 'package:native_tavern/presentation/providers/story_providers.dart';
 import 'package:native_tavern/presentation/providers/story_timeline_providers.dart';
 import 'package:native_tavern/presentation/router/app_router.dart';
 import 'package:native_tavern/presentation/screens/play/story_models.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class StoryScreen extends ConsumerWidget {
   const StoryScreen({super.key, this.initialChatId});
@@ -276,9 +277,7 @@ class _StoryRoot extends ConsumerWidget {
       );
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString())),
-        );
+        AppToast.show(context, error.toString());
       }
     }
   }
@@ -528,11 +527,9 @@ class _StoryChapterTile extends ConsumerWidget {
         chapter.title,
         direction,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(AppLocalizations.of(context).storyForkCreated(branchName)),
-        ),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context).storyForkCreated(branchName),
       );
       context.push(
         Uri(
@@ -542,9 +539,7 @@ class _StoryChapterTile extends ConsumerWidget {
       );
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString())),
-        );
+        AppToast.show(context, error.toString());
       }
     }
   }
@@ -772,14 +767,14 @@ Future<void> _showJotNoteSheet(
                     ref.read(storyRevisionProvider.notifier).state++;
                     if (!sheetContext.mounted) return;
                     Navigator.pop(sheetContext);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.storyNoteSaved),duration: const Duration(seconds: 1)),
+                    AppToast.show(
+                      context,
+                      l10n.storyNoteSaved,
+                      duration: const Duration(seconds: 1),
                     );
                   } catch (error) {
                     if (sheetContext.mounted) {
-                      ScaffoldMessenger.of(sheetContext).showSnackBar(
-                        SnackBar(content: Text(error.toString())),
-                      );
+                      AppToast.show(sheetContext, error.toString());
                     }
                   }
                 },

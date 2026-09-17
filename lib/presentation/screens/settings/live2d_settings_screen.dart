@@ -16,6 +16,7 @@ import 'package:native_tavern/presentation/providers/chat_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/live2d/live2d_character_view.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class Live2DSettingsScreen extends ConsumerWidget {
   final String characterId;
@@ -207,13 +208,10 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
         await _loadManifest(imported.first, replaceConfig: true);
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).live2dModelsImported(
-                imported.length,
-              ),
-            ),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context).live2dModelsImported(
+            imported.length,
           ),
         );
       }
@@ -275,8 +273,10 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
       final suffix = result.cleanupPending ? l10n.live2dCleanupPending : '';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.live2dModelDeleted}$suffix'),duration: const Duration(seconds: 1)),
+      AppToast.show(
+        context,
+        '${l10n.live2dModelDeleted}$suffix',
+        duration: const Duration(seconds: 1),
       );
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());
@@ -456,9 +456,7 @@ class _Live2DSettingsEditorState extends ConsumerState<_Live2DSettingsEditor> {
       if (mounted) Navigator.of(context).pop();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
+        AppToast.show(context, error.toString());
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

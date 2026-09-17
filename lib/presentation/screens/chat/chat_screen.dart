@@ -68,6 +68,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import '../../widgets/chat/swipe_picker_sheet.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Provider for chat export service
 final chatExportServiceProvider = Provider<ChatExportService>((ref) {
@@ -1021,9 +1022,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
-    );
+    AppToast.show(context, message, duration: const Duration(seconds: 2));
   }
 
   void _onSlashCommandSelected(SlashCommand command) {
@@ -2233,20 +2232,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               .addAttachmentToMessage(message.id, attachment);
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.imagesAdded(result.images.length),
-            ),
-          ),
-        );
+        AppToast.show(context, l10n.imagesAdded(result.images.length));
       } catch (e) {
         debugPrint('Failed to save generated image: $e');
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(
-          SnackBar(content: Text(l10n.failedToSaveImage('$e'))),
-        );
+        AppToast.show(context, l10n.failedToSaveImage('$e'));
       }
     }
   }
@@ -2263,9 +2252,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     if (result != null && mounted) {
       final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(
+      AppToast.show(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.bookmarkCreated),duration: const Duration(seconds: 1)));
+        l10n.bookmarkCreated,
+        duration: const Duration(seconds: 1),
+      );
     }
   }
 
@@ -3728,11 +3719,10 @@ class _MessageBubbleState extends State<_MessageBubble> {
               onTap: () {
                 Navigator.pop(context);
                 Clipboard.setData(ClipboardData(text: widget.message.content));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.copiedToClipboard),
-                    duration: const Duration(seconds: 1),
-                  ),
+                AppToast.show(
+                  context,
+                  l10n.copiedToClipboard,
+                  duration: const Duration(seconds: 1),
                 );
               },
             ),

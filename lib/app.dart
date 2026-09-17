@@ -9,11 +9,9 @@ import 'package:native_tavern/presentation/providers/moment_providers.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/domain/services/debug_log_service.dart';
 import 'package:native_tavern/presentation/widgets/common/app_splash_gate.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 import 'package:native_tavern/presentation/widgets/debug_log_overlay.dart';
 import 'package:native_tavern/presentation/widgets/privacy/ai_data_sharing_consent_gate.dart';
-
-/// Global navigator key for showing dialogs from anywhere
-final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class NativeTavernApp extends ConsumerStatefulWidget {
   const NativeTavernApp({super.key});
@@ -26,6 +24,10 @@ class _NativeTavernAppState extends ConsumerState<NativeTavernApp> {
   @override
   void initState() {
     super.initState();
+    // Widgets built by `MaterialApp.builder` sit *above* the Navigator, so no
+    // Overlay is reachable from their context. Toasts raised there (the debug
+    // log overlay) fall back to the root navigator's overlay.
+    AppToast.rootOverlayResolver = () => rootNavigatorKey.currentState?.overlay;
     // Check if debug log should be enabled on startup
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final settings = ref.read(appSettingsProvider);

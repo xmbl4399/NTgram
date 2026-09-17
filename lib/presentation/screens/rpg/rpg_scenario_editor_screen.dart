@@ -12,6 +12,7 @@ import 'package:native_tavern/domain/services/rpg_scenario_draft_store.dart';
 import 'package:native_tavern/domain/services/rpg_scenario_package_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/rpg_scenario_editor_controller.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class RpgScenarioFileData {
   final String name;
@@ -289,9 +290,7 @@ class _RpgScenarioEditorScreenState extends State<RpgScenarioEditorScreen>
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    AppToast.show(context, message);
   }
 }
 

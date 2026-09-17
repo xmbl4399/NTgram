@@ -15,6 +15,7 @@ import 'package:native_tavern/domain/services/data_bank_library_service.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/controllers/data_bank_library_controller.dart';
 import 'package:native_tavern/presentation/providers/data_bank_providers.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 import 'package:native_tavern/presentation/widgets/chat/data_bank_citation_preview.dart';
 
 abstract interface class DataBankFileGateway {
@@ -378,9 +379,7 @@ class _DataBankScreenState extends ConsumerState<DataBankScreen> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    AppToast.show(context, message);
   }
 }
 

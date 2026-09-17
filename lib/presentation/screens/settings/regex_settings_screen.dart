@@ -9,6 +9,7 @@ import 'package:native_tavern/presentation/providers/regex_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing regex scripts
 class RegexSettingsScreen extends ConsumerWidget {
@@ -282,10 +283,10 @@ class RegexSettingsScreen extends ConsumerWidget {
     switch (action) {
       case 'add_presets':
         ref.read(globalRegexScriptsProvider.notifier).addPresets();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!.presetScriptsAdded),
-                    duration: const Duration(seconds: 1)),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!.presetScriptsAdded,
+          duration: const Duration(seconds: 1),
         );
         break;
       case 'import':
@@ -390,20 +391,15 @@ class RegexSettingsScreen extends ConsumerWidget {
             .importScripts(jsonContent);
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text(AppLocalizations.of(context)!.importedCount(count))),
+          AppToast.show(
+            context,
+            AppLocalizations.of(context)!.importedCount(count),
           );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context).importFailed('$e')),
-          ),
-        );
+        AppToast.show(context, AppLocalizations.of(context).importFailed('$e'));
       }
     }
   }
@@ -439,11 +435,10 @@ class RegexSettingsScreen extends ConsumerWidget {
           ElevatedButton.icon(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: json));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content:
-                        Text(AppLocalizations.of(context)!.copiedToClipboard),
-                          duration: const Duration(seconds: 1)),
+              AppToast.show(
+                context,
+                AppLocalizations.of(context)!.copiedToClipboard,
+                duration: const Duration(seconds: 1),
               );
             },
             icon: const Icon(Icons.copy),
@@ -739,10 +734,9 @@ class _RegexScriptEditorState extends State<_RegexScriptEditor> {
 
   void _save() {
     if (_nameController.text.isEmpty || _findController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).nameAndPatternRequired),
-        ),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context).nameAndPatternRequired,
       );
       return;
     }

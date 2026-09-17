@@ -11,6 +11,7 @@ import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.da
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for managing prompt section order and visibility
 class PromptManagerScreen extends ConsumerWidget {
@@ -235,10 +236,10 @@ class PromptManagerScreen extends ConsumerWidget {
                               ref
                                   .read(customPresetsProvider.notifier)
                                   .deletePreset(preset.id);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(AppLocalizations.of(context)!
-                                        .deleted(preset.name))),
+                              AppToast.show(
+                                context,
+                                AppLocalizations.of(context)!
+                                .deleted(preset.name),
                               );
                             },
                           ),
@@ -250,10 +251,10 @@ class PromptManagerScreen extends ConsumerWidget {
                           .read(activePresetIdProvider.notifier)
                           .setActivePreset(preset.id);
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(AppLocalizations.of(context)!
-                                .applied(preset.name))),
+                      AppToast.show(
+                        context,
+                        AppLocalizations.of(context)!
+                        .applied(preset.name),
                       );
                     },
                   );
@@ -298,10 +299,9 @@ class PromptManagerScreen extends ConsumerWidget {
         ref.read(activePresetIdProvider.notifier).setActivePreset(preset.id);
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text(AppLocalizations.of(context)!.imported(preset.name))),
+          AppToast.show(
+            context,
+            AppLocalizations.of(context)!.imported(preset.name),
           );
         }
       } else {
@@ -310,10 +310,10 @@ class PromptManagerScreen extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .importPresetFailed(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .importPresetFailed(e.toString()),
         );
       }
     }
@@ -367,10 +367,10 @@ class PromptManagerScreen extends ConsumerWidget {
       ));
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .exportPresetFailed(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .exportPresetFailed(e.toString()),
         );
       }
     }
@@ -414,10 +414,10 @@ class PromptManagerScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(AppLocalizations.of(context)!
-                          .pleaseEnterNameMessage)),
+                AppToast.show(
+                  context,
+                  AppLocalizations.of(context)!
+                  .pleaseEnterNameMessage,
                 );
                 return;
               }
@@ -445,17 +445,14 @@ class PromptManagerScreen extends ConsumerWidget {
       ref.read(activePresetIdProvider.notifier).setActivePreset(preset.id);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!.saved(preset.name))),
-        );
+        AppToast.show(context, AppLocalizations.of(context)!.saved(preset.name));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .saveFailedMessage(e.toString()))),
+        AppToast.show(
+          context,
+          AppLocalizations.of(context)!
+          .saveFailedMessage(e.toString()),
         );
       }
     }
@@ -477,10 +474,9 @@ class PromptManagerScreen extends ConsumerWidget {
               ref.read(promptManagerProvider.notifier).resetToDefault();
               ref.read(activePresetIdProvider.notifier).setActivePreset(null);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                        AppLocalizations.of(context)!.resetToDefaultConfig)),
+              AppToast.show(
+                context,
+                AppLocalizations.of(context)!.resetToDefaultConfig,
               );
             },
             child: Text(AppLocalizations.of(context)!.reset),
@@ -688,13 +684,12 @@ class PromptManagerScreen extends ConsumerWidget {
                     );
               }
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.updated(
-                    section.isCustom ? newName : displayName,
-                  )),
-                          duration: const Duration(seconds: 1)
+              AppToast.show(
+                context,
+                l10n.updated(
+                  section.isCustom ? newName : displayName,
                 ),
+                duration: const Duration(seconds: 1),
               );
             },
             child: Text(AppLocalizations.of(context)!.save),

@@ -12,6 +12,7 @@ import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/neko_card.dart';
 import 'package:native_tavern/presentation/widgets/privacy/ai_data_sharing_consent_gate.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) {
   return PackageInfo.fromPlatform();
@@ -249,11 +250,10 @@ class SettingsScreen extends ConsumerWidget {
                   if (info == null) return;
                   final version = '${info.version}+${info.buildNumber}';
                   Clipboard.setData(ClipboardData(text: version));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${l10n.copiedToClipboard}: $version'),
-                      duration: const Duration(seconds: 1),
-                    ),
+                  AppToast.show(
+                    context,
+                    '${l10n.copiedToClipboard}: $version',
+                    duration: const Duration(seconds: 1),
                   );
                 },
               ),
@@ -310,11 +310,10 @@ class _PersonaTile extends ConsumerWidget {
         final personaName =
             activePersonaAsync.valueOrNull?.name ?? l10n.default_;
         Clipboard.setData(ClipboardData(text: personaName));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${l10n.copiedToClipboard}: $personaName'),
-            duration: const Duration(seconds: 1),
-          ),
+        AppToast.show(
+          context,
+          '${l10n.copiedToClipboard}: $personaName',
+          duration: const Duration(seconds: 1),
         );
       },
     );
@@ -452,11 +451,10 @@ class _LanguageTile extends ConsumerWidget {
       onTap: () => _showLanguageSelector(context, ref),
       onLongPress: () {
         Clipboard.setData(ClipboardData(text: currentLanguage));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${l10n.copiedToClipboard}: $currentLanguage'),
-            duration: const Duration(seconds: 1),
-          ),
+        AppToast.show(
+          context,
+          '${l10n.copiedToClipboard}: $currentLanguage',
+          duration: const Duration(seconds: 1),
         );
       },
     );
@@ -510,11 +508,10 @@ class _LanguageTile extends ConsumerWidget {
                     onTap: () {
                       ref.read(localeProvider.notifier).resetToSystem();
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.languageChanged),
-                                  duration: const Duration(seconds: 1)
-                        ),
+                      AppToast.show(
+                        context,
+                        l10n.languageChanged,
+                        duration: const Duration(seconds: 1),
                       );
                     },
                   ),
@@ -534,11 +531,10 @@ class _LanguageTile extends ConsumerWidget {
                       onTap: () {
                         ref.read(localeProvider.notifier).setLocale(sl.locale);
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.languageChanged),
-                                    duration: const Duration(seconds: 1)
-                          ),
+                        AppToast.show(
+                          context,
+                          l10n.languageChanged,
+                          duration: const Duration(seconds: 1),
                         );
                       },
                     );

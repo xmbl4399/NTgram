@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Enhanced Persona Editor Screen with all new fields
 class PersonaEditorScreen extends ConsumerStatefulWidget {
@@ -705,9 +706,7 @@ class _PersonaEditorScreenState extends ConsumerState<PersonaEditorScreen>
 
   void _showError(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      AppToast.show(context, message);
     }
   }
 }

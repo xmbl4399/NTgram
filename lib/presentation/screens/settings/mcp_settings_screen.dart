@@ -7,6 +7,7 @@ import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/mcp_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:uuid/uuid.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 class McpSettingsScreen extends ConsumerWidget {
   const McpSettingsScreen({super.key});
@@ -121,9 +122,7 @@ class McpSettingsScreen extends ConsumerWidget {
       await operation();
     } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(sanitizeMcpDiagnostic(error.toString()))),
-      );
+      AppToast.show(context, sanitizeMcpDiagnostic(error.toString()));
     }
   }
 }

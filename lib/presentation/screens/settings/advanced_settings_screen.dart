@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
 import 'package:native_tavern/presentation/providers/settings_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Advanced settings screen for full sampler control
 class AdvancedSettingsScreen extends ConsumerWidget {
@@ -512,8 +513,10 @@ class AdvancedSettingsScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(llmConfigProvider.notifier).resetToDefaults();
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settingsResetToDefaults),duration: const Duration(seconds: 1)),
+              AppToast.show(
+                context,
+                l10n.settingsResetToDefaults,
+                duration: const Duration(seconds: 1),
               );
             },
             child: Text(l10n.reset),

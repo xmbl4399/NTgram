@@ -101,7 +101,11 @@ abstract class AppRoutes {
 }
 
 /// Navigation keys for nested navigation
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+///
+/// [rootNavigatorKey] is public so widgets built *outside* the router — the
+/// `MaterialApp.builder` overlays such as the debug log viewer — can still
+/// reach the root [Overlay] (see `AppToast.rootOverlayResolver`).
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Shared navigator observer. Registered on the GoRouter so it observes both
@@ -119,7 +123,7 @@ final ValueNotifier<bool> bottomSheetNavSignal = ValueNotifier<bool>(false);
 /// App router provider
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     observers: [routeObserver],
@@ -179,13 +183,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.characterCreate,
         name: 'characterCreate',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const CharacterEditorScreen(),
       ),
       GoRoute(
         path: AppRoutes.characterEdit,
         name: 'characterEdit',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return CharacterEditorScreen(characterId: id);
@@ -194,7 +198,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.characterDetail,
         name: 'characterDetail',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return CharacterDetailScreen(characterId: id);
@@ -203,7 +207,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.chat,
         name: 'chat',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ChatScreen(
@@ -216,61 +220,61 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.import_,
         name: 'import',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const ImportScreen(),
       ),
       GoRoute(
         path: AppRoutes.personas,
         name: 'personas',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const PersonasScreen(),
       ),
       GoRoute(
         path: AppRoutes.promptManager,
         name: 'promptManager',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const PromptManagerScreen(),
       ),
       GoRoute(
         path: AppRoutes.advancedSettings,
         name: 'advancedSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const AdvancedSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.quickReplies,
         name: 'quickReplies',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const QuickReplyScreen(),
       ),
       GoRoute(
         path: AppRoutes.backgroundSettings,
         name: 'backgroundSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const BackgroundSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.themeSettings,
         name: 'themeSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const ThemeSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.statistics,
         name: 'statistics',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const StatisticsScreen(),
       ),
       GoRoute(
         path: AppRoutes.aiPresets,
         name: 'aiPresets',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const AIPresetsScreen(),
       ),
       GoRoute(
         path: AppRoutes.chatStatistics,
         name: 'chatStatistics',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return StatisticsScreen(chatId: id);
@@ -279,13 +283,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.groups,
         name: 'groups',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const GroupsScreen(),
       ),
       GoRoute(
         path: AppRoutes.groupDetail,
         name: 'groupDetail',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return GroupDetailScreen(groupId: id);
@@ -294,19 +298,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.tags,
         name: 'tags',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TagsScreen(),
       ),
       GoRoute(
         path: AppRoutes.spriteSettings,
         name: 'spriteSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SpriteSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.characterSprites,
         name: 'characterSprites',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           final name = state.uri.queryParameters['name'] ?? 'Character';
@@ -316,7 +320,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.characterLive2D,
         name: 'characterLive2D',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return Live2DSettingsScreen(characterId: id);
@@ -325,37 +329,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.ttsSettings,
         name: 'ttsSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TTSSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.sttSettings,
         name: 'sttSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const STTSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.translationSettings,
         name: 'translationSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TranslationSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.imageGenSettings,
         name: 'imageGenSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const ImageGenSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.regexSettings,
         name: 'regexSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const RegexSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.variablesSettings,
         name: 'variablesSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final chatId = state.uri.queryParameters['chatId'];
           return VariablesSettingsScreen(chatId: chatId);
@@ -364,25 +368,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.backupSettings,
         name: 'backupSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         redirect: (context, state) => AppRoutes.cloudBackupSettings,
       ),
       GoRoute(
         path: AppRoutes.cloudBackupSettings,
         name: 'cloudBackupSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const CloudBackupScreen(),
       ),
       GoRoute(
         path: AppRoutes.logitBiasSettings,
         name: 'logitBiasSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const LogitBiasSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.cfgScaleSettings,
         name: 'cfgScaleSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final characterId = state.uri.queryParameters['characterId'];
           final chatId = state.uri.queryParameters['chatId'];
@@ -395,49 +399,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.logprobsSettings,
         name: 'logprobsSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const LogprobsSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.tokenizerSettings,
         name: 'tokenizerSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const TokenizerSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.vectorStorageSettings,
         name: 'vectorStorageSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const VectorStorageSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.memoryInbox,
         name: 'memoryInbox',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const MemoryInboxScreen(),
       ),
       GoRoute(
         path: AppRoutes.capabilityDiagnostics,
         name: 'capabilityDiagnostics',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const CapabilityDiagnosticsScreen(),
       ),
       GoRoute(
         path: AppRoutes.mcpSettings,
         name: 'mcpSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const McpSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.toolCallingSettings,
         name: 'toolCallingSettings',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const ToolCallingSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.playStory,
         name: 'playStory',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => StoryScreen(
           initialChatId: state.uri.queryParameters['chat'],
         ),
@@ -445,25 +449,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.playMoments,
         name: 'playMoments',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const MomentsScreen(),
       ),
       GoRoute(
         path: AppRoutes.dataBank,
         name: 'dataBank',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const DataBankScreen(),
       ),
       GoRoute(
         path: AppRoutes.rpgScenarioEditor,
         name: 'rpgScenarioEditor',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const RpgScenarioEditorScreen(),
       ),
       GoRoute(
         path: AppRoutes.storageManagement,
         name: 'storageManagement',
-        parentNavigatorKey: _rootNavigatorKey,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const StorageManagementScreen(),
       ),
     ],

@@ -8,6 +8,7 @@ import 'package:native_tavern/presentation/providers/logit_bias_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/presentation/widgets/common/adaptive_popup_menu.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Settings screen for Logit Bias configuration
 class LogitBiasSettingsScreen extends ConsumerStatefulWidget {
@@ -248,16 +249,15 @@ class _LogitBiasSettingsScreenState
           ref.read(logitBiasSettingsProvider.notifier).exportPreset(presetId);
       final jsonString = const JsonEncoder.withIndent('  ').convert(json);
       Clipboard.setData(ClipboardData(text: jsonString));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(AppLocalizations.of(context)!.presetCopiedToClipboard)),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context)!.presetCopiedToClipboard,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!
-                .exportPresetFailed(e.toString()))),
+      AppToast.show(
+        context,
+        AppLocalizations.of(context)!
+        .exportPresetFailed(e.toString()),
       );
     }
   }
@@ -288,16 +288,16 @@ class _LogitBiasSettingsScreenState
                     jsonDecode(controller.text) as Map<String, dynamic>;
                 ref.read(logitBiasSettingsProvider.notifier).importPreset(json);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(AppLocalizations.of(context)!
-                          .presetImportedSuccessfully)),
+                AppToast.show(
+                  context,
+                  AppLocalizations.of(context)!
+                  .presetImportedSuccessfully,
                 );
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(AppLocalizations.of(context)!
-                          .importPresetFailed(e.toString()))),
+                AppToast.show(
+                  context,
+                  AppLocalizations.of(context)!
+                  .importPresetFailed(e.toString()),
                 );
               }
             },

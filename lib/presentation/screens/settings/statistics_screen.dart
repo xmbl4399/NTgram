@@ -4,6 +4,7 @@ import '../../../data/models/chat_statistics.dart';
 import '../../providers/statistics_providers.dart';
 import '../../theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Screen for viewing app and chat statistics
 class StatisticsScreen extends ConsumerWidget {
@@ -48,8 +49,10 @@ class StatisticsScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(appStatisticsProvider.notifier).reset();
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.statisticsReset),duration: const Duration(seconds: 1)),
+              AppToast.show(
+                context,
+                l10n.statisticsReset,
+                duration: const Duration(seconds: 1),
               );
             },
             child: Text(l10n.reset),

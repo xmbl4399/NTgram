@@ -5,6 +5,7 @@ import 'package:native_tavern/data/models/logprobs.dart';
 import 'package:native_tavern/presentation/providers/logprobs_providers.dart';
 import 'package:native_tavern/presentation/theme/app_theme.dart';
 import 'package:native_tavern/l10n/generated/app_localizations.dart';
+import 'package:native_tavern/presentation/widgets/app_toast.dart';
 
 /// Panel for displaying token log probabilities
 class LogprobsPanel extends ConsumerWidget {
@@ -65,11 +66,10 @@ class LogprobsPanel extends ConsumerWidget {
                 tokenLogprob: selectedToken,
                 onAlternativeSelected: (alternative) {
                   // TODO: Implement reroll with alternative token
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppLocalizations.of(context)
-                          .rerollAlternativeNotImplemented(alternative)),
-                    ),
+                  AppToast.show(
+                    context,
+                    AppLocalizations.of(context)
+                    .rerollAlternativeNotImplemented(alternative),
                   );
                 },
               ),
