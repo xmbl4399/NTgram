@@ -76,3 +76,8 @@ config/*
 assets_for_discord
 scripts
 .wrangler/cache/wrangler-account.json
+
+# 本地测试产物（截图 / 脚本输出 / 含密钥的 prefs 转储）
+/tools/out/
+/tools/__pycache__/
+/photo/*.png
