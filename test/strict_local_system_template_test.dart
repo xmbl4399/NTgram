@@ -5,12 +5,20 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:native_tavern/domain/services/llm_service.dart';
 
-/// llama.cpp / Qwen 等严格 Jinja 模板只接受「恰好一条、且位于第一条」的
-/// system 消息，历史之后的 system（Post-History Instructions / Author's Note /
-/// 深度注入）会让服务端直接返回 HTTP 500
-/// `Jinja Exception: System message must be at the beginning.`
+/// Post-History Instructions 以及按深度注入的 Author's Note / World Info
+/// **一律保持 system 角色**发送（2026-09-18 起）。
 ///
-/// 这些用例锁定本地/局域网端点的兼容降级行为，并确保云端端点不受影响。
+/// 背景：这里曾按端点自动降级 —— 本地/局域网端点把首条之后的 system 改写为
+/// user，以绕过 Qwen / llama.cpp 严格 Jinja 模板的
+/// `raise_exception('System message must be at the beginning.')`（否则 500）。
+///
+/// 但降级有两个副作用：
+///   1. 「历史后指令」与上一条用户发言**角色相同且相邻**，模型会把提示词
+///      误当成用户又说了句话；
+///   2. 部分角色卡要求 system 级 jailbreak 才生效，降级后形同失效。
+///
+/// 为兼容大多数角色卡，改为全端点统一保持 system 角色。严格模板端点需自行
+/// 放宽模板（见 README「本地模型」小节）。
 void main() {
   const rearSystemChat = [
     {'role': 'system', 'content': 'You are Aqua.'},
@@ -19,7 +27,7 @@ void main() {
     {'role': 'system', 'content': '[System note: stay in character.]'},
   ];
 
-  test('local LAN endpoint demotes the rear system message to user', () async {
+  test('local LAN endpoint keeps the rear system message as system', () async {
     final adapter = _RecordingLlmAdapter();
     final service = LLMService(dio: Dio()..httpClientAdapter = adapter);
 
@@ -28,33 +36,24 @@ void main() {
       _config('http://10.0.0.244:9931/v1'),
     );
 
-    expect(_messages(adapter.lastOptions), [
-      {'role': 'system', 'content': 'You are Aqua.'},
-      {'role': 'user', 'content': 'Tell me a story.'},
-      {'role': 'assistant', 'content': 'Once upon a time'},
-      {'role': 'user', 'content': '[System note: stay in character.]'},
-    ]);
+    expect(_messages(adapter.lastOptions), rearSystemChat);
   });
 
-  test('only the first of several leading system messages stays a system',
-      () async {
+  test('loopback endpoint keeps rear system messages as system', () async {
     final adapter = _RecordingLlmAdapter();
     final service = LLMService(dio: Dio()..httpClientAdapter = adapter);
+    const messages = [
+      {'role': 'system', 'content': 'First.'},
+      {'role': 'system', 'content': 'Second.'},
+      {'role': 'user', 'content': 'hi'},
+    ];
 
     await service.generateWithReasoning(
-      const [
-        {'role': 'system', 'content': 'First.'},
-        {'role': 'system', 'content': 'Second.'},
-        {'role': 'user', 'content': 'hi'},
-      ],
+      messages,
       _config('http://127.0.0.1:8080/v1'),
     );
 
-    expect(_messages(adapter.lastOptions), [
-      {'role': 'system', 'content': 'First.'},
-      {'role': 'user', 'content': 'Second.'},
-      {'role': 'user', 'content': 'hi'},
-    ]);
+    expect(_messages(adapter.lastOptions), messages);
   });
 
   test('cloud endpoints keep rear system messages untouched', () async {
@@ -69,8 +68,7 @@ void main() {
     expect(_messages(adapter.lastOptions), rearSystemChat);
   });
 
-  test('local endpoint without rear system messages is left untouched',
-      () async {
+  test('callers keep their own message list free of mutation', () async {
     final adapter = _RecordingLlmAdapter();
     final service = LLMService(dio: Dio()..httpClientAdapter = adapter);
     const clean = [

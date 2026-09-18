@@ -579,86 +579,26 @@ class LLMService {
     List<Map<String, dynamic>> messages,
     LLMConfig config,
   ) {
-    final prepared = _demoteRearSystemMessages(messages, config);
+    // Post-History Instructions 以及按深度注入的 Author's Note / World Info
+    // 一律保持 system 角色发送（2026-09-18 起）。
+    //
+    // 历史上这里曾按端点自动降级：本地/局域网端点把首条之后的 system 改写为
+    // user，以绕过 Qwen / llama.cpp 严格 Jinja 模板的
+    // `raise_exception('System message must be at the beginning.')`（否则 500）。
+    // 但降级会让「历史后指令」与上一条用户发言**角色相同且相邻**，模型会把
+    // 提示词误当成用户又说了句话；同时部分角色卡本身要求 system 级 jailbreak
+    // 才生效。为兼容大多数角色卡，改为全端点统一保持 system 角色，
+    // 严格模板端点需自行放宽模板（见 README「本地模型」小节）。
     if (!_isGroqCompound(config) ||
-        prepared.isEmpty ||
-        prepared.last['role'] != 'assistant') {
-      return prepared;
+        messages.isEmpty ||
+        messages.last['role'] != 'assistant') {
+      return messages;
     }
 
     return [
-      ...prepared,
+      ...messages,
       const {'role': 'user', 'content': 'Continue.'},
     ];
-  }
-
-  /// Qwen / llama.cpp 等严格 Jinja 模板只接受「恰好一条、且位于第一条」的
-  /// system 消息：`{%- if message.role == "system" %}{%- if not loop.first %}`
-  /// `{{- raise_exception('System message must be at the beginning.') }}`。
-  ///
-  /// 而本应用会在对话历史之后追加 system 提示（Post-History Instructions，
-  /// 以及按深度注入的 Author's Note / World Info / 角色 depth prompt），
-  /// 于是请求必被服务端以 HTTP 500 拒绝。DeepSeek 等云厂商不校验位置，
-  /// 所以同一份提示词在线上正常、在本地端点报错。
-  ///
-  /// 兼容策略：仅在本地/局域网端点上，把首条之外的 system 降级为 user
-  /// （保留注入位置与顺序，实测能通过模板校验且输出正常）。云端端点保持
-  /// 原样，避免改变已验证过的提示词行为。
-  List<Map<String, dynamic>> _demoteRearSystemMessages(
-    List<Map<String, dynamic>> messages,
-    LLMConfig config,
-  ) {
-    if (!_usesStrictSystemTemplate(config)) return messages;
-
-    var needsRewrite = false;
-    for (var i = 1; i < messages.length; i++) {
-      if (messages[i]['role'] == 'system') {
-        needsRewrite = true;
-        break;
-      }
-    }
-    if (!needsRewrite) return messages;
-
-    final rewritten = <Map<String, dynamic>>[];
-    var demoted = 0;
-    for (var i = 0; i < messages.length; i++) {
-      final message = messages[i];
-      if (i > 0 && message['role'] == 'system') {
-        rewritten.add({...message, 'role': 'user'});
-        demoted++;
-      } else {
-        rewritten.add(message);
-      }
-    }
-    if (demoted > 0) {
-      debugPrint(
-        '[LLMService] Strict local chat template: demoted $demoted '
-        'rear system message(s) to user.',
-      );
-    }
-    return rewritten;
-  }
-
-  /// True for endpoints that typically run llama.cpp / LM Studio or another
-  /// local server using a strict half-open chat template. Ollama/KoboldCpp use
-  /// their own request builders and never reach this path.
-  bool _usesStrictSystemTemplate(LLMConfig config) {
-    final host = Uri.tryParse(config.apiUrl)?.host.toLowerCase() ?? '';
-    if (host.isEmpty) return false;
-    if (host == 'localhost' ||
-        host == '127.0.0.1' ||
-        host == '::1' ||
-        host.endsWith('.local')) {
-      return true;
-    }
-    final octets = host.split('.');
-    if (octets.length != 4) return false;
-    final first = int.tryParse(octets[0]);
-    final second = int.tryParse(octets[1]);
-    if (first == null || second == null) return false;
-    return first == 10 ||
-        (first == 192 && second == 168) ||
-        (first == 172 && second >= 16 && second <= 31);
   }
 
   /// Abort the current request, if any
