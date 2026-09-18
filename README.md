@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  🌐 <a href="https://github.com/miaoxworld/NativeTavern">上游 NativeTavern</a> · Android applicationId <code>com.xmbl4399.ntgram</code> · 当前 <code>v0.1.12+33</code>
+  🌐 <a href="https://github.com/miaoxworld/NativeTavern">上游 NativeTavern</a> · Android applicationId <code>com.xmbl4399.ntgram</code> · 当前 <code>v0.1.12+34</code>
 </p>
 
 [miaoxworld/NativeTavern](https://github.com/miaoxworld/NativeTavern) 的二次改造 fork。整体 UI 重写为 **Neko 风格**（视觉范式参考 Telegram 第三方客户端 [Nekogram](https://github.com/Nekogram/Nekogram)），同时扩展数据模型、修复上游构建链路、精简原生层。
@@ -59,6 +59,19 @@ app 首次启动即启用内置预设 **「DS-zh」**（Temp 0.7 / TopP 0.95 / T
 
 
 ## 相对上游 miaoxworld/NativeTavern 的更改
+
+### ⬆️ 同步上游修复（v0.1.12+34）
+
+以上游 `v0.1.16+40` 为内容基线（本仓库历史与上游无共同祖先，故按提交逐条 `cherry-pick`）。`v0.1.12+34` 吸收 4 个：
+
+| 上游提交 | 内容 |
+|---|---|
+| `094fdb7` | 采样器**分参数发送开关**（每个采样参数可单独决定是否随请求发送）+ 2 个测试 |
+| `a006b37` | MCP 能力按**实际已落库的设置状态**上报（此前会虚报可用） |
+| `b2b796d` | 应用连接配置时**不再清空 API key** |
+| `d7e2906` | 启动时从提供商配置行**找回**活动行丢失的 API key |
+
+同版本另修一处自有 bug：`v0.1.12+32` 带来的「1M→300K 上下文迁移」会把 `v0.1.12+33` 刚设成 1M 的 DS-zh 预设**在下次启动时降级回 300K**，迁移已移除、默认恢复 1M（`test/context_length_persistence_test.dart` 锁定）。
 
 ### 🎨 UI：Neko 风格重写（参考 Nekogram）
 
