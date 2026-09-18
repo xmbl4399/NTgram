@@ -7,10 +7,10 @@
 </p>
 
 <p align="center">
-  🌐 <a href="https://github.com/fatsnk/NativeTavern">上游 NativeTavern</a> · Android applicationId <code>com.xmbl4399.ntgram</code> · 当前 <code>v0.1.12+33</code>
+  🌐 <a href="https://github.com/miaoxworld/NativeTavern">上游 NativeTavern</a> · Android applicationId <code>com.xmbl4399.ntgram</code> · 当前 <code>v0.1.12+33</code>
 </p>
 
-NativeTavern 的二次改造 fork。整体 UI 重写为 **Neko 风格**（视觉范式参考 Telegram 第三方客户端 [Nekogram](https://github.com/Nekogram/Nekogram)），同时扩展数据模型、修复上游构建链路、精简原生层。
+[miaoxworld/NativeTavern](https://github.com/miaoxworld/NativeTavern) 的二次改造 fork。整体 UI 重写为 **Neko 风格**（视觉范式参考 Telegram 第三方客户端 [Nekogram](https://github.com/Nekogram/Nekogram)），同时扩展数据模型、修复上游构建链路、精简原生层。
 
 
 ## 推荐系统提示词（中文角色扮演）
@@ -58,7 +58,7 @@ app 首次启动即启用内置预设 **「DS-zh」**（Temp 0.7 / TopP 0.95 / T
 | Neko 风格列表卡片 + 玻璃化底栏 | 当前预设 / 模板 / LLM 连接分组 | 头像 + 描述卡片化呈现 |
 
 
-## 相对上游 fatsnk/NativeTavern 的更改
+## 相对上游 miaoxworld/NativeTavern 的更改
 
 ### 🎨 UI：Neko 风格重写（参考 Nekogram）
 
@@ -314,7 +314,7 @@ AGPL-3.0 — 详见 [LICENSE](LICENSE)。
 
 ## 致谢
 
-- [fatsnk/NativeTavern](https://github.com/fatsnk/NativeTavern) — 上游项目
+- [miaoxworld/NativeTavern](https://github.com/miaoxworld/NativeTavern) — 上游项目
 - [SillyTavern](https://github.com/SillyTavern/SillyTavern) — 原始 Web 项目
 - [Nekogram](https://github.com/Nekogram/Nekogram) — Neko 视觉风格灵感来源
 - [Flutter](https://flutter.dev) · [Riverpod](https://riverpod.dev)

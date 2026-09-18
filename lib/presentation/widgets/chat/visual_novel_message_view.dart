@@ -110,7 +110,7 @@ class _VisualNovelMessageViewState
 
   /// The `n / total` pill that floats directly above the bubble.
   ///
-  /// Visual style is taken verbatim from the upstream (`fatsnk/NativeTavern`)
+  /// Visual style is taken verbatim from the upstream (`miaoxworld/NativeTavern`)
   /// navigation bar: a `Colors.black38` pill, 20 radius, 16/6 padding, white
   /// 13px medium text. Only its *position* changed — upstream drew it in a
   /// chrome row at the top, here it sits centred on top of the bubble so the
