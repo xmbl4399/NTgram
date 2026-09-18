@@ -46,15 +46,15 @@ class LLMConfigNotifier extends StateNotifier<LLMConfig> {
   static const _configKey = 'llm_config';
   static const _providerConfigKeyPrefix = 'llm_provider_config_';
 
-  /// Context window this fork shipped with before 0.1.12+32. Anything still on
-  /// exactly this value has never been touched by the user, so it is safe to
-  /// migrate to [_defaultContextLength].
-  static const _legacyDefaultContextLength = 1000000;
-
-  /// 300K — matches the built-in DS-zh preset. A 1M window is unreachable in
-  /// practice for RP and makes long histories slow and expensive well before the
-  /// model actually runs out of room.
-  static const _defaultContextLength = 300000;
+  /// 1M — matches the built-in DS-zh preset.
+  ///
+  /// 0.1.12+32 shipped 300K and migrated configs still sitting on the old 1M
+  /// default down to it. Since 0.1.12+33 the DS-zh preset is 1M again, and that
+  /// value-based migration silently undid the preset on the next launch (a 1M
+  /// config is indistinguishable from the old default). Removed in 0.1.12+34:
+  /// the context window is no longer migrated, so whatever the user or a preset
+  /// writes is what stays.
+  static const _defaultContextLength = 1000000;
 
   LLMConfigNotifier(this._prefs, this._db) : super(_defaultConfig()) {
     _loadConfig();
@@ -333,26 +333,15 @@ class LLMConfigNotifier extends StateNotifier<LLMConfig> {
           }
         }
 
-        // One-off migration: the shipped default context window shrank from 1M
-        // to 300K. A config still sitting on exactly the old default was never
-        // edited, so bump it; any other value is the user's own choice.
-        final migrated = loaded.contextLength == _legacyDefaultContextLength
-            ? loaded.copyWith(contextLength: _defaultContextLength)
-            : loaded;
-        final contextMigrated = migrated.contextLength != loaded.contextLength;
-
         if (!_stateChangedBeforeLoad) {
-          state = migrated.copyWith(
-            apiUrl: _normalizeApiUrl(migrated.provider, migrated.apiUrl),
+          state = loaded.copyWith(
+            apiUrl: _normalizeApiUrl(loaded.provider, loaded.apiUrl),
           );
         }
 
-        if (needsMigration || contextMigrated || healed) {
+        if (needsMigration || healed) {
           if (needsMigration) {
             _log('Migrating LLM config from SharedPreferences to Database');
-          }
-          if (contextMigrated) {
-            _log('Migrated context length 1M → 300K');
           }
           if (healed) {
             _log(

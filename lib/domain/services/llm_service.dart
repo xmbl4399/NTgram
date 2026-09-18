@@ -354,10 +354,10 @@ class LLMConfig {
     required this.apiKey,
     required this.apiUrl,
     this.maxTokens = 8192,
-    // 300K, matching the built-in DS-zh preset. A 1M window is rarely reachable
-    // in practice and makes long RP histories slow and expensive long before the
-    // model actually runs out of room.
-    this.contextLength = 300000,
+    // 1M, matching the built-in DS-zh preset. Restored in 0.1.12+34 together
+    // with the removal of the 1M→300K config migration (see
+    // settings_providers.dart `_defaultContextLength`).
+    this.contextLength = 1000000,
     this.temperature = 1,
     this.topP = 0.95,
     this.topK = 40,
@@ -500,7 +500,7 @@ class LLMConfig {
         apiKey: json['apiKey'] as String? ?? '',
         apiUrl: json['apiUrl'] as String? ?? 'https://api.openai.com/v1',
         maxTokens: json['maxTokens'] as int? ?? 8192,
-        contextLength: json['contextLength'] as int? ?? 300000,
+        contextLength: json['contextLength'] as int? ?? 1000000,
         temperature: (json['temperature'] as num?)?.toDouble() ?? 0.8,
         topP: (json['topP'] as num?)?.toDouble() ?? 0.95,
         topK: json['topK'] as int? ?? 40,
